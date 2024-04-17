@@ -26,6 +26,20 @@ impl ZCinema {
     fn clone_media(&self) -> Vec<Rc<Serial>> {
         self.media.iter().map(|m| Rc::clone(&m)).collect()
     }
+
+    fn add_serial_dialog(&mut self) {
+        self.dialog = Dialog::add_serial();
+    }
+
+    fn change_serial_dialog(&mut self, id: usize) {
+        let serial = self.media[id].borrow();
+        self.dialog = Dialog::change_serial(serial, id)
+    }
+
+    fn main_window(&mut self) {
+        let media = self.clone_media();
+        self.dialog = Dialog::main_window(media);
+    }
 }
 
 impl Sandbox for ZCinema {
@@ -44,12 +58,9 @@ impl Sandbox for ZCinema {
 
     fn update(&mut self, message: Self::Message) {
         match message {
-            Message::MainWindow(main_window::Message::AddSerial) => {
-                self.dialog = Dialog::add_serial();
-            }
+            Message::MainWindow(main_window::Message::AddSerial) => self.add_serial_dialog(),
             Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
-                let serial = self.media[id].borrow();
-                self.dialog = Dialog::change_serial(serial, id);
+                self.change_serial_dialog(id)
             }
             Message::SerialChange(serial_chamge_dialog::Message::Accept) => {
                 if let Dialog::SerialChange(dialog) = self.dialog.borrow_mut() {
@@ -60,11 +71,11 @@ impl Sandbox for ZCinema {
                         let serial = Serial::new(dialog.name.clone());
                         self.media.push(Rc::new(serial));
                     }
-                    self.dialog = Dialog::main_window(self.clone_media());
+                    self.main_window();
                 }
             }
             Message::SerialChange(serial_chamge_dialog::Message::Back) => {
-                self.dialog = Dialog::main_window(self.clone_media());
+                self.main_window();
             }
             Message::SerialChange(dialog_message) => {
                 if let Dialog::SerialChange(dialog) = self.dialog.borrow_mut() {
