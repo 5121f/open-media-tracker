@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::Context;
 use error_dialog::ErrorDialog;
-use iced::{Element, Sandbox, Settings, Theme};
+use iced::{widget::shader::wgpu::core::error, Element, Sandbox, Settings, Theme};
 
 use crate::{main_window::MainWindow, serial_chamge_dialog::SerialChangeDialog};
 
@@ -197,6 +197,7 @@ mod main_window {
 mod serial_chamge_dialog {
     use std::num::NonZeroU8;
 
+    use anyhow::anyhow;
     use iced::{
         widget::{button, column, horizontal_space, row, text, text_input},
         Element,
@@ -211,6 +212,10 @@ mod serial_chamge_dialog {
         NameChanged(String),
         SeasonChanged(String),
         SeriaChanged(String),
+        SeasonInc,
+        SeasonDec,
+        SeriaInc,
+        SeriaDec,
     }
 
     pub struct SerialChangeDialog {
@@ -251,11 +256,15 @@ mod serial_chamge_dialog {
                 ],
                 row![
                     text("Season"),
-                    text_input("Season", &self.season.to_string()).on_input(Message::SeasonChanged)
+                    text_input("Season", &self.season.to_string()).on_input(Message::SeasonChanged),
+                    button("-").on_press(Message::SeasonDec),
+                    button("+").on_press(Message::SeasonInc)
                 ],
                 row![
                     text("Seria"),
-                    text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged)
+                    text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged),
+                    button("-").on_press(Message::SeriaDec),
+                    button("+").on_press(Message::SeriaInc)
                 ],
                 row![
                     horizontal_space(),
@@ -265,7 +274,7 @@ mod serial_chamge_dialog {
             .into()
         }
 
-        pub fn update(&mut self, message: Message) {
+        pub fn update(&mut self, message: Message) -> Result<(), Error> {
             match message {
                 Message::Back | Message::Accept => {}
                 Message::NameChanged(value) => self.name = value,
@@ -279,7 +288,22 @@ mod serial_chamge_dialog {
                         self.seria = number;
                     }
                 }
+                Message::SeasonInc => {
+                    self.season = self.season.checked_add(1).ok_or(Error::NumberOverflow)?;
+                }
+                Message::SeasonDec => {
+                    let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
+                    self.season = self.season.checked_mul(one).ok_or(Error::NumberOverflow)?;
+                }
+                Message::SeriaInc => {
+                    self.seria = self.seria.checked_add(1).ok_or(Error::NumberOverflow)?;
+                }
+                Message::SeriaDec => {
+                    let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
+                    self.seria = self.seria.checked_mul(one).ok_or(Error::NumberOverflow)?;
+                }
             }
+            Ok(())
         }
 
         pub fn build(&self) -> Serial {
@@ -350,4 +374,6 @@ impl Serial {
 enum Error {
     #[error("Season and seria number can not be zero")]
     SeasonAndSeriaCannotBeZero,
+    #[error("Number overflow")]
+    NumberOverflow,
 }
