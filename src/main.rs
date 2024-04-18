@@ -33,10 +33,6 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn clone_media(&self) -> Vec<Rc<Serial>> {
-        self.media.iter().map(|m| Rc::clone(&m)).collect()
-    }
-
     fn add_serial_dialog(&mut self) -> Result<(), Error> {
         self.dialog = Dialog::add_serial()?;
         Ok(())
@@ -48,7 +44,7 @@ impl ZCinema {
     }
 
     fn main_window(&mut self) {
-        let media = self.clone_media();
+        let media = clone_rc_vec(&self.media);
         self.dialog = Dialog::main_window(media);
     }
 
