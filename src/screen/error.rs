@@ -8,12 +8,12 @@ pub enum Message {
     Ok { critical: bool },
 }
 
-pub struct ErrorDialog {
+pub struct ErrorScreen {
     message: String,
     critical: bool,
 }
 
-impl ErrorDialog {
+impl ErrorScreen {
     pub fn new(message: impl ToString, critical: bool) -> Self {
         Self {
             message: message.to_string(),

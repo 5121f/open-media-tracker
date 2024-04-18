@@ -12,11 +12,11 @@ pub enum Message {
 }
 
 #[derive(Default)]
-pub struct MainWindow {
+pub struct MainScreen {
     media: Vec<Serial>,
 }
 
-impl MainWindow {
+impl MainScreen {
     pub fn new(media: Vec<Serial>) -> Self {
         Self { media }
     }

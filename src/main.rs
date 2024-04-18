@@ -1,5 +1,5 @@
-mod dialogs;
 mod error;
+mod screen;
 mod serial;
 
 use std::{
@@ -7,12 +7,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use dialogs::error_dialog::ErrorDialog;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
 
 use crate::{
-    dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
     error::{Error, Result},
+    screen::{
+        serial_edit, Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage,
+        SerialEditScreenMessage,
+    },
     serial::viewmodel::Serial,
 };
 
@@ -22,16 +24,16 @@ fn main() -> iced::Result {
 
 #[derive(Debug, Clone)]
 enum Message {
-    MainWindow(main_window::Message),
-    SerialChange(serial_edit_dialog::Message),
-    ErrorDialog(error_dialog::Message),
+    MainScreen(MainScreenMessage),
+    SerialEditScreen(SerialEditScreenMessage),
+    ErrorScreen(ErrorScreenMessage),
 }
 
 #[derive(Default)]
 struct ZCinema {
     media: Vec<Serial>,
     dialog: Dialog,
-    error_dialog: Option<ErrorDialog>,
+    error_dialog: Option<ErrorScreen>,
     state_dir: PathBuf,
 }
 
@@ -50,7 +52,7 @@ impl ZCinema {
     }
 
     fn error_dialog(&mut self, message: impl ToString, critical: bool) {
-        let dialog = ErrorDialog::new(message, critical);
+        let dialog = ErrorScreen::new(message, critical);
         self.error_dialog = Some(dialog);
     }
 
@@ -130,21 +132,21 @@ impl Application for ZCinema {
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
         match message {
-            Message::MainWindow(main_window::Message::AddSerial) => {
+            Message::MainScreen(MainScreenMessage::AddSerial) => {
                 self.add_serial_dialog();
                 Command::none()
             }
-            Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
+            Message::MainScreen(MainScreenMessage::ChangeSerial(id)) => {
                 self.change_serial_dialog(id);
                 Command::none()
             }
-            Message::SerialChange(serial_edit_dialog::Message::Accept {
+            Message::SerialEditScreen(SerialEditScreenMessage::Accept {
                 kind,
                 name,
                 season,
                 seria,
             }) => {
-                if let serial_edit_dialog::Kind::Change { id } = kind {
+                if let serial_edit::Kind::Change { id } = kind {
                     let res = self.media[id].rename(&self.state_dir, name);
                     self.handle_error(res, false);
                     self.media[id].change_season(season);
@@ -158,22 +160,22 @@ impl Application for ZCinema {
                 self.main_window();
                 Command::none()
             }
-            Message::SerialChange(serial_edit_dialog::Message::Delete(id)) => {
+            Message::SerialEditScreen(SerialEditScreenMessage::Delete(id)) => {
                 self.remove_serial(id);
                 self.main_window();
                 Command::none()
             }
-            Message::SerialChange(serial_edit_dialog::Message::Back) => {
+            Message::SerialEditScreen(SerialEditScreenMessage::Back) => {
                 self.main_window();
                 Command::none()
             }
-            Message::SerialChange(dialog_message) => {
+            Message::SerialEditScreen(dialog_message) => {
                 if let Dialog::SerialChange(dialog) = &mut self.dialog {
                     dialog.update(dialog_message);
                 }
                 Command::none()
             }
-            Message::ErrorDialog(error_dialog::Message::Ok { critical }) => {
+            Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
                 if critical {
                     window::close(window::Id::MAIN)
                 } else {
@@ -186,7 +188,7 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         if let Some(error_dialog) = &self.error_dialog {
-            error_dialog.view().map(Message::ErrorDialog)
+            error_dialog.view().map(Message::ErrorScreen)
         } else {
             self.dialog.view()
         }

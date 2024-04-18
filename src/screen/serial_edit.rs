@@ -32,14 +32,14 @@ pub enum Message {
     SeriaDec,
 }
 
-pub struct SerialEditDialog {
+pub struct SerialEditScreen {
     kind: Kind,
     name: String,
     season: NonZeroU8,
     seria: NonZeroU8,
 }
 
-impl SerialEditDialog {
+impl SerialEditScreen {
     pub fn new() -> Self {
         let one = NonZeroU8::MIN;
         let dialog = Self {
