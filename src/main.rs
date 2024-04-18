@@ -1,6 +1,11 @@
 mod dialogs;
 
-use std::{fs, num::NonZeroU8, path::PathBuf, rc::Rc};
+use std::{
+    fs,
+    num::NonZeroU8,
+    path::{Path, PathBuf},
+    rc::Rc,
+};
 
 use iced::{Element, Sandbox, Settings, Theme};
 use ron::ser::PrettyConfig;
@@ -83,15 +88,11 @@ impl Sandbox for ZCinema {
 
     fn new() -> Self {
         let state_dir = dirs::state_dir().unwrap().join("zcinema");
-        let mut media = Vec::new();
-        for entry in fs::read_dir(&state_dir).unwrap() {
-            let entry = entry.unwrap().path();
-            if entry.is_file() {
-                let file_content = fs::read_to_string(entry).unwrap();
-                let m: Serial = ron::from_str(&file_content).unwrap();
-                media.push(Rc::new(m));
-            }
-        }
+        let media = if state_dir.exists() {
+            read_media(&state_dir)
+        } else {
+            Vec::new()
+        };
         let media2 = clone_rc_vec(&media);
         Self {
             media,
@@ -190,4 +191,17 @@ fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
 
 fn serial_file_name(name: &str) -> String {
     format!("{}.ron", name)
+}
+
+fn read_media(dir: &Path) -> Vec<Rc<Serial>> {
+    let mut media = Vec::new();
+    for entry in fs::read_dir(&dir).unwrap() {
+        let entry = entry.unwrap().path();
+        if entry.is_file() {
+            let file_content = fs::read_to_string(entry).unwrap();
+            let m: Serial = ron::from_str(&file_content).unwrap();
+            media.push(Rc::new(m));
+        }
+    }
+    media
 }
