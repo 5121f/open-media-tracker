@@ -235,9 +235,7 @@ fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
         files.push(entry.path());
     }
     let seria = &files[seria_number];
-    let mut cmd = std::process::Command::new("xdg-open");
-    cmd.arg(seria);
-    cmd.spawn()
-        .map_err(|source| Error::general(ErrorKind::fsio(path, source)))?;
+    open::that(seria)
+        .map_err(|source| Error::general(ErrorKind::open_vido(&seria, source.kind())))?;
     Ok(())
 }

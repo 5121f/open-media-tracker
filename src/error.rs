@@ -42,6 +42,11 @@ pub enum ErrorKind {
     },
     #[error("Could not be found user's state directory")]
     StateDirNotFound,
+    #[error("{video_path}: Falied to open video in default program: {kind}")]
+    OpenVideo {
+        video_path: String,
+        kind: io::ErrorKind,
+    },
     #[error("Uncnown error")]
     Uncnown,
 }
@@ -65,6 +70,13 @@ impl ErrorKind {
         Self::SerialSerialize {
             serial_name: name,
             source,
+        }
+    }
+
+    pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
+        Self::OpenVideo {
+            video_path: path.as_ref().display().to_string(),
+            kind,
         }
     }
 }
