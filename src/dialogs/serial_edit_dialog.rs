@@ -1,4 +1,3 @@
-use core::num;
 use std::num::NonZeroU8;
 
 use iced::{
