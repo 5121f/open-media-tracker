@@ -42,8 +42,7 @@ impl ZCinema {
     }
 
     fn main_window(&mut self) {
-        let media = clone_rc_vec(&self.media);
-        self.dialog = Dialog::main_window(media);
+        self.dialog = Dialog::main_window(&self.media);
     }
 
     fn error_dialog(&mut self, message: impl ToString) {
@@ -93,10 +92,10 @@ impl Sandbox for ZCinema {
         } else {
             Vec::new()
         };
-        let media2 = clone_rc_vec(&media);
+        let main_window = Dialog::main_window(&media);
         Self {
             media,
-            dialog: Dialog::main_window(media2),
+            dialog: main_window,
             state_dir,
         }
     }
@@ -183,10 +182,6 @@ enum Error {
     SeasonAndSeriaCannotBeZero,
     #[error("Number overflow")]
     NumberOverflow,
-}
-
-fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
-    v.iter().map(Rc::clone).collect()
 }
 
 fn serial_file_name(name: &str) -> String {
