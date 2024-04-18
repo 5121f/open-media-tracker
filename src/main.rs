@@ -49,6 +49,19 @@ impl ZCinema {
     fn error_dialog(&mut self, message: impl ToString) {
         self.dialog = Dialog::error(message.to_string());
     }
+
+    fn handle_error<T, E>(&mut self, result: Result<T, E>) -> Option<T>
+    where
+        E: std::error::Error,
+    {
+        match result {
+            Ok(value) => Some(value),
+            Err(err) => {
+                self.error_dialog(err);
+                None
+            }
+        }
+    }
 }
 
 impl Sandbox for ZCinema {
@@ -68,9 +81,8 @@ impl Sandbox for ZCinema {
     fn update(&mut self, message: Self::Message) {
         match message {
             Message::MainWindow(main_window::Message::AddSerial) => {
-                if let Err(err) = self.add_serial_dialog() {
-                    self.error_dialog(err)
-                }
+                let res = self.add_serial_dialog();
+                self.handle_error(res);
             }
             Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
                 self.change_serial_dialog(id)
@@ -94,7 +106,8 @@ impl Sandbox for ZCinema {
             }
             Message::SerialChange(dialog_message) => {
                 if let Dialog::SerialChange(dialog) = self.dialog.borrow_mut() {
-                    dialog.update(dialog_message);
+                    let res = dialog.update(dialog_message);
+                    self.handle_error(res);
                 }
             }
             Message::ErrorDialog(error_dialog::Message::Ok) => self.main_window(),
