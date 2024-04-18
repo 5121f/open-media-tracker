@@ -64,10 +64,13 @@ impl ZCinema {
             .map_err(|kind| Error::general(kind))
     }
 
-    fn remove_serial(&mut self, id: usize) {
+    fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
         let serial = &self.media[id];
-        serial.remove_file(&self.state_dir);
+        serial
+            .remove_file(&self.state_dir)
+            .map_err(|kind| Error::general(kind))?;
         self.media.remove(id);
+        Ok(())
     }
 
     fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
@@ -117,7 +120,7 @@ impl ZCinema {
                         self.main_window();
                     }
                     SerialEditScreenMessage::Delete(id) => {
-                        self.remove_serial(id);
+                        self.remove_serial(id)?;
                         self.main_window();
                     }
                     SerialEditScreenMessage::Back => {
