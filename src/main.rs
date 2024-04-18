@@ -1,8 +1,9 @@
 mod dialogs;
+mod error;
 mod serial;
 
 use std::{
-    fs, io,
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -11,6 +12,7 @@ use iced::{Element, Sandbox, Settings, Theme};
 
 use crate::{
     dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
+    error::Error,
     serial::viewmodel::Serial,
 };
 
@@ -175,25 +177,6 @@ impl Sandbox for ZCinema {
 
     fn theme(&self) -> Theme {
         Theme::Dark
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-enum Error {
-    #[error("Season and seria number can not be zero")]
-    SeasonAndSeriaCannotBeZero,
-    #[error("Number overflow")]
-    NumberOverflow,
-    #[error("{path}: {source}")]
-    FSIO { path: String, source: io::Error },
-}
-
-impl Error {
-    fn fsio<P: AsRef<Path>>(path: P, source: io::Error) -> Self {
-        Self::FSIO {
-            path: path.as_ref().display().to_string(),
-            source,
-        }
     }
 }
 
