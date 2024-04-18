@@ -8,7 +8,7 @@ use std::{
 };
 
 use dialogs::error_dialog::ErrorDialog;
-use iced::{Element, Sandbox, Settings, Theme};
+use iced::{window, Element, Sandbox, Settings, Theme};
 
 use crate::{
     dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
@@ -35,9 +35,8 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn add_serial_dialog(&mut self) -> Result<(), Error> {
-        self.dialog = Dialog::add_serial()?;
-        Ok(())
+    fn add_serial_dialog(&mut self) {
+        self.dialog = Dialog::add_serial();
     }
 
     fn change_serial_dialog(&mut self, id: usize) {
@@ -49,23 +48,23 @@ impl ZCinema {
         self.dialog = Dialog::main_window(&self.media);
     }
 
-    fn error_dialog(&mut self, message: impl ToString) {
-        let dialog = ErrorDialog::new(message);
-        self.error_dialog = Some(dialog);
-    }
+    // fn error_dialog(&mut self, message: impl ToString, critical: bool) {
+    //     let dialog = ErrorDialog::new(message, critical);
+    //     self.error_dialog = Some(dialog);
+    // }
 
-    fn handle_error<T, E>(&mut self, result: Result<T, E>) -> Option<T>
-    where
-        E: std::error::Error,
-    {
-        match result {
-            Ok(value) => Some(value),
-            Err(err) => {
-                self.error_dialog(err);
-                None
-            }
-        }
-    }
+    // fn handle_error<T, E>(&mut self, result: Result<T, E>, critical: bool) -> Option<T>
+    // where
+    //     E: std::error::Error,
+    // {
+    //     match result {
+    //         Ok(value) => Some(value),
+    //         Err(err) => {
+    //             self.error_dialog(err, critical);
+    //             None
+    //         }
+    //     }
+    // }
 
     fn save_serial(&self, id: usize) {
         self.media[id].save(&self.state_dir);
@@ -112,7 +111,7 @@ impl Sandbox for ZCinema {
             Err(err) => Self {
                 media: Default::default(),
                 dialog: Dialog::main_window(&Vec::new()),
-                error_dialog: Some(ErrorDialog::new(err)),
+                error_dialog: Some(ErrorDialog::new(err, true)),
                 state_dir: PathBuf::new(),
             },
         }
@@ -125,8 +124,7 @@ impl Sandbox for ZCinema {
     fn update(&mut self, message: Self::Message) {
         match message {
             Message::MainWindow(main_window::Message::AddSerial) => {
-                let res = self.add_serial_dialog();
-                self.handle_error(res);
+                self.add_serial_dialog();
             }
             Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
                 self.change_serial_dialog(id)
@@ -159,11 +157,16 @@ impl Sandbox for ZCinema {
             }
             Message::SerialChange(dialog_message) => {
                 if let Dialog::SerialChange(dialog) = &mut self.dialog {
-                    let res = dialog.update(dialog_message);
-                    self.handle_error(res);
+                    dialog.update(dialog_message);
                 }
             }
-            Message::ErrorDialog(error_dialog::Message::Ok) => self.main_window(),
+            Message::ErrorDialog(error_dialog::Message::Ok { critical }) => {
+                if critical {
+                    let _ = window::close::<Message>(window::Id::MAIN);
+                } else {
+                    self.error_dialog = None;
+                }
+            }
         }
     }
 

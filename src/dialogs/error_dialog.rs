@@ -5,17 +5,19 @@ use iced::{
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Ok,
+    Ok { critical: bool },
 }
 
 pub struct ErrorDialog {
     message: String,
+    critical: bool,
 }
 
 impl ErrorDialog {
-    pub fn new(message: impl ToString) -> Self {
+    pub fn new(message: impl ToString, critical: bool) -> Self {
         Self {
             message: message.to_string(),
+            critical,
         }
     }
 
@@ -25,7 +27,12 @@ impl ErrorDialog {
             column![
                 vertical_space(),
                 text(format!("Error: {}", &self.message)),
-                row![horizontal_space(), button("Ok").on_press(Message::Ok)],
+                row![
+                    horizontal_space(),
+                    button("Ok").on_press(Message::Ok {
+                        critical: self.critical
+                    })
+                ],
                 vertical_space()
             ],
             horizontal_space()

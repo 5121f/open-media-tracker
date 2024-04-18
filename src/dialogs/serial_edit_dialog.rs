@@ -5,7 +5,7 @@ use iced::{
     Element,
 };
 
-use crate::{serial::model::Serial, Error};
+use crate::serial::model::Serial;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Kind {
@@ -40,15 +40,15 @@ pub struct SerialEditDialog {
 }
 
 impl SerialEditDialog {
-    pub fn new() -> Result<Self, Error> {
-        let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
+    pub fn new() -> Self {
+        let one = NonZeroU8::MIN;
         let dialog = Self {
             kind: Kind::New,
             name: String::new(),
             season: one,
             seria: one,
         };
-        Ok(dialog)
+        dialog
     }
 
     pub fn change(serial: &Serial, id: usize) -> Self {
@@ -92,7 +92,7 @@ impl SerialEditDialog {
         column![back_button, edit_area, bottom_buttons].into()
     }
 
-    pub fn update(&mut self, message: Message) -> Result<(), Error> {
+    pub fn update(&mut self, message: Message) {
         match message {
             Message::Back | Message::Accept { .. } | Message::Delete(_) => {}
             Message::NameChanged(value) => self.name = value,
@@ -107,21 +107,20 @@ impl SerialEditDialog {
                 }
             }
             Message::SeasonInc => {
-                self.season = self.season.checked_add(1).ok_or(Error::NumberOverflow)?;
+                self.season = self.season.checked_add(1).unwrap_or(NonZeroU8::MIN);
             }
             Message::SeasonDec => {
-                let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
-                self.season = self.season.checked_mul(one).ok_or(Error::NumberOverflow)?;
+                let one = NonZeroU8::MIN;
+                self.season = self.season.checked_mul(one).unwrap_or(one);
             }
             Message::SeriaInc => {
-                self.seria = self.seria.checked_add(1).ok_or(Error::NumberOverflow)?;
+                self.seria = self.seria.checked_add(1).unwrap_or(NonZeroU8::MIN);
             }
             Message::SeriaDec => {
-                let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
-                self.seria = self.seria.checked_mul(one).ok_or(Error::NumberOverflow)?;
+                let one = NonZeroU8::MIN;
+                self.seria = self.seria.checked_mul(one).unwrap_or(NonZeroU8::MIN);
             }
         }
-        Ok(())
     }
 
     fn accept(&self) -> Message {

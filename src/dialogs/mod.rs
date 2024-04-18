@@ -2,7 +2,7 @@ pub mod error_dialog;
 pub mod main_window;
 pub mod serial_edit_dialog;
 
-use crate::{serial::viewmodel::Serial, Error, Message};
+use crate::{serial::viewmodel::Serial, Message};
 use iced::Element;
 use main_window::MainWindow;
 use serial_edit_dialog::SerialEditDialog;
@@ -19,9 +19,9 @@ impl Dialog {
         Self::MainWindow(dialog)
     }
 
-    pub fn add_serial() -> Result<Self, Error> {
-        let dialog = SerialEditDialog::new()?;
-        Ok(Self::SerialChange(dialog))
+    pub fn add_serial() -> Self {
+        let dialog = SerialEditDialog::new();
+        Self::SerialChange(dialog)
     }
 
     pub fn change_serial(serial: &Serial, id: usize) -> Self {
