@@ -202,7 +202,7 @@ fn read_media(dir: &Path) -> Result<Vec<Serial>, Error> {
         let entry = entry.map_err(|source| Error::fsio(dir, source))?;
         let path = entry.path();
         if path.is_file() {
-            let serial = Serial::read_from_file(path);
+            let serial = Serial::read_from_file(&path)?;
             media.push(serial);
         }
     }

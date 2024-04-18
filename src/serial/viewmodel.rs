@@ -8,7 +8,7 @@ use std::{
 
 use ron::ser::PrettyConfig;
 
-use crate::serial::model;
+use crate::{error::Error, serial::model};
 
 pub struct Serial(Rc<model::Serial>);
 
@@ -22,10 +22,10 @@ impl Serial {
         Self(Rc::new(model))
     }
 
-    pub fn read_from_file<P: AsRef<Path>>(path: P) -> Self {
-        let file_content = fs::read_to_string(path).unwrap();
-        let model = ron::from_str(&file_content).unwrap();
-        Self(Rc::new(model))
+    pub fn read_from_file(path: &Path) -> Result<Self, Error> {
+        let file_content = fs::read_to_string(path).map_err(|source| Error::fsio(path, source))?;
+        let model = ron::from_str(&file_content).map_err(|source| Error::parse(path, source))?;
+        Ok(Self(Rc::new(model)))
     }
 
     pub fn file_name(&self) -> String {
