@@ -58,8 +58,10 @@ impl ZCinema {
         self.error_dialog = Some(dialog);
     }
 
-    fn save_serial(&self, id: usize) {
-        self.media[id].save(&self.state_dir);
+    fn save_serial(&self, id: usize) -> Result<(), Error> {
+        self.media[id]
+            .save(&self.state_dir)
+            .map_err(|kind| Error::general(kind))
     }
 
     fn remove_serial(&mut self, id: usize) {
@@ -106,11 +108,11 @@ impl ZCinema {
                                 .map_err(|kind| Error::general(kind))?;
                             self.media[id].change_season(season);
                             self.media[id].change_seria(seria);
-                            self.save_serial(id);
+                            self.save_serial(id)?;
                         } else {
                             let serial = Serial::new(name, season, seria);
                             self.media.push(serial);
-                            self.save_serial(self.media.len() - 1);
+                            self.save_serial(self.media.len() - 1)?;
                         }
                         self.main_window();
                     }

@@ -51,13 +51,15 @@ impl Serial {
         Ok(())
     }
 
-    pub fn save<P: AsRef<Path>>(&self, dir: P) {
-        let content = ron::ser::to_string_pretty(self.0.as_ref(), PrettyConfig::new()).unwrap();
+    pub fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), ErrorKind> {
+        let content = ron::ser::to_string_pretty(self.0.as_ref(), PrettyConfig::new())
+            .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
         if !dir.as_ref().exists() {
-            fs::create_dir(&dir).unwrap();
+            fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir.as_ref(), source))?;
         }
-        let path = self.path(dir);
-        fs::write(path, content).unwrap();
+        let path = self.path(dir.as_ref());
+        fs::write(path, content).map_err(|source| ErrorKind::fsio(dir.as_ref(), source))?;
+        Ok(())
     }
 
     pub fn remove_file<P: AsRef<Path>>(&self, dir: P) {

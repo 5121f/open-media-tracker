@@ -35,6 +35,11 @@ pub enum ErrorKind {
     FSIO { path: String, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     Parce { path: String, source: SpannedError },
+    #[error("{serial_name}: Serialize error: ")]
+    SerialSerialize {
+        serial_name: String,
+        source: ron::Error,
+    },
     #[error("Could not be found user's state directory")]
     StateDirNotFound,
     #[error("Uncnown error")]
@@ -52,6 +57,13 @@ impl ErrorKind {
     pub fn parse<P: AsRef<Path>>(path: P, source: SpannedError) -> Self {
         Self::Parce {
             path: path.as_ref().display().to_string(),
+            source,
+        }
+    }
+
+    pub fn serial_serialize(name: String, source: ron::Error) -> Self {
+        Self::SerialSerialize {
+            serial_name: name,
             source,
         }
     }
