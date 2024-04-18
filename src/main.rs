@@ -1,12 +1,17 @@
 use std::{
     borrow::{Borrow, BorrowMut},
+    fs,
     num::NonZeroU8,
+    path::PathBuf,
     rc::Rc,
+    sync::Arc,
 };
 
 use anyhow::Context;
 use error_dialog::ErrorDialog;
 use iced::{widget::shader::wgpu::core::error, Element, Sandbox, Settings, Theme};
+use ron::ser::PrettyConfig;
+use serde::{Deserialize, Serialize};
 
 use crate::{main_window::MainWindow, serial_chamge_dialog::SerialChangeDialog};
 
@@ -24,6 +29,7 @@ enum Message {
 struct ZCinema {
     media: Vec<Rc<Serial>>,
     dialog: Dialog,
+    state_dir: PathBuf,
 }
 
 impl ZCinema {
@@ -37,7 +43,7 @@ impl ZCinema {
     }
 
     fn change_serial_dialog(&mut self, id: usize) {
-        let serial = self.media[id].borrow();
+        let serial = &self.media[id];
         self.dialog = Dialog::change_serial(serial, id)
     }
 
@@ -62,15 +68,38 @@ impl ZCinema {
             }
         }
     }
+
+    fn save_serial(&self, id: usize) {
+        let serial = self.media[id].as_ref();
+        let content = ron::ser::to_string_pretty(serial, PrettyConfig::new()).unwrap();
+        if !self.state_dir.exists() {
+            fs::create_dir(&self.state_dir).unwrap();
+        }
+        let file_name = format!("{}.ron", &serial.name);
+        let path = self.state_dir.join(&file_name);
+        fs::write(path, content).unwrap();
+    }
 }
 
 impl Sandbox for ZCinema {
     type Message = Message;
 
     fn new() -> Self {
+        let state_dir = dirs::state_dir().unwrap().join("zcinema");
+        let mut media = Vec::new();
+        for entry in fs::read_dir(&state_dir).unwrap() {
+            let entry = entry.unwrap().path();
+            if entry.is_file() {
+                let file_content = fs::read_to_string(entry).unwrap();
+                let m: Serial = ron::from_str(&file_content).unwrap();
+                media.push(Rc::new(m));
+            }
+        }
+        let media2 = clone_rc_vec(&media);
         Self {
-            media: Vec::new(),
-            dialog: Dialog::main_window(Vec::new()),
+            media,
+            dialog: Dialog::main_window(media2),
+            state_dir,
         }
     }
 
@@ -88,15 +117,17 @@ impl Sandbox for ZCinema {
                 self.change_serial_dialog(id)
             }
             Message::SerialChange(serial_chamge_dialog::Message::Accept) => {
-                if let Dialog::SerialChange(dialog) = self.dialog.borrow_mut() {
+                if let Dialog::SerialChange(dialog) = &mut self.dialog {
                     if let Some(id) = dialog.id {
                         let serial = Rc::get_mut(&mut self.media[id]).unwrap();
                         serial.name = dialog.name.clone();
                         serial.current_season = dialog.season;
                         serial.current_seria = dialog.seria;
+                        self.save_serial(id);
                     } else {
                         let serial = Rc::new(dialog.build());
                         self.media.push(serial);
+                        self.save_serial(self.media.len() - 1);
                     }
                     self.main_window();
                 }
@@ -105,7 +136,7 @@ impl Sandbox for ZCinema {
                 self.main_window();
             }
             Message::SerialChange(dialog_message) => {
-                if let Dialog::SerialChange(dialog) = self.dialog.borrow_mut() {
+                if let Dialog::SerialChange(dialog) = &mut self.dialog {
                     let res = dialog.update(dialog_message);
                     self.handle_error(res);
                 }
@@ -162,7 +193,7 @@ impl Dialog {
 }
 
 mod main_window {
-    use std::rc::Rc;
+    use std::{rc::Rc, sync::Arc};
 
     use iced::{
         widget::{button, column, horizontal_space, row, text},
@@ -365,6 +396,7 @@ mod error_dialog {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 struct Serial {
     name: String,
     current_season: NonZeroU8,
@@ -389,4 +421,8 @@ enum Error {
     SeasonAndSeriaCannotBeZero,
     #[error("Number overflow")]
     NumberOverflow,
+}
+
+fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
+    v.iter().map(|m| Rc::clone(&m)).collect()
 }
