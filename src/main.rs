@@ -1,15 +1,7 @@
-use std::{
-    borrow::{Borrow, BorrowMut},
-    fs,
-    num::NonZeroU8,
-    path::PathBuf,
-    rc::Rc,
-    sync::Arc,
-};
+use std::{fs, num::NonZeroU8, path::PathBuf, rc::Rc};
 
-use anyhow::Context;
 use error_dialog::ErrorDialog;
-use iced::{widget::shader::wgpu::core::error, Element, Sandbox, Settings, Theme};
+use iced::{Element, Sandbox, Settings, Theme};
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
@@ -189,7 +181,7 @@ impl Dialog {
 }
 
 mod main_window {
-    use std::{rc::Rc, sync::Arc};
+    use std::rc::Rc;
 
     use iced::{
         widget::{button, column, horizontal_space, row, text},
@@ -237,7 +229,6 @@ mod main_window {
 mod serial_chamge_dialog {
     use std::num::NonZeroU8;
 
-    use anyhow::anyhow;
     use iced::{
         widget::{button, column, horizontal_space, row, text, text_input},
         Element,
@@ -397,18 +388,6 @@ struct Serial {
     name: String,
     current_season: NonZeroU8,
     current_seria: NonZeroU8,
-}
-
-impl Serial {
-    pub fn new(name: String) -> Result<Self, Error> {
-        let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
-        let serial = Self {
-            name,
-            current_season: one,
-            current_seria: one,
-        };
-        Ok(serial)
-    }
 }
 
 #[derive(Debug, thiserror::Error)]
