@@ -68,27 +68,9 @@ impl Serial {
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
 
-    pub fn change_season(&mut self, new_value: NonZeroU8) -> Result<(), ErrorKind> {
-        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
-        model.current_season = new_value;
-        Ok(())
+    pub fn get_mut(&mut self) -> Result<&mut model::Serial, ErrorKind> {
+        Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)
     }
-
-    pub fn change_seria(&mut self, new_value: NonZeroU8) -> Result<(), ErrorKind> {
-        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
-        model.current_seria = new_value;
-        Ok(())
-    }
-
-    pub fn change_season_path(&mut self, new_value: PathBuf) -> Result<(), ErrorKind> {
-        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
-        model.season_path = new_value;
-        Ok(())
-    }
-
-    // pub fn get_mut(&mut self) -> Result<&mut model::Serial> {
-    //     Rc::get_mut(&mut self.0).ok_or(Error::Uncnown)
-    // }
 
     fn path<P: AsRef<Path>>(&self, dir: P) -> PathBuf {
         dir.as_ref().join(self.file_name())

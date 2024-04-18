@@ -107,18 +107,15 @@ impl ZCinema {
                         season_path,
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
-                            self.media[id]
+                            let view_model = &mut self.media[id];
+                            view_model
                                 .rename(&self.state_dir, name)
                                 .map_err(|kind| Error::general(kind))?;
-                            self.media[id]
-                                .change_season(season)
-                                .map_err(|kind| Error::general(kind))?;
-                            self.media[id]
-                                .change_seria(seria)
-                                .map_err(|kind| Error::general(kind))?;
-                            self.media[id]
-                                .change_season_path(season_path)
-                                .map_err(|kind| Error::general(kind))?;
+                            let serial =
+                                view_model.get_mut().map_err(|kind| Error::general(kind))?;
+                            serial.current_season = season;
+                            serial.current_seria = seria;
+                            serial.season_path = season_path;
                             self.save_serial(id)?;
                         } else {
                             let serial = Serial::new(name, season, seria, season_path);
