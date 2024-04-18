@@ -107,22 +107,18 @@ impl SerialEditScreen {
                 }
             }
             Message::SeasonInc => {
-                if let Some(number) = self.season.checked_add(1) {
-                    self.season = number;
-                }
+                self.season = self.season.saturating_add(1);
             }
             Message::SeasonDec => {
-                if let Some(number) = self.season.checked_mul(NonZeroU8::MIN) {
+                if let Some(number) = NonZeroU8::new(self.season.get() - 1) {
                     self.season = number;
                 }
             }
             Message::SeriaInc => {
-                if let Some(number) = self.seria.checked_add(1) {
-                    self.seria = number;
-                }
+                self.seria = self.seria.saturating_add(1);
             }
             Message::SeriaDec => {
-                if let Some(number) = self.seria.checked_mul(NonZeroU8::MIN) {
+                if let Some(number) = NonZeroU8::new(self.seria.get() - 1) {
                     self.seria = number;
                 }
             }
