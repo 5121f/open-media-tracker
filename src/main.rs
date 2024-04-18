@@ -56,19 +56,6 @@ impl ZCinema {
         self.error_dialog = Some(dialog);
     }
 
-    fn handle_error<T, E>(&mut self, result: std::result::Result<T, E>, critical: bool) -> Option<T>
-    where
-        E: std::error::Error,
-    {
-        match result {
-            Ok(value) => Some(value),
-            Err(err) => {
-                self.error_dialog(err, critical);
-                None
-            }
-        }
-    }
-
     fn save_serial(&self, id: usize) {
         self.media[id].save(&self.state_dir);
     }
@@ -92,6 +79,61 @@ impl ZCinema {
         Ok(dirs::state_dir()
             .ok_or(Error::StateDirNotFound)?
             .join("zcinema"))
+    }
+
+    fn update2(&mut self, message: Message) -> Result<Command<Message>> {
+        match message {
+            Message::MainScreen(message) => {
+                match message {
+                    MainScreenMessage::AddSerial => self.add_serial_dialog(),
+                    MainScreenMessage::ChangeSerial(id) => self.change_serial_dialog(id),
+                }
+                Ok(Command::none())
+            }
+            Message::SerialEditScreen(message) => {
+                match message {
+                    SerialEditScreenMessage::Accept {
+                        kind,
+                        name,
+                        season,
+                        seria,
+                    } => {
+                        if let serial_edit::Kind::Change { id } = kind {
+                            self.media[id].rename(&self.state_dir, name)?;
+                            self.media[id].change_season(season);
+                            self.media[id].change_seria(seria);
+                            self.save_serial(id);
+                        } else {
+                            let serial = Serial::new(name, season, seria);
+                            self.media.push(serial);
+                            self.save_serial(self.media.len() - 1);
+                        }
+                        self.main_window();
+                    }
+                    SerialEditScreenMessage::Delete(id) => {
+                        self.remove_serial(id);
+                        self.main_window();
+                    }
+                    SerialEditScreenMessage::Back => {
+                        self.main_window();
+                    }
+                    _ => {
+                        if let Dialog::SerialChange(dialog) = &mut self.dialog {
+                            dialog.update(message);
+                        };
+                    }
+                }
+                Ok(Command::none())
+            }
+            Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
+                if critical {
+                    Ok(window::close(window::Id::MAIN))
+                } else {
+                    self.error_dialog = None;
+                    Ok(Command::none())
+                }
+            }
+        }
     }
 
     fn new2() -> Result<Self> {
@@ -131,57 +173,11 @@ impl Application for ZCinema {
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
-        match message {
-            Message::MainScreen(message) => {
-                match message {
-                    MainScreenMessage::AddSerial => self.add_serial_dialog(),
-                    MainScreenMessage::ChangeSerial(id) => self.change_serial_dialog(id),
-                }
+        match self.update2(message) {
+            Ok(cmd) => cmd,
+            Err(err) => {
+                self.error_dialog(err.to_string(), false);
                 Command::none()
-            }
-            Message::SerialEditScreen(message) => {
-                match message {
-                    SerialEditScreenMessage::Accept {
-                        kind,
-                        name,
-                        season,
-                        seria,
-                    } => {
-                        if let serial_edit::Kind::Change { id } = kind {
-                            let res = self.media[id].rename(&self.state_dir, name);
-                            self.handle_error(res, false);
-                            self.media[id].change_season(season);
-                            self.media[id].change_seria(seria);
-                            self.save_serial(id);
-                        } else {
-                            let serial = Serial::new(name, season, seria);
-                            self.media.push(serial);
-                            self.save_serial(self.media.len() - 1);
-                        }
-                        self.main_window();
-                    }
-                    SerialEditScreenMessage::Delete(id) => {
-                        self.remove_serial(id);
-                        self.main_window();
-                    }
-                    SerialEditScreenMessage::Back => {
-                        self.main_window();
-                    }
-                    _ => {
-                        if let Dialog::SerialChange(dialog) = &mut self.dialog {
-                            dialog.update(message);
-                        };
-                    }
-                }
-                Command::none()
-            }
-            Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
-                if critical {
-                    window::close(window::Id::MAIN)
-                } else {
-                    self.error_dialog = None;
-                    Command::none()
-                }
             }
         }
     }
