@@ -112,28 +112,35 @@ impl Sandbox for ZCinema {
             Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
                 self.change_serial_dialog(id)
             }
-            Message::SerialChange(serial_chamge_dialog::Message::Accept) => {
-                if let Dialog::SerialChange(dialog) = &mut self.dialog {
-                    if let Some(id) = dialog.id {
-                        let serial = Rc::get_mut(&mut self.media[id]).unwrap();
-                        if serial.name != dialog.name {
-                            let file_name = serial_file_name(&serial.name);
-                            let path = self.state_dir.join(&file_name);
-                            let new_name = serial_file_name(&dialog.name);
-                            let new_path = self.state_dir.join(&new_name);
-                            fs::rename(path, new_path).unwrap();
-                            serial.name = dialog.name.clone();
-                        }
-                        serial.current_season = dialog.season;
-                        serial.current_seria = dialog.seria;
-                        self.save_serial(id);
-                    } else {
-                        let serial = Rc::new(dialog.build());
-                        self.media.push(serial);
-                        self.save_serial(self.media.len() - 1);
+            Message::SerialChange(serial_chamge_dialog::Message::Accept {
+                id,
+                name,
+                season,
+                seria,
+            }) => {
+                if let Some(id) = id {
+                    let serial = Rc::get_mut(&mut self.media[id]).unwrap();
+                    if serial.name != name {
+                        let file_name = serial_file_name(&serial.name);
+                        let path = self.state_dir.join(&file_name);
+                        let new_name = serial_file_name(&name);
+                        let new_path = self.state_dir.join(&new_name);
+                        fs::rename(path, new_path).unwrap();
+                        serial.name = name;
                     }
-                    self.main_window();
+                    serial.current_season = season;
+                    serial.current_seria = seria;
+                    self.save_serial(id);
+                } else {
+                    let serial = Rc::new(Serial {
+                        name,
+                        current_season: season,
+                        current_seria: seria,
+                    });
+                    self.media.push(serial);
+                    self.save_serial(self.media.len() - 1);
                 }
+                self.main_window();
             }
             Message::SerialChange(serial_chamge_dialog::Message::Delete(id)) => {
                 self.remove_serial(id);
@@ -258,7 +265,12 @@ mod serial_chamge_dialog {
     #[derive(Debug, Clone)]
     pub enum Message {
         Back,
-        Accept,
+        Accept {
+            id: Option<usize>,
+            name: String,
+            season: NonZeroU8,
+            seria: NonZeroU8,
+        },
         Delete(usize),
         NameChanged(String),
         SeasonChanged(String),
@@ -270,10 +282,10 @@ mod serial_chamge_dialog {
     }
 
     pub struct SerialChangeDialog {
-        pub id: Option<usize>,
-        pub name: String,
-        pub season: NonZeroU8,
-        pub seria: NonZeroU8,
+        id: Option<usize>,
+        name: String,
+        season: NonZeroU8,
+        seria: NonZeroU8,
     }
 
     impl SerialChangeDialog {
@@ -325,14 +337,21 @@ mod serial_chamge_dialog {
             }
             bottom_buttons = bottom_buttons.extend([
                 horizontal_space().into(),
-                button("Accept").on_press(Message::Accept).into(),
+                button("Accept")
+                    .on_press(Message::Accept {
+                        id: self.id,
+                        name: self.name.clone(),
+                        season: self.season,
+                        seria: self.seria,
+                    })
+                    .into(),
             ]);
             column![back_button, edit_area, bottom_buttons].into()
         }
 
         pub fn update(&mut self, message: Message) -> Result<(), Error> {
             match message {
-                Message::Back | Message::Accept | Message::Delete(_) => {}
+                Message::Back | Message::Accept { .. } | Message::Delete(_) => {}
                 Message::NameChanged(value) => self.name = value,
                 Message::SeasonChanged(value) => {
                     if let Ok(number) = value.parse() {
@@ -360,14 +379,6 @@ mod serial_chamge_dialog {
                 }
             }
             Ok(())
-        }
-
-        pub fn build(&self) -> Serial {
-            Serial {
-                name: self.name.clone(),
-                current_season: self.season,
-                current_seria: self.seria,
-            }
         }
     }
 }
