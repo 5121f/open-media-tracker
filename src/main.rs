@@ -1,4 +1,4 @@
-use std::{fs, num::NonZeroU8, path::PathBuf, rc::Rc};
+use std::{borrow::BorrowMut, fs, num::NonZeroU8, path::PathBuf, rc::Rc};
 
 use error_dialog::ErrorDialog;
 use iced::{Element, Sandbox, Settings, Theme};
@@ -63,14 +63,14 @@ impl ZCinema {
         if !self.state_dir.exists() {
             fs::create_dir(&self.state_dir).unwrap();
         }
-        let file_name = serial_file_name(serial);
+        let file_name = serial_file_name(&serial.name);
         let path = self.state_dir.join(&file_name);
         fs::write(path, content).unwrap();
     }
 
     fn remove_serial(&mut self, id: usize) {
         let serial = self.media[id].as_ref();
-        let file_name = serial_file_name(serial);
+        let file_name = serial_file_name(&serial.name);
         let path = self.state_dir.join(file_name);
         fs::remove_file(path).unwrap();
         self.media.remove(id);
@@ -116,7 +116,14 @@ impl Sandbox for ZCinema {
                 if let Dialog::SerialChange(dialog) = &mut self.dialog {
                     if let Some(id) = dialog.id {
                         let serial = Rc::get_mut(&mut self.media[id]).unwrap();
-                        serial.name = dialog.name.clone();
+                        if serial.name != dialog.name {
+                            let file_name = serial_file_name(&serial.name);
+                            let path = self.state_dir.join(&file_name);
+                            let new_name = serial_file_name(&dialog.name);
+                            let new_path = self.state_dir.join(&new_name);
+                            fs::rename(path, new_path).unwrap();
+                            serial.name = dialog.name.clone();
+                        }
                         serial.current_season = dialog.season;
                         serial.current_seria = dialog.seria;
                         self.save_serial(id);
@@ -420,6 +427,6 @@ fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
     v.iter().map(|m| Rc::clone(&m)).collect()
 }
 
-fn serial_file_name(serial: &Serial) -> String {
-    format!("{}.ron", serial.name)
+fn serial_file_name(name: &str) -> String {
+    format!("{}.ron", name)
 }
