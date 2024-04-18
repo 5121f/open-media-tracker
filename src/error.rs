@@ -2,10 +2,6 @@ use std::{io, path::Path};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Season and seria number can not be zero")]
-    SeasonAndSeriaCannotBeZero,
-    #[error("Number overflow")]
-    NumberOverflow,
     #[error("{path}: {source}")]
     FSIO { path: String, source: io::Error },
 }
