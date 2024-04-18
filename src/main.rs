@@ -85,12 +85,14 @@ impl ZCinema {
         Ok(media)
     }
 
-    fn state_dir() -> PathBuf {
-        dirs::state_dir().unwrap().join("zcinema")
+    fn state_dir() -> Result<PathBuf, Error> {
+        Ok(dirs::state_dir()
+            .ok_or(Error::StateDirNotFound)?
+            .join("zcinema"))
     }
 
     fn new2() -> Result<Self, Error> {
-        let state_dir = Self::state_dir();
+        let state_dir = Self::state_dir()?;
         let media = Self::read_media(&state_dir)?;
         let main_window = Dialog::main_window(&media);
         Ok(Self {

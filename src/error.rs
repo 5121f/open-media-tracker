@@ -8,6 +8,8 @@ pub enum Error {
     FSIO { path: String, source: io::Error },
     #[error("{path}: file parsing error: {source}")]
     ParceError { path: String, source: SpannedError },
+    #[error("Could not be found user's state directory")]
+    StateDirNotFound,
 }
 
 impl Error {
