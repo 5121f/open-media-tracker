@@ -8,7 +8,10 @@ use std::{
 
 use ron::ser::PrettyConfig;
 
-use crate::{error::Error, serial::model};
+use crate::{
+    error::{Error, Result},
+    serial::model,
+};
 
 pub struct Serial(Rc<model::Serial>);
 
@@ -22,7 +25,7 @@ impl Serial {
         Self(Rc::new(model))
     }
 
-    pub fn read_from_file(path: &Path) -> Result<Self, Error> {
+    pub fn read_from_file(path: &Path) -> Result<Self> {
         let file_content = fs::read_to_string(path).map_err(|source| Error::fsio(path, source))?;
         let model = ron::from_str(&file_content).map_err(|source| Error::parse(path, source))?;
         Ok(Self(Rc::new(model)))
@@ -36,7 +39,7 @@ impl Serial {
         Self(Rc::clone(&self.0))
     }
 
-    pub fn rename<P: AsRef<Path>>(&mut self, dir: P, new_name: String) -> Result<(), Error> {
+    pub fn rename<P: AsRef<Path>>(&mut self, dir: P, new_name: String) -> Result<()> {
         let dir = dir.as_ref();
         if self.0.name != new_name {
             let current_path = self.path(dir);

@@ -12,7 +12,7 @@ use iced::{executor, window, Application, Command, Element, Settings, Theme};
 
 use crate::{
     dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
-    error::Error,
+    error::{Error, Result},
     serial::viewmodel::Serial,
 };
 
@@ -54,7 +54,7 @@ impl ZCinema {
         self.error_dialog = Some(dialog);
     }
 
-    fn handle_error<T, E>(&mut self, result: Result<T, E>, critical: bool) -> Option<T>
+    fn handle_error<T, E>(&mut self, result: std::result::Result<T, E>, critical: bool) -> Option<T>
     where
         E: std::error::Error,
     {
@@ -77,7 +77,7 @@ impl ZCinema {
         self.media.remove(id);
     }
 
-    fn read_media(dir: &Path) -> Result<Vec<Serial>, Error> {
+    fn read_media(dir: &Path) -> Result<Vec<Serial>> {
         let media = if dir.exists() {
             read_media(dir)?
         } else {
@@ -86,13 +86,13 @@ impl ZCinema {
         Ok(media)
     }
 
-    fn state_dir() -> Result<PathBuf, Error> {
+    fn state_dir() -> Result<PathBuf> {
         Ok(dirs::state_dir()
             .ok_or(Error::StateDirNotFound)?
             .join("zcinema"))
     }
 
-    fn new2() -> Result<Self, Error> {
+    fn new2() -> Result<Self> {
         let state_dir = Self::state_dir()?;
         let media = Self::read_media(&state_dir)?;
         let main_window = Dialog::main_window(&media);
@@ -197,7 +197,7 @@ impl Application for ZCinema {
     }
 }
 
-fn read_media(dir: &Path) -> Result<Vec<Serial>, Error> {
+fn read_media(dir: &Path) -> Result<Vec<Serial>> {
     let read_dir = fs::read_dir(dir).map_err(|source| Error::fsio(&dir, source))?;
     let mut media = Vec::new();
     for entry in read_dir {

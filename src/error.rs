@@ -2,6 +2,8 @@ use std::{io, path::Path};
 
 use ron::de::SpannedError;
 
+pub type Result<T> = std::result::Result<T, Error>;
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("{path}: {source}")]
