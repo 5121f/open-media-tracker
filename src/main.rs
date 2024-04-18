@@ -54,18 +54,18 @@ impl ZCinema {
         self.error_dialog = Some(dialog);
     }
 
-    // fn handle_error<T, E>(&mut self, result: Result<T, E>, critical: bool) -> Option<T>
-    // where
-    //     E: std::error::Error,
-    // {
-    //     match result {
-    //         Ok(value) => Some(value),
-    //         Err(err) => {
-    //             self.error_dialog(err, critical);
-    //             None
-    //         }
-    //     }
-    // }
+    fn handle_error<T, E>(&mut self, result: Result<T, E>, critical: bool) -> Option<T>
+    where
+        E: std::error::Error,
+    {
+        match result {
+            Ok(value) => Some(value),
+            Err(err) => {
+                self.error_dialog(err, critical);
+                None
+            }
+        }
+    }
 
     fn save_serial(&self, id: usize) {
         self.media[id].save(&self.state_dir);
@@ -145,10 +145,10 @@ impl Application for ZCinema {
                 seria,
             }) => {
                 if let serial_edit_dialog::Kind::Change { id } = kind {
-                    let serial = &mut self.media[id];
-                    serial.rename(&self.state_dir, name);
-                    serial.change_season(season);
-                    serial.change_seria(seria);
+                    let res = self.media[id].rename(&self.state_dir, name);
+                    self.handle_error(res, false);
+                    self.media[id].change_season(season);
+                    self.media[id].change_seria(seria);
                     self.save_serial(id);
                 } else {
                     let serial = Serial::new(name, season, seria);

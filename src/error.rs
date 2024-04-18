@@ -10,6 +10,8 @@ pub enum Error {
     ParceError { path: String, source: SpannedError },
     #[error("Could not be found user's state directory")]
     StateDirNotFound,
+    #[error("Uncnown error")]
+    Uncnown,
 }
 
 impl Error {
