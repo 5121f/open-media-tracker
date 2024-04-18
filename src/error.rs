@@ -34,7 +34,7 @@ pub enum ErrorKind {
     #[error("{path}: {kind}")]
     FSIO { path: String, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
-    ParceError { path: String, source: SpannedError },
+    Parce { path: String, source: SpannedError },
     #[error("Could not be found user's state directory")]
     StateDirNotFound,
     #[error("Uncnown error")]
@@ -50,7 +50,7 @@ impl ErrorKind {
     }
 
     pub fn parse<P: AsRef<Path>>(path: P, source: SpannedError) -> Self {
-        Self::ParceError {
+        Self::Parce {
             path: path.as_ref().display().to_string(),
             source,
         }
