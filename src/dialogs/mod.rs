@@ -3,7 +3,6 @@ pub mod main_window;
 pub mod serial_edit_dialog;
 
 use crate::{serial::viewmodel::Serial, Error, Message};
-use error_dialog::ErrorDialog;
 use iced::Element;
 use main_window::MainWindow;
 use serial_edit_dialog::SerialEditDialog;
@@ -11,7 +10,6 @@ use serial_edit_dialog::SerialEditDialog;
 pub enum Dialog {
     MainWindow(MainWindow),
     SerialChange(SerialEditDialog),
-    Error(ErrorDialog),
 }
 
 impl Dialog {
@@ -30,11 +28,6 @@ impl Dialog {
         let dialog = SerialEditDialog::change(serial, id);
         Self::SerialChange(dialog)
     }
-
-    pub fn error(message: impl ToString) -> Self {
-        let dialog = ErrorDialog::new(message);
-        Self::Error(dialog)
-    }
 }
 
 impl Dialog {
@@ -42,7 +35,6 @@ impl Dialog {
         match self {
             Dialog::MainWindow(dialog) => dialog.view().map(Message::MainWindow),
             Dialog::SerialChange(dialog) => dialog.view().map(Message::SerialChange),
-            Dialog::Error(dialog) => dialog.view().map(Message::ErrorDialog),
         }
     }
 }

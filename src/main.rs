@@ -6,6 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use dialogs::error_dialog::ErrorDialog;
 use iced::{Element, Sandbox, Settings, Theme};
 
 use crate::{
@@ -27,6 +28,7 @@ enum Message {
 struct ZCinema {
     media: Vec<Serial>,
     dialog: Dialog,
+    error_dialog: Option<ErrorDialog>,
     state_dir: PathBuf,
 }
 
@@ -46,7 +48,8 @@ impl ZCinema {
     }
 
     fn error_dialog(&mut self, message: impl ToString) {
-        self.dialog = Dialog::error(message);
+        let dialog = ErrorDialog::new(message);
+        self.error_dialog = Some(dialog);
     }
 
     fn handle_error<T, E>(&mut self, result: Result<T, E>) -> Option<T>
@@ -87,6 +90,7 @@ impl Sandbox for ZCinema {
         Self {
             media,
             dialog: main_window,
+            error_dialog: None,
             state_dir,
         }
     }
@@ -141,7 +145,11 @@ impl Sandbox for ZCinema {
     }
 
     fn view(&self) -> Element<Message> {
-        self.dialog.view()
+        if let Some(error_dialog) = &self.error_dialog {
+            error_dialog.view().map(Message::ErrorDialog)
+        } else {
+            self.dialog.view()
+        }
     }
 
     fn theme(&self) -> Theme {
