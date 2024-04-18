@@ -8,7 +8,7 @@ use std::{
 };
 
 use dialogs::error_dialog::ErrorDialog;
-use iced::{window, Element, Sandbox, Settings, Theme};
+use iced::{executor, window, Application, Command, Element, Settings, Theme};
 
 use crate::{
     dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
@@ -102,11 +102,14 @@ impl ZCinema {
     }
 }
 
-impl Sandbox for ZCinema {
+impl Application for ZCinema {
+    type Executor = executor::Default;
+    type Theme = Theme;
+    type Flags = ();
     type Message = Message;
 
-    fn new() -> Self {
-        match Self::new2() {
+    fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
+        let zcinema = match Self::new2() {
             Ok(s) => s,
             Err(err) => Self {
                 media: Default::default(),
@@ -114,20 +117,24 @@ impl Sandbox for ZCinema {
                 error_dialog: Some(ErrorDialog::new(err, true)),
                 state_dir: PathBuf::new(),
             },
-        }
+        };
+
+        (zcinema, Command::none())
     }
 
     fn title(&self) -> String {
         String::from("ZCinema")
     }
 
-    fn update(&mut self, message: Self::Message) {
+    fn update(&mut self, message: Self::Message) -> Command<Message> {
         match message {
             Message::MainWindow(main_window::Message::AddSerial) => {
                 self.add_serial_dialog();
+                Command::none()
             }
             Message::MainWindow(main_window::Message::ChangeSerial(id)) => {
-                self.change_serial_dialog(id)
+                self.change_serial_dialog(id);
+                Command::none()
             }
             Message::SerialChange(serial_edit_dialog::Message::Accept {
                 kind,
@@ -147,24 +154,29 @@ impl Sandbox for ZCinema {
                     self.save_serial(self.media.len() - 1);
                 }
                 self.main_window();
+                Command::none()
             }
             Message::SerialChange(serial_edit_dialog::Message::Delete(id)) => {
                 self.remove_serial(id);
                 self.main_window();
+                Command::none()
             }
             Message::SerialChange(serial_edit_dialog::Message::Back) => {
                 self.main_window();
+                Command::none()
             }
             Message::SerialChange(dialog_message) => {
                 if let Dialog::SerialChange(dialog) = &mut self.dialog {
                     dialog.update(dialog_message);
                 }
+                Command::none()
             }
             Message::ErrorDialog(error_dialog::Message::Ok { critical }) => {
                 if critical {
-                    let _ = window::close::<Message>(window::Id::MAIN);
+                    window::close(window::Id::MAIN)
                 } else {
                     self.error_dialog = None;
+                    Command::none()
                 }
             }
         }
