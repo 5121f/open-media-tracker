@@ -63,9 +63,17 @@ impl ZCinema {
         if !self.state_dir.exists() {
             fs::create_dir(&self.state_dir).unwrap();
         }
-        let file_name = format!("{}.ron", &serial.name);
+        let file_name = serial_file_name(serial);
         let path = self.state_dir.join(&file_name);
         fs::write(path, content).unwrap();
+    }
+
+    fn remove_serial(&mut self, id: usize) {
+        let serial = self.media[id].as_ref();
+        let file_name = serial_file_name(serial);
+        let path = self.state_dir.join(file_name);
+        fs::remove_file(path).unwrap();
+        self.media.remove(id);
     }
 }
 
@@ -119,6 +127,10 @@ impl Sandbox for ZCinema {
                     }
                     self.main_window();
                 }
+            }
+            Message::SerialChange(serial_chamge_dialog::Message::Delete(id)) => {
+                self.remove_serial(id);
+                self.main_window();
             }
             Message::SerialChange(serial_chamge_dialog::Message::Back) => {
                 self.main_window();
@@ -230,7 +242,7 @@ mod serial_chamge_dialog {
     use std::num::NonZeroU8;
 
     use iced::{
-        widget::{button, column, horizontal_space, row, text, text_input},
+        widget::{button, column, horizontal_space, row, text, text_input, Row},
         Element,
     };
 
@@ -240,6 +252,7 @@ mod serial_chamge_dialog {
     pub enum Message {
         Back,
         Accept,
+        Delete(usize),
         NameChanged(String),
         SeasonChanged(String),
         SeriaChanged(String),
@@ -279,8 +292,8 @@ mod serial_chamge_dialog {
         }
 
         pub fn view(&self) -> Element<Message> {
-            column![
-                button("< Back").on_press(Message::Back),
+            let back_button = button("< Back").on_press(Message::Back);
+            let edit_area = column![
                 row![
                     text("Name"),
                     text_input("Name", &self.name).on_input(Message::NameChanged)
@@ -296,18 +309,23 @@ mod serial_chamge_dialog {
                     text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged),
                     button("-").on_press(Message::SeriaDec),
                     button("+").on_press(Message::SeriaInc)
-                ],
-                row![
-                    horizontal_space(),
-                    button("Accept").on_press(Message::Accept)
                 ]
-            ]
-            .into()
+            ];
+            let mut bottom_buttons = Row::new();
+            if let Some(id) = self.id {
+                let delete_button = button("Delete").on_press(Message::Delete(id));
+                bottom_buttons = bottom_buttons.push(delete_button);
+            }
+            bottom_buttons = bottom_buttons.extend([
+                horizontal_space().into(),
+                button("Accept").on_press(Message::Accept).into(),
+            ]);
+            column![back_button, edit_area, bottom_buttons].into()
         }
 
         pub fn update(&mut self, message: Message) -> Result<(), Error> {
             match message {
-                Message::Back | Message::Accept => {}
+                Message::Back | Message::Accept | Message::Delete(_) => {}
                 Message::NameChanged(value) => self.name = value,
                 Message::SeasonChanged(value) => {
                     if let Ok(number) = value.parse() {
@@ -400,4 +418,8 @@ enum Error {
 
 fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
     v.iter().map(|m| Rc::clone(&m)).collect()
+}
+
+fn serial_file_name(serial: &Serial) -> String {
+    format!("{}.ron", serial.name)
 }
