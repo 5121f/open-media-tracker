@@ -67,14 +67,16 @@ impl Serial {
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
 
-    pub fn change_season(&mut self, new_value: NonZeroU8) {
-        let model = Rc::get_mut(&mut self.0).unwrap();
+    pub fn change_season(&mut self, new_value: NonZeroU8) -> Result<(), ErrorKind> {
+        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
         model.current_season = new_value;
+        Ok(())
     }
 
-    pub fn change_seria(&mut self, new_value: NonZeroU8) {
-        let model = Rc::get_mut(&mut self.0).unwrap();
+    pub fn change_seria(&mut self, new_value: NonZeroU8) -> Result<(), ErrorKind> {
+        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
         model.current_seria = new_value;
+        Ok(())
     }
 
     // pub fn get_mut(&mut self) -> Result<&mut model::Serial> {

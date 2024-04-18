@@ -109,8 +109,12 @@ impl ZCinema {
                             self.media[id]
                                 .rename(&self.state_dir, name)
                                 .map_err(|kind| Error::general(kind))?;
-                            self.media[id].change_season(season);
-                            self.media[id].change_seria(seria);
+                            self.media[id]
+                                .change_season(season)
+                                .map_err(|kind| Error::general(kind))?;
+                            self.media[id]
+                                .change_seria(seria)
+                                .map_err(|kind| Error::general(kind))?;
                             self.save_serial(id)?;
                         } else {
                             let serial = Serial::new(name, season, seria);
