@@ -27,6 +27,7 @@ enum Message {
     ErrorDialog(error_dialog::Message),
 }
 
+#[derive(Default)]
 struct ZCinema {
     media: Vec<Serial>,
     dialog: Dialog,
@@ -48,10 +49,10 @@ impl ZCinema {
         self.dialog = Dialog::main_window(&self.media);
     }
 
-    // fn error_dialog(&mut self, message: impl ToString, critical: bool) {
-    //     let dialog = ErrorDialog::new(message, critical);
-    //     self.error_dialog = Some(dialog);
-    // }
+    fn error_dialog(&mut self, message: impl ToString, critical: bool) {
+        let dialog = ErrorDialog::new(message, critical);
+        self.error_dialog = Some(dialog);
+    }
 
     // fn handle_error<T, E>(&mut self, result: Result<T, E>, critical: bool) -> Option<T>
     // where
@@ -113,12 +114,11 @@ impl Application for ZCinema {
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         let zcinema = match Self::new2() {
             Ok(s) => s,
-            Err(err) => Self {
-                media: Default::default(),
-                dialog: Dialog::main_window(&Vec::new()),
-                error_dialog: Some(ErrorDialog::new(err, true)),
-                state_dir: PathBuf::new(),
-            },
+            Err(err) => {
+                let mut zcinema = Self::default();
+                zcinema.error_dialog(err, true);
+                zcinema
+            }
         };
 
         (zcinema, Command::none())

@@ -38,3 +38,9 @@ impl Dialog {
         }
     }
 }
+
+impl Default for Dialog {
+    fn default() -> Self {
+        Dialog::MainWindow(MainWindow::default())
+    }
+}

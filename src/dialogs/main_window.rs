@@ -11,6 +11,7 @@ pub enum Message {
     ChangeSerial(usize),
 }
 
+#[derive(Default)]
 pub struct MainWindow {
     media: Vec<Serial>,
 }
