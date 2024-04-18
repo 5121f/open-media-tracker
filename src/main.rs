@@ -59,16 +59,12 @@ impl ZCinema {
     }
 
     fn save_serial(&self, id: usize) -> Result<(), Error> {
-        self.media[id]
-            .save(&self.state_dir)
-            .map_err(|kind| Error::general(kind))
+        Ok(self.media[id].save(&self.state_dir)?)
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
         let serial = &self.media[id];
-        serial
-            .remove_file(&self.state_dir)
-            .map_err(|kind| Error::general(kind))?;
+        serial.remove_file(&self.state_dir)?;
         self.media.remove(id);
         Ok(())
     }
@@ -210,7 +206,7 @@ impl Application for ZCinema {
 }
 
 fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
-    let read_dir = fs::read_dir(dir).map_err(|source| ErrorKind::fsio(&dir, source))?;
+    let read_dir = fs::read_dir(dir).map_err(|source| ErrorKind::fsio(dir, source))?;
     let mut media = Vec::new();
     for entry in read_dir {
         let entry = entry.map_err(|source| ErrorKind::fsio(dir, source))?;

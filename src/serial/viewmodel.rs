@@ -39,7 +39,7 @@ impl Serial {
         Self(Rc::clone(&self.0))
     }
 
-    pub fn rename<P: AsRef<Path>>(&mut self, dir: P, new_name: String) -> Result<(), ErrorKind> {
+    pub fn rename(&mut self, dir: impl AsRef<Path>, new_name: String) -> Result<(), ErrorKind> {
         let dir = dir.as_ref();
         if self.0.name != new_name {
             let current_path = self.path(dir);
@@ -52,7 +52,7 @@ impl Serial {
         Ok(())
     }
 
-    pub fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), ErrorKind> {
+    pub fn save(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
         let content = ron::ser::to_string_pretty(self.0.as_ref(), PrettyConfig::new())
             .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
         if !dir.as_ref().exists() {
@@ -63,7 +63,7 @@ impl Serial {
         Ok(())
     }
 
-    pub fn remove_file<P: AsRef<Path>>(&self, dir: P) -> Result<(), ErrorKind> {
+    pub fn remove_file(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
         let path = self.path(dir);
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
@@ -72,7 +72,7 @@ impl Serial {
         Rc::get_mut(&mut self.0).ok_or(ErrorKind::Unknown)
     }
 
-    fn path<P: AsRef<Path>>(&self, dir: P) -> PathBuf {
+    fn path(&self, dir: impl AsRef<Path>) -> PathBuf {
         dir.as_ref().join(self.file_name())
     }
 }
