@@ -113,12 +113,12 @@ impl Sandbox for ZCinema {
                 self.change_serial_dialog(id)
             }
             Message::SerialChange(serial_chamge_dialog::Message::Accept {
-                id,
+                kind,
                 name,
                 season,
                 seria,
             }) => {
-                if let Some(id) = id {
+                if let serial_chamge_dialog::Kind::Change { id } = kind {
                     let serial = Rc::get_mut(&mut self.media[id]).unwrap();
                     if serial.name != name {
                         let file_name = serial_file_name(&serial.name);
@@ -262,11 +262,17 @@ mod serial_chamge_dialog {
 
     use crate::{Error, Serial};
 
+    #[derive(Debug, Clone, Copy)]
+    pub enum Kind {
+        New,
+        Change { id: usize },
+    }
+
     #[derive(Debug, Clone)]
     pub enum Message {
         Back,
         Accept {
-            id: Option<usize>,
+            kind: Kind,
             name: String,
             season: NonZeroU8,
             seria: NonZeroU8,
@@ -282,7 +288,7 @@ mod serial_chamge_dialog {
     }
 
     pub struct SerialChangeDialog {
-        id: Option<usize>,
+        kind: Kind,
         name: String,
         season: NonZeroU8,
         seria: NonZeroU8,
@@ -292,7 +298,7 @@ mod serial_chamge_dialog {
         pub fn new() -> Result<Self, Error> {
             let one = NonZeroU8::new(1).ok_or(Error::SeasonAndSeriaCannotBeZero)?;
             let dialog = Self {
-                id: None,
+                kind: Kind::New,
                 name: String::new(),
                 season: one,
                 seria: one,
@@ -303,7 +309,7 @@ mod serial_chamge_dialog {
         pub fn change(serial: &Serial, id: usize) -> Self {
             let name = serial.name.clone();
             Self {
-                id: Some(id),
+                kind: Kind::Change { id },
                 name,
                 season: serial.current_season,
                 seria: serial.current_seria,
@@ -331,7 +337,7 @@ mod serial_chamge_dialog {
                 ]
             ];
             let mut bottom_buttons = Row::new();
-            if let Some(id) = self.id {
+            if let Kind::Change { id } = self.kind {
                 let delete_button = button("Delete").on_press(Message::Delete(id));
                 bottom_buttons = bottom_buttons.push(delete_button);
             }
@@ -339,7 +345,7 @@ mod serial_chamge_dialog {
                 horizontal_space().into(),
                 button("Accept")
                     .on_press(Message::Accept {
-                        id: self.id,
+                        kind: self.kind,
                         name: self.name.clone(),
                         season: self.season,
                         seria: self.seria,
