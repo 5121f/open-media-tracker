@@ -33,8 +33,8 @@ impl MainWindow {
                         text(&m.name),
                         horizontal_space(),
                         button("...").on_press(Message::ChangeSerial(id))
-                    ]
-                    .into())
+                    ])
+                    .map(Into::into)
                     .collect::<Vec<_>>()
             )
         ]

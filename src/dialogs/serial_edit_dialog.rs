@@ -52,10 +52,9 @@ impl SerialEditDialog {
     }
 
     pub fn change(serial: &Serial, id: usize) -> Self {
-        let name = serial.name.clone();
         Self {
             kind: Kind::Change { id },
-            name,
+            name: serial.name.clone(),
             season: serial.current_season,
             seria: serial.current_seria,
         }
@@ -88,14 +87,7 @@ impl SerialEditDialog {
         }
         bottom_buttons = bottom_buttons.extend([
             horizontal_space().into(),
-            button("Accept")
-                .on_press(Message::Accept {
-                    kind: self.kind,
-                    name: self.name.clone(),
-                    season: self.season,
-                    seria: self.seria,
-                })
-                .into(),
+            button("Accept").on_press(self.accept()).into(),
         ]);
         column![back_button, edit_area, bottom_buttons].into()
     }
@@ -130,5 +122,14 @@ impl SerialEditDialog {
             }
         }
         Ok(())
+    }
+
+    fn accept(&self) -> Message {
+        Message::Accept {
+            kind: self.kind,
+            name: self.name.clone(),
+            season: self.season,
+            seria: self.seria,
+        }
     }
 }

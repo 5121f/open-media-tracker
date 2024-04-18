@@ -13,8 +13,10 @@ pub struct ErrorDialog {
 }
 
 impl ErrorDialog {
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new(message: impl ToString) -> Self {
+        Self {
+            message: message.to_string(),
+        }
     }
 
     pub fn view(&self) -> Element<Message> {

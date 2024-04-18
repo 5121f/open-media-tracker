@@ -32,7 +32,7 @@ impl Dialog {
         Self::SerialChange(dialog)
     }
 
-    pub fn error(message: String) -> Self {
+    pub fn error(message: impl ToString) -> Self {
         let dialog = ErrorDialog::new(message);
         Self::Error(dialog)
     }

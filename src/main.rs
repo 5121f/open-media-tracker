@@ -47,7 +47,7 @@ impl ZCinema {
     }
 
     fn error_dialog(&mut self, message: impl ToString) {
-        self.dialog = Dialog::error(message.to_string());
+        self.dialog = Dialog::error(message);
     }
 
     fn handle_error<T, E>(&mut self, result: Result<T, E>) -> Option<T>
@@ -186,7 +186,7 @@ enum Error {
 }
 
 fn clone_rc_vec<T>(v: &[Rc<T>]) -> Vec<Rc<T>> {
-    v.iter().map(|m| Rc::clone(&m)).collect()
+    v.iter().map(Rc::clone).collect()
 }
 
 fn serial_file_name(name: &str) -> String {
