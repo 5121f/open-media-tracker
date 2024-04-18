@@ -1,17 +1,17 @@
 mod dialogs;
+mod serial;
 
 use std::{
     fs,
-    num::NonZeroU8,
     path::{Path, PathBuf},
-    rc::Rc,
 };
 
 use iced::{Element, Sandbox, Settings, Theme};
-use ron::ser::PrettyConfig;
-use serde::{Deserialize, Serialize};
 
-use crate::dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog};
+use crate::{
+    dialogs::{error_dialog, main_window, serial_edit_dialog, Dialog},
+    serial::viewmodel::Serial,
+};
 
 fn main() -> iced::Result {
     ZCinema::run(Settings::default())
@@ -25,7 +25,7 @@ enum Message {
 }
 
 struct ZCinema {
-    media: Vec<Rc<Serial>>,
+    media: Vec<Serial>,
     dialog: Dialog,
     state_dir: PathBuf,
 }
@@ -63,21 +63,12 @@ impl ZCinema {
     }
 
     fn save_serial(&self, id: usize) {
-        let serial = self.media[id].as_ref();
-        let content = ron::ser::to_string_pretty(serial, PrettyConfig::new()).unwrap();
-        if !self.state_dir.exists() {
-            fs::create_dir(&self.state_dir).unwrap();
-        }
-        let file_name = serial_file_name(&serial.name);
-        let path = self.state_dir.join(&file_name);
-        fs::write(path, content).unwrap();
+        self.media[id].save(&self.state_dir);
     }
 
     fn remove_serial(&mut self, id: usize) {
-        let serial = self.media[id].as_ref();
-        let file_name = serial_file_name(&serial.name);
-        let path = self.state_dir.join(file_name);
-        fs::remove_file(path).unwrap();
+        let serial = &self.media[id];
+        serial.remove_file(&self.state_dir);
         self.media.remove(id);
     }
 }
@@ -120,24 +111,13 @@ impl Sandbox for ZCinema {
                 seria,
             }) => {
                 if let serial_edit_dialog::Kind::Change { id } = kind {
-                    let serial = Rc::get_mut(&mut self.media[id]).unwrap();
-                    if serial.name != name {
-                        let file_name = serial_file_name(&serial.name);
-                        let path = self.state_dir.join(&file_name);
-                        let new_name = serial_file_name(&name);
-                        let new_path = self.state_dir.join(&new_name);
-                        fs::rename(path, new_path).unwrap();
-                        serial.name = name;
-                    }
-                    serial.current_season = season;
-                    serial.current_seria = seria;
+                    let serial = &mut self.media[id];
+                    serial.rename(&self.state_dir, name);
+                    serial.change_season(season);
+                    serial.change_seria(seria);
                     self.save_serial(id);
                 } else {
-                    let serial = Rc::new(Serial {
-                        name,
-                        current_season: season,
-                        current_seria: seria,
-                    });
+                    let serial = Serial::new(name, season, seria);
                     self.media.push(serial);
                     self.save_serial(self.media.len() - 1);
                 }
@@ -169,13 +149,6 @@ impl Sandbox for ZCinema {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct Serial {
-    name: String,
-    current_season: NonZeroU8,
-    current_seria: NonZeroU8,
-}
-
 #[derive(Debug, thiserror::Error)]
 enum Error {
     #[error("Season and seria number can not be zero")]
@@ -184,18 +157,13 @@ enum Error {
     NumberOverflow,
 }
 
-fn serial_file_name(name: &str) -> String {
-    format!("{}.ron", name)
-}
-
-fn read_media(dir: &Path) -> Vec<Rc<Serial>> {
+fn read_media(dir: &Path) -> Vec<Serial> {
     let mut media = Vec::new();
     for entry in fs::read_dir(&dir).unwrap() {
         let entry = entry.unwrap().path();
         if entry.is_file() {
-            let file_content = fs::read_to_string(entry).unwrap();
-            let m: Serial = ron::from_str(&file_content).unwrap();
-            media.push(Rc::new(m));
+            let serial = Serial::read_from_file(entry);
+            media.push(serial);
         }
     }
     media

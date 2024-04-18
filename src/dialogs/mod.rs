@@ -2,9 +2,7 @@ pub mod error_dialog;
 pub mod main_window;
 pub mod serial_edit_dialog;
 
-use std::rc::Rc;
-
-use crate::{Error, Message, Serial};
+use crate::{serial::viewmodel::Serial, Error, Message};
 use error_dialog::ErrorDialog;
 use iced::Element;
 use main_window::MainWindow;
@@ -17,8 +15,8 @@ pub enum Dialog {
 }
 
 impl Dialog {
-    pub fn main_window(media: &[Rc<Serial>]) -> Self {
-        let media = media.iter().map(Rc::clone).collect();
+    pub fn main_window(media: &[Serial]) -> Self {
+        let media = media.into_iter().map(|m| m.rc_clone()).collect();
         let dialog = MainWindow::new(media);
         Self::MainWindow(dialog)
     }

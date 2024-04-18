@@ -5,7 +5,7 @@ use iced::{
     Element,
 };
 
-use crate::{Error, Serial};
+use crate::{serial::model::Serial, Error};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Kind {

@@ -1,11 +1,9 @@
-use std::rc::Rc;
-
 use iced::{
     widget::{button, column, horizontal_space, row, text},
     Element,
 };
 
-use crate::Serial;
+use crate::serial::viewmodel::Serial;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -14,11 +12,11 @@ pub enum Message {
 }
 
 pub struct MainWindow {
-    media: Vec<Rc<Serial>>,
+    media: Vec<Serial>,
 }
 
 impl MainWindow {
-    pub fn new(media: Vec<Rc<Serial>>) -> Self {
+    pub fn new(media: Vec<Serial>) -> Self {
         Self { media }
     }
 
