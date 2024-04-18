@@ -1,3 +1,4 @@
+use core::num;
 use std::num::NonZeroU8;
 
 use iced::{
@@ -107,18 +108,24 @@ impl SerialEditDialog {
                 }
             }
             Message::SeasonInc => {
-                self.season = self.season.checked_add(1).unwrap_or(NonZeroU8::MIN);
+                if let Some(number) = self.season.checked_add(1) {
+                    self.season = number;
+                }
             }
             Message::SeasonDec => {
-                let one = NonZeroU8::MIN;
-                self.season = self.season.checked_mul(one).unwrap_or(one);
+                if let Some(number) = self.season.checked_mul(NonZeroU8::MIN) {
+                    self.season = number;
+                }
             }
             Message::SeriaInc => {
-                self.seria = self.seria.checked_add(1).unwrap_or(NonZeroU8::MIN);
+                if let Some(number) = self.seria.checked_add(1) {
+                    self.seria = number;
+                }
             }
             Message::SeriaDec => {
-                let one = NonZeroU8::MIN;
-                self.seria = self.seria.checked_mul(one).unwrap_or(NonZeroU8::MIN);
+                if let Some(number) = self.seria.checked_mul(NonZeroU8::MIN) {
+                    self.seria = number;
+                }
             }
         }
     }
