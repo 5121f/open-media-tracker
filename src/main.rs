@@ -2,7 +2,7 @@ mod dialogs;
 mod serial;
 
 use std::{
-    fs,
+    fs, io,
     path::{Path, PathBuf},
 };
 
@@ -74,24 +74,45 @@ impl ZCinema {
         serial.remove_file(&self.state_dir);
         self.media.remove(id);
     }
+
+    fn read_media(dir: &Path) -> Result<Vec<Serial>, Error> {
+        let media = if dir.exists() {
+            read_media(dir)?
+        } else {
+            Vec::new()
+        };
+        Ok(media)
+    }
+
+    fn state_dir() -> PathBuf {
+        dirs::state_dir().unwrap().join("zcinema")
+    }
+
+    fn new2() -> Result<Self, Error> {
+        let state_dir = Self::state_dir();
+        let media = Self::read_media(&state_dir)?;
+        let main_window = Dialog::main_window(&media);
+        Ok(Self {
+            media,
+            dialog: main_window,
+            error_dialog: None,
+            state_dir,
+        })
+    }
 }
 
 impl Sandbox for ZCinema {
     type Message = Message;
 
     fn new() -> Self {
-        let state_dir = dirs::state_dir().unwrap().join("zcinema");
-        let media = if state_dir.exists() {
-            read_media(&state_dir)
-        } else {
-            Vec::new()
-        };
-        let main_window = Dialog::main_window(&media);
-        Self {
-            media,
-            dialog: main_window,
-            error_dialog: None,
-            state_dir,
+        match Self::new2() {
+            Ok(s) => s,
+            Err(err) => Self {
+                media: Default::default(),
+                dialog: Dialog::main_window(&Vec::new()),
+                error_dialog: Some(ErrorDialog::new(err)),
+                state_dir: PathBuf::new(),
+            },
         }
     }
 
@@ -163,16 +184,29 @@ enum Error {
     SeasonAndSeriaCannotBeZero,
     #[error("Number overflow")]
     NumberOverflow,
+    #[error("{path}: {source}")]
+    FSIO { path: String, source: io::Error },
 }
 
-fn read_media(dir: &Path) -> Vec<Serial> {
+impl Error {
+    fn fsio<P: AsRef<Path>>(path: P, source: io::Error) -> Self {
+        Self::FSIO {
+            path: path.as_ref().display().to_string(),
+            source,
+        }
+    }
+}
+
+fn read_media(dir: &Path) -> Result<Vec<Serial>, Error> {
+    let read_dir = fs::read_dir(dir).map_err(|source| Error::fsio(&dir, source))?;
     let mut media = Vec::new();
-    for entry in fs::read_dir(&dir).unwrap() {
-        let entry = entry.unwrap().path();
-        if entry.is_file() {
-            let serial = Serial::read_from_file(entry);
+    for entry in read_dir {
+        let entry = entry.map_err(|source| Error::fsio(dir, source))?;
+        let path = entry.path();
+        if path.is_file() {
+            let serial = Serial::read_from_file(path);
             media.push(serial);
         }
     }
-    media
+    Ok(media)
 }
