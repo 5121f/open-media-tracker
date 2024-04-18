@@ -1,4 +1,4 @@
-use std::{borrow::BorrowMut, fs, num::NonZeroU8, path::PathBuf, rc::Rc};
+use std::{fs, num::NonZeroU8, path::PathBuf, rc::Rc};
 
 use error_dialog::ErrorDialog;
 use iced::{Element, Sandbox, Settings, Theme};
