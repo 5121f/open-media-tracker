@@ -104,6 +104,7 @@ impl ZCinema {
                         name,
                         season,
                         seria,
+                        season_path,
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
                             self.media[id]
@@ -115,9 +116,12 @@ impl ZCinema {
                             self.media[id]
                                 .change_seria(seria)
                                 .map_err(|kind| Error::general(kind))?;
+                            self.media[id]
+                                .change_season_path(season_path)
+                                .map_err(|kind| Error::general(kind))?;
                             self.save_serial(id)?;
                         } else {
-                            let serial = Serial::new(name, season, seria);
+                            let serial = Serial::new(name, season, seria, season_path);
                             self.media.push(serial);
                             self.save_serial(self.media.len() - 1)?;
                         }
@@ -129,6 +133,9 @@ impl ZCinema {
                     }
                     SerialEditScreenMessage::Back => {
                         self.main_window();
+                    }
+                    SerialEditScreenMessage::Watch { path, seria } => {
+                        watch(path, seria)?;
                     }
                     _ => {
                         if let Dialog::SerialChange(dialog) = &mut self.dialog {
@@ -220,4 +227,20 @@ fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
         }
     }
     Ok(media)
+}
+
+fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
+    let read_dir =
+        fs::read_dir(&path).map_err(|source| Error::general(ErrorKind::fsio(&path, source)))?;
+    let mut files = Vec::new();
+    for entry in read_dir {
+        let entry = entry.map_err(|source| Error::general(ErrorKind::fsio(&path, source)))?;
+        files.push(entry.path());
+    }
+    let seria = &files[seria_number];
+    let mut cmd = std::process::Command::new("xdg-open");
+    cmd.arg(seria);
+    cmd.spawn()
+        .map_err(|source| Error::general(ErrorKind::fsio(path, source)))?;
+    Ok(())
 }

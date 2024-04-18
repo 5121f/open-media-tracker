@@ -1,4 +1,4 @@
-use std::num::NonZeroU8;
+use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
     widget::{button, column, horizontal_space, row, text, text_input, Row},
@@ -21,11 +21,17 @@ pub enum Message {
         name: String,
         season: NonZeroU8,
         seria: NonZeroU8,
+        season_path: PathBuf,
     },
     Delete(usize),
+    Watch {
+        path: String,
+        seria: usize,
+    },
     NameChanged(String),
     SeasonChanged(String),
     SeriaChanged(String),
+    SeasonPathChanged(String),
     SeasonInc,
     SeasonDec,
     SeriaInc,
@@ -37,6 +43,7 @@ pub struct SerialEditScreen {
     name: String,
     season: NonZeroU8,
     seria: NonZeroU8,
+    season_path: String,
 }
 
 impl SerialEditScreen {
@@ -47,6 +54,7 @@ impl SerialEditScreen {
             name: String::new(),
             season: one,
             seria: one,
+            season_path: String::new(),
         };
         dialog
     }
@@ -57,6 +65,7 @@ impl SerialEditScreen {
             name: serial.name.clone(),
             season: serial.current_season,
             seria: serial.current_seria,
+            season_path: serial.season_path.display().to_string(),
         }
     }
 
@@ -78,6 +87,14 @@ impl SerialEditScreen {
                 text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged),
                 button("-").on_press(Message::SeriaDec),
                 button("+").on_press(Message::SeriaInc)
+            ],
+            row![
+                text("Season path"),
+                text_input("Season path", &self.season_path).on_input(Message::SeasonPathChanged),
+                button(">").on_press(Message::Watch {
+                    path: self.season_path.clone(),
+                    seria: self.seria.get() as usize
+                })
             ]
         ];
         let mut bottom_buttons = Row::new();
@@ -94,7 +111,8 @@ impl SerialEditScreen {
 
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::Back | Message::Accept { .. } | Message::Delete(_) => {}
+            Message::Back | Message::Accept { .. } | Message::Delete(_) | Message::Watch { .. } => {
+            }
             Message::NameChanged(value) => self.name = value,
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
@@ -122,6 +140,7 @@ impl SerialEditScreen {
                     self.seria = number;
                 }
             }
+            Message::SeasonPathChanged(value) => self.season_path = value,
         }
     }
 
@@ -131,6 +150,7 @@ impl SerialEditScreen {
             name: self.name.clone(),
             season: self.season,
             seria: self.seria,
+            season_path: PathBuf::from(&self.season_path),
         }
     }
 }

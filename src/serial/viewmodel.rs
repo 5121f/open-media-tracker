@@ -13,11 +13,12 @@ use crate::{error::ErrorKind, serial::model};
 pub struct Serial(Rc<model::Serial>);
 
 impl Serial {
-    pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8) -> Self {
+    pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8, season_path: PathBuf) -> Self {
         let model = model::Serial {
             name,
             current_season: season,
             current_seria: seria,
+            season_path,
         };
         Self(Rc::new(model))
     }
@@ -76,6 +77,12 @@ impl Serial {
     pub fn change_seria(&mut self, new_value: NonZeroU8) -> Result<(), ErrorKind> {
         let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
         model.current_seria = new_value;
+        Ok(())
+    }
+
+    pub fn change_season_path(&mut self, new_value: PathBuf) -> Result<(), ErrorKind> {
+        let model = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
+        model.season_path = new_value;
         Ok(())
     }
 
