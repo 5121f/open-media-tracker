@@ -48,7 +48,7 @@ pub enum ErrorKind {
         kind: io::ErrorKind,
     },
     #[error("Uncnown error")]
-    Uncnown,
+    Unknown,
 }
 
 impl ErrorKind {

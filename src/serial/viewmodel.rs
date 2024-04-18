@@ -44,7 +44,7 @@ impl Serial {
         if self.0.name != new_name {
             let current_path = self.path(dir);
             let new_path = dir.join(file_name(&new_name));
-            let serial = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
+            let serial = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Unknown)?;
             serial.name = new_name;
             fs::rename(current_path, new_path)
                 .map_err(|source| ErrorKind::fsio(serial.name.clone(), source))?;
@@ -69,7 +69,7 @@ impl Serial {
     }
 
     pub fn get_mut(&mut self) -> Result<&mut model::Serial, ErrorKind> {
-        Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)
+        Rc::get_mut(&mut self.0).ok_or(ErrorKind::Unknown)
     }
 
     fn path<P: AsRef<Path>>(&self, dir: P) -> PathBuf {
