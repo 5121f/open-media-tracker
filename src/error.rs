@@ -1,4 +1,7 @@
-use std::{io, path::Path};
+use std::{
+    io,
+    path::{Path, PathBuf},
+};
 
 use ron::de::SpannedError;
 
@@ -38,9 +41,9 @@ impl From<ErrorKind> for Error {
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
     #[error("{path}: {kind}")]
-    FSIO { path: String, kind: io::ErrorKind },
+    FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
-    Parce { path: String, source: SpannedError },
+    Parce { path: PathBuf, source: SpannedError },
     #[error("{serial_name}: Serialize error: ")]
     SerialSerialize {
         serial_name: String,
@@ -50,7 +53,7 @@ pub enum ErrorKind {
     StateDirNotFound,
     #[error("{video_path}: Falied to open video in default program: {kind}")]
     OpenVideo {
-        video_path: String,
+        video_path: PathBuf,
         kind: io::ErrorKind,
     },
     #[error("Uncnown error")]
@@ -58,16 +61,16 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub fn fsio<P: AsRef<Path>>(path: P, source: io::Error) -> Self {
+    pub fn fsio(path: impl AsRef<Path>, source: io::Error) -> Self {
         Self::FSIO {
-            path: path.as_ref().display().to_string(),
+            path: path.as_ref().to_path_buf(),
             kind: source.kind(),
         }
     }
 
-    pub fn parse<P: AsRef<Path>>(path: P, source: SpannedError) -> Self {
+    pub fn parse(path: impl AsRef<Path>, source: SpannedError) -> Self {
         Self::Parce {
-            path: path.as_ref().display().to_string(),
+            path: path.as_ref().to_path_buf(),
             source,
         }
     }
@@ -81,7 +84,7 @@ impl ErrorKind {
 
     pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
         Self::OpenVideo {
-            video_path: path.as_ref().display().to_string(),
+            video_path: path.as_ref().to_path_buf(),
             kind,
         }
     }
