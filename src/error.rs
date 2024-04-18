@@ -4,10 +4,10 @@ use ron::de::SpannedError;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum Error {
-    #[error("{path}: {source}")]
-    FSIO { path: String, source: io::Error },
+    #[error("{path}: {kind}")]
+    FSIO { path: String, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     ParceError { path: String, source: SpannedError },
     #[error("Could not be found user's state directory")]
@@ -20,7 +20,7 @@ impl Error {
     pub fn fsio<P: AsRef<Path>>(path: P, source: io::Error) -> Self {
         Self::FSIO {
             path: path.as_ref().display().to_string(),
-            source,
+            kind: source.kind(),
         }
     }
 
