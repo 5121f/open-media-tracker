@@ -76,6 +76,10 @@ impl Serial {
         model.current_seria = new_value;
     }
 
+    // pub fn get_mut(&mut self) -> Result<&mut model::Serial> {
+    //     Rc::get_mut(&mut self.0).ok_or(Error::Uncnown)
+    // }
+
     fn path<P: AsRef<Path>>(&self, dir: P) -> PathBuf {
         dir.as_ref().join(self.file_name())
     }
