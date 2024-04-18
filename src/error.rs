@@ -29,6 +29,12 @@ impl ToString for Error {
     }
 }
 
+impl From<ErrorKind> for Error {
+    fn from(value: ErrorKind) -> Self {
+        Error::general(value)
+    }
+}
+
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
     #[error("{path}: {kind}")]

@@ -108,11 +108,8 @@ impl ZCinema {
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
                             let view_model = &mut self.media[id];
-                            view_model
-                                .rename(&self.state_dir, name)
-                                .map_err(|kind| Error::general(kind))?;
-                            let serial =
-                                view_model.get_mut().map_err(|kind| Error::general(kind))?;
+                            view_model.rename(&self.state_dir, name)?;
+                            let serial = view_model.get_mut()?;
                             serial.current_season = season;
                             serial.current_seria = seria;
                             serial.season_path = season_path;
@@ -227,15 +224,13 @@ fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
 }
 
 fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
-    let read_dir =
-        fs::read_dir(&path).map_err(|source| Error::general(ErrorKind::fsio(&path, source)))?;
+    let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
     let mut files = Vec::new();
     for entry in read_dir {
-        let entry = entry.map_err(|source| Error::general(ErrorKind::fsio(&path, source)))?;
+        let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
         files.push(entry.path());
     }
     let seria = &files[seria_number];
-    open::that(seria)
-        .map_err(|source| Error::general(ErrorKind::open_vido(&seria, source.kind())))?;
+    open::that(seria).map_err(|source| ErrorKind::open_vido(&seria, source.kind()))?;
     Ok(())
 }
