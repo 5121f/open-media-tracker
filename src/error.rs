@@ -2,10 +2,35 @@ use std::{io, path::Path};
 
 use ron::de::SpannedError;
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub struct Error {
+    pub kind: ErrorKind,
+    pub critical: bool,
+}
+
+impl Error {
+    pub fn critical(kind: ErrorKind) -> Self {
+        Self {
+            kind,
+            critical: true,
+        }
+    }
+
+    pub fn general(kind: ErrorKind) -> Self {
+        Self {
+            kind,
+            critical: false,
+        }
+    }
+}
+
+impl ToString for Error {
+    fn to_string(&self) -> String {
+        self.kind.to_string()
+    }
+}
 
 #[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
+pub enum ErrorKind {
     #[error("{path}: {kind}")]
     FSIO { path: String, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
@@ -16,7 +41,7 @@ pub enum Error {
     Uncnown,
 }
 
-impl Error {
+impl ErrorKind {
     pub fn fsio<P: AsRef<Path>>(path: P, source: io::Error) -> Self {
         Self::FSIO {
             path: path.as_ref().display().to_string(),

@@ -8,10 +8,7 @@ use std::{
 
 use ron::ser::PrettyConfig;
 
-use crate::{
-    error::{Error, Result},
-    serial::model,
-};
+use crate::{error::ErrorKind, serial::model};
 
 pub struct Serial(Rc<model::Serial>);
 
@@ -25,9 +22,11 @@ impl Serial {
         Self(Rc::new(model))
     }
 
-    pub fn read_from_file(path: &Path) -> Result<Self> {
-        let file_content = fs::read_to_string(path).map_err(|source| Error::fsio(path, source))?;
-        let model = ron::from_str(&file_content).map_err(|source| Error::parse(path, source))?;
+    pub fn read_from_file(path: &Path) -> Result<Self, ErrorKind> {
+        let file_content =
+            fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
+        let model =
+            ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
         Ok(Self(Rc::new(model)))
     }
 
@@ -39,15 +38,15 @@ impl Serial {
         Self(Rc::clone(&self.0))
     }
 
-    pub fn rename<P: AsRef<Path>>(&mut self, dir: P, new_name: String) -> Result<()> {
+    pub fn rename<P: AsRef<Path>>(&mut self, dir: P, new_name: String) -> Result<(), ErrorKind> {
         let dir = dir.as_ref();
         if self.0.name != new_name {
             let current_path = self.path(dir);
             let new_path = dir.join(file_name(&new_name));
-            let serial = Rc::get_mut(&mut self.0).ok_or(Error::Uncnown)?;
+            let serial = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Uncnown)?;
             serial.name = new_name;
             fs::rename(current_path, new_path)
-                .map_err(|source| Error::fsio(serial.name.clone(), source))?;
+                .map_err(|source| ErrorKind::fsio(serial.name.clone(), source))?;
         }
         Ok(())
     }

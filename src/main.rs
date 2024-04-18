@@ -7,10 +7,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
 
 use crate::{
-    error::{Error, Result},
+    error::Error,
     screen::{
         serial_edit, Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage,
         SerialEditScreenMessage,
@@ -51,8 +52,9 @@ impl ZCinema {
         self.dialog = Dialog::main_window(&self.media);
     }
 
-    fn error_dialog(&mut self, message: impl ToString, critical: bool) {
-        let dialog = ErrorScreen::new(message, critical);
+    fn error_dialog(&mut self, error: Error) {
+        let critical = error.critical;
+        let dialog = ErrorScreen::new(error, critical);
         self.error_dialog = Some(dialog);
     }
 
@@ -66,7 +68,7 @@ impl ZCinema {
         self.media.remove(id);
     }
 
-    fn read_media(dir: &Path) -> Result<Vec<Serial>> {
+    fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
         let media = if dir.exists() {
             read_media(dir)?
         } else {
@@ -75,13 +77,13 @@ impl ZCinema {
         Ok(media)
     }
 
-    fn state_dir() -> Result<PathBuf> {
+    fn state_dir() -> Result<PathBuf, ErrorKind> {
         Ok(dirs::state_dir()
-            .ok_or(Error::StateDirNotFound)?
+            .ok_or(ErrorKind::StateDirNotFound)?
             .join("zcinema"))
     }
 
-    fn update2(&mut self, message: Message) -> Result<Command<Message>> {
+    fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
         match message {
             Message::MainScreen(message) => {
                 match message {
@@ -99,7 +101,9 @@ impl ZCinema {
                         seria,
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
-                            self.media[id].rename(&self.state_dir, name)?;
+                            self.media[id]
+                                .rename(&self.state_dir, name)
+                                .map_err(|kind| Error::general(kind))?;
                             self.media[id].change_season(season);
                             self.media[id].change_seria(seria);
                             self.save_serial(id);
@@ -136,9 +140,9 @@ impl ZCinema {
         }
     }
 
-    fn new2() -> Result<Self> {
-        let state_dir = Self::state_dir()?;
-        let media = Self::read_media(&state_dir)?;
+    fn new2() -> Result<Self, Error> {
+        let state_dir = Self::state_dir().map_err(|kind| Error::critical(kind))?;
+        let media = Self::read_media(&state_dir).map_err(|kind| Error::critical(kind))?;
         let main_window = Dialog::main_window(&media);
         Ok(Self {
             media,
@@ -158,9 +162,9 @@ impl Application for ZCinema {
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         let zcinema = match Self::new2() {
             Ok(s) => s,
-            Err(err) => {
+            Err(error) => {
                 let mut zcinema = Self::default();
-                zcinema.error_dialog(err, true);
+                zcinema.error_dialog(error);
                 zcinema
             }
         };
@@ -175,8 +179,8 @@ impl Application for ZCinema {
     fn update(&mut self, message: Self::Message) -> Command<Message> {
         match self.update2(message) {
             Ok(cmd) => cmd,
-            Err(err) => {
-                self.error_dialog(err.to_string(), false);
+            Err(error) => {
+                self.error_dialog(error);
                 Command::none()
             }
         }
@@ -195,11 +199,11 @@ impl Application for ZCinema {
     }
 }
 
-fn read_media(dir: &Path) -> Result<Vec<Serial>> {
-    let read_dir = fs::read_dir(dir).map_err(|source| Error::fsio(&dir, source))?;
+fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
+    let read_dir = fs::read_dir(dir).map_err(|source| ErrorKind::fsio(&dir, source))?;
     let mut media = Vec::new();
     for entry in read_dir {
-        let entry = entry.map_err(|source| Error::fsio(dir, source))?;
+        let entry = entry.map_err(|source| ErrorKind::fsio(dir, source))?;
         let path = entry.path();
         if path.is_file() {
             let serial = Serial::read_from_file(&path)?;
