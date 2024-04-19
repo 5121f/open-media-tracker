@@ -11,6 +11,7 @@ use iced::{
 use crate::{
     error::{Error, ErrorKind},
     serial::model::Serial,
+    utils,
 };
 
 use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
@@ -166,7 +167,7 @@ impl SerialEditScreen {
                     .parent()
                     .ok_or(ErrorKind::parent_dir(&self.season_path))?
                     .to_owned();
-                let paths = crate::read_dir(parent)?;
+                let paths = utils::read_dir(parent)?;
                 let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
                 let proposed_index = (self.season.get() + 1 + 1) as usize;
                 let proposed_path = &dirs[proposed_index];

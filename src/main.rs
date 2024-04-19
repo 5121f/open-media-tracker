@@ -1,11 +1,9 @@
 mod error;
 mod screen;
 mod serial;
+mod utils;
 
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
@@ -72,7 +70,7 @@ impl ZCinema {
     fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
         let dir = dir.as_ref();
         let media = if dir.exists() {
-            read_media(dir)?
+            utils::read_media(dir)?
         } else {
             Vec::new()
         };
@@ -126,7 +124,7 @@ impl ZCinema {
                         self.main_window();
                     }
                     SerialEditScreenMessage::Watch { path, seria } => {
-                        watch(path, seria)?;
+                        utils::watch(path, seria)?;
                     }
                     _ => {
                         if let Dialog::SerialChange(dialog) = &mut self.dialog {
@@ -204,30 +202,4 @@ impl Application for ZCinema {
     fn theme(&self) -> Theme {
         Theme::Dark
     }
-}
-
-fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
-    let media = read_dir(dir)?
-        .into_iter()
-        .map(Serial::read_from_file)
-        .collect::<Result<_, _>>()?;
-    Ok(media)
-}
-
-fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
-    let files = read_dir(path)?;
-    let seria = &files[seria_number];
-    open::that(seria).map_err(|source| ErrorKind::open_vido(&seria, source.kind()))?;
-    Ok(())
-}
-
-fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
-    let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
-    let mut files = Vec::new();
-    for entry in read_dir {
-        let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
-        files.push(entry.path());
-    }
-    files.sort();
-    Ok(files)
 }
