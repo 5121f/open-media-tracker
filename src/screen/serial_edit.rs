@@ -43,6 +43,7 @@ pub enum Message {
     SeasonChanged(String),
     SeriaChanged(String),
     SeasonPathChanged(String),
+    SeasonPathSelect,
     SeasonTryNext,
     SeasonInc,
     SeasonDec,
@@ -109,6 +110,7 @@ impl SerialEditScreen {
             .spacing(DEFAULT_INDENT),
             row![
                 signed_text_imput("Season path", &self.season_path, Message::SeasonPathChanged),
+                square_button("...").on_press(Message::SeasonPathSelect),
                 button("try next").on_press_maybe(
                     (!self.season_path.is_empty()).then_some(Message::SeasonTryNext)
                 ),
@@ -193,6 +195,11 @@ impl SerialEditScreen {
                     self.close_confirm_screen();
                 }
             },
+            Message::SeasonPathSelect => {
+                if let Some(folder) = rfd::FileDialog::new().pick_folder() {
+                    self.season_path = folder.display().to_string();
+                }
+            }
         }
         Ok(())
     }
