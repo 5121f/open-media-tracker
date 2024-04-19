@@ -238,22 +238,22 @@ impl SerialEditScreen {
     }
 
     fn confirm(&mut self, message: String) {
-        let screen = ConfirmScreen::new(message);
-        self.confirm_screen = Some(Confirm {
-            screen,
+        let confirm = Confirm {
+            screen: ConfirmScreen::new(message),
             kind: ConfirmKind::SeriaOverflow,
-        });
+        };
+        self.confirm_screen = Some(confirm);
     }
 
     fn confirm_proposed_season(&mut self, path: impl AsRef<Path>) {
         let path = path.as_ref();
-        let screen = ConfirmScreen::new(format!("Proposed path: {}", path.display()));
-        self.confirm_screen = Some(Confirm {
-            screen,
+        let confirm = Confirm {
+            screen: ConfirmScreen::new(format!("Proposed path: {}", path.display())),
             kind: ConfirmKind::TrySwitchToNewSeason {
                 potential_new_season: path.to_path_buf(),
             },
-        });
+        };
+        self.confirm_screen = Some(confirm);
     }
 
     fn accept(&self) -> Message {
