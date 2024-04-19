@@ -4,6 +4,7 @@ use std::{
 };
 
 use iced::{
+    theme,
     widget::{button, column, horizontal_space, row, text, text_input, Row},
     Element,
 };
@@ -11,7 +12,7 @@ use iced::{
 use crate::{
     error::{Error, ErrorKind},
     serial::model::Serial,
-    utils,
+    utils::{self, link, square_button, DEFAULT_INDENT},
 };
 
 use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
@@ -90,44 +91,53 @@ impl SerialEditScreen {
         if let Some(confirm_screen) = &self.confirm_screen {
             return confirm_screen.view().map(Message::ConfirmScreen);
         }
-        let back_button = button("< Back").on_press(Message::Back);
+        let back_button = link("< Back").on_press(Message::Back);
         let edit_area = column![
             row![
                 text("Name"),
                 text_input("Name", &self.name).on_input(Message::NameChanged)
-            ],
+            ]
+            .spacing(DEFAULT_INDENT),
             row![
                 text("Season"),
                 text_input("Season", &self.season.to_string()).on_input(Message::SeasonChanged),
-                button("-").on_press(Message::SeasonDec),
-                button("+").on_press(Message::SeasonInc)
-            ],
+                square_button("-").on_press(Message::SeasonDec),
+                square_button("+").on_press(Message::SeasonInc)
+            ]
+            .spacing(DEFAULT_INDENT),
             row![
                 text("Seria"),
                 text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged),
-                button("-").on_press(Message::SeriaDec),
-                button("+").on_press(Message::SeriaInc)
-            ],
+                square_button("-").on_press(Message::SeriaDec),
+                square_button("+").on_press(Message::SeriaInc)
+            ]
+            .spacing(DEFAULT_INDENT),
             row![
                 text("Season path"),
                 text_input("Season path", &self.season_path).on_input(Message::SeasonPathChanged),
                 button("try next").on_press(Message::SeasonTryNext),
-                button(">").on_press(Message::Watch {
+                square_button(">").on_press(Message::Watch {
                     path: self.season_path.clone(),
                     seria: self.seria.get() as usize
                 })
             ]
+            .spacing(DEFAULT_INDENT)
         ];
         let mut bottom_buttons = Row::new();
         if let Kind::Change { id } = self.kind {
-            let delete_button = button("Delete").on_press(Message::Delete(id));
+            let delete_button = button("Delete")
+                .style(theme::Button::Destructive)
+                .on_press(Message::Delete(id));
             bottom_buttons = bottom_buttons.push(delete_button);
         }
         bottom_buttons = bottom_buttons.extend([
             horizontal_space().into(),
             button("Accept").on_press(self.accept()).into(),
         ]);
-        column![back_button, edit_area, bottom_buttons].into()
+        column![back_button, edit_area, bottom_buttons]
+            .padding(DEFAULT_INDENT)
+            .spacing(DEFAULT_INDENT)
+            .into()
     }
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
