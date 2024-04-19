@@ -232,3 +232,14 @@ fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
     open::that(seria).map_err(|source| ErrorKind::open_vido(&seria, source.kind()))?;
     Ok(())
 }
+
+fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, Error> {
+    let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
+    let mut files = Vec::new();
+    for entry in read_dir {
+        let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
+        files.push(entry.path());
+    }
+    files.sort();
+    Ok(files)
+}

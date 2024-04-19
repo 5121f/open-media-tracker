@@ -1,11 +1,19 @@
-use std::{num::NonZeroU8, path::PathBuf};
+use std::{
+    num::NonZeroU8,
+    path::{self, Path, PathBuf},
+};
 
 use iced::{
     widget::{button, column, horizontal_space, row, text, text_input, Row},
     Element,
 };
 
-use crate::serial::model::Serial;
+use crate::{
+    error::{Error, ErrorKind},
+    serial::model::Serial,
+};
+
+use super::confirm::{self, ConfirmScreen, Message as ConfirmScreenMessage};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Kind {
@@ -32,10 +40,12 @@ pub enum Message {
     SeasonChanged(String),
     SeriaChanged(String),
     SeasonPathChanged(String),
+    SeasonTryNext,
     SeasonInc,
     SeasonDec,
     SeriaInc,
     SeriaDec,
+    ConfirmScreen(ConfirmScreenMessage),
 }
 
 pub struct SerialEditScreen {
@@ -44,6 +54,8 @@ pub struct SerialEditScreen {
     season: NonZeroU8,
     seria: NonZeroU8,
     season_path: String,
+    confirm_screen: Option<ConfirmScreen>,
+    potential_new_season: Option<PathBuf>,
 }
 
 impl SerialEditScreen {
@@ -55,6 +67,8 @@ impl SerialEditScreen {
             season: one,
             seria: one,
             season_path: String::new(),
+            confirm_screen: None,
+            potential_new_season: None,
         };
         dialog
     }
@@ -66,10 +80,15 @@ impl SerialEditScreen {
             season: serial.current_season,
             seria: serial.current_seria,
             season_path: serial.season_path.display().to_string(),
+            confirm_screen: None,
+            potential_new_season: None,
         }
     }
 
     pub fn view(&self) -> Element<Message> {
+        if let Some(confirm_screen) = &self.confirm_screen {
+            return confirm_screen.view().map(Message::ConfirmScreen);
+        }
         let back_button = button("< Back").on_press(Message::Back);
         let edit_area = column![
             row![
@@ -91,6 +110,7 @@ impl SerialEditScreen {
             row![
                 text("Season path"),
                 text_input("Season path", &self.season_path).on_input(Message::SeasonPathChanged),
+                button("try next").on_press(Message::SeasonTryNext),
                 button(">").on_press(Message::Watch {
                     path: self.season_path.clone(),
                     seria: self.seria.get() as usize
@@ -109,7 +129,7 @@ impl SerialEditScreen {
         column![back_button, edit_area, bottom_buttons].into()
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Result<(), Error> {
         match message {
             Message::Back | Message::Accept { .. } | Message::Delete(_) | Message::Watch { .. } => {
             }
@@ -141,7 +161,43 @@ impl SerialEditScreen {
                 }
             }
             Message::SeasonPathChanged(value) => self.season_path = value,
+            Message::SeasonTryNext => {
+                let parent = PathBuf::from(&self.season_path)
+                    .parent()
+                    .ok_or(ErrorKind::parent_dir(&self.season_path))?
+                    .to_owned();
+                let paths = crate::read_dir(parent)?;
+                let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
+                let proposed_index = (self.season.get() + 1 + 1) as usize;
+                let proposed_path = &dirs[proposed_index];
+                self.confirm_proposed_season(proposed_path);
+            }
+            Message::ConfirmScreen(message) => match message {
+                ConfirmScreenMessage::Confirm => {
+                    if let Some(new_season_path) = &self.potential_new_season {
+                        self.season_path = new_season_path.display().to_string();
+                    }
+                    self.potential_new_season = None;
+                    self.close_confirm_screen();
+                }
+                ConfirmScreenMessage::Cancel => {
+                    self.potential_new_season = None;
+                    self.close_confirm_screen();
+                }
+            },
         }
+        Ok(())
+    }
+
+    fn close_confirm_screen(&mut self) {
+        self.confirm_screen = None;
+    }
+
+    fn confirm_proposed_season(&mut self, path: impl AsRef<Path>) {
+        let path = path.as_ref();
+        let screen = ConfirmScreen::new(format!("Proposed path: {}", path.display()));
+        self.confirm_screen = Some(screen);
+        self.potential_new_season = Some(path.to_path_buf());
     }
 
     fn accept(&self) -> Message {

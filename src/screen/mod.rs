@@ -1,3 +1,4 @@
+pub mod confirm;
 pub mod error;
 pub mod main;
 pub mod serial_edit;

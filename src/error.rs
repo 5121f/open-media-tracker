@@ -56,6 +56,8 @@ pub enum ErrorKind {
         video_path: PathBuf,
         kind: io::ErrorKind,
     },
+    #[error("{path}: Failed to find parent directory")]
+    FaliedToGetParentDir { path: PathBuf },
     #[error("Uncnown error")]
     Unknown,
 }
@@ -86,6 +88,12 @@ impl ErrorKind {
         Self::OpenVideo {
             video_path: path.as_ref().to_path_buf(),
             kind,
+        }
+    }
+
+    pub fn parent_dir(path: impl AsRef<Path>) -> Self {
+        Self::FaliedToGetParentDir {
+            path: path.as_ref().to_path_buf(),
         }
     }
 }
