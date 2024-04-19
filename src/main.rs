@@ -130,7 +130,7 @@ impl ZCinema {
                     }
                     _ => {
                         if let Dialog::SerialChange(dialog) = &mut self.dialog {
-                            dialog.update(message);
+                            dialog.update(message)?;
                         };
                     }
                 }

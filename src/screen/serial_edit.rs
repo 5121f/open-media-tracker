@@ -1,6 +1,6 @@
 use std::{
     num::NonZeroU8,
-    path::{self, Path, PathBuf},
+    path::{Path, PathBuf},
 };
 
 use iced::{
@@ -13,7 +13,7 @@ use crate::{
     serial::model::Serial,
 };
 
-use super::confirm::{self, ConfirmScreen, Message as ConfirmScreenMessage};
+use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Kind {
