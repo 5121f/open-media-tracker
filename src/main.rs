@@ -2,6 +2,7 @@ mod error;
 mod screen;
 mod serial;
 mod utils;
+mod view_utils;
 
 use std::path::{Path, PathBuf};
 

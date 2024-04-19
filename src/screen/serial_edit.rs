@@ -12,7 +12,8 @@ use iced::{
 use crate::{
     error::{Error, ErrorKind},
     serial::model::Serial,
-    utils::{self, link, square_button, DEFAULT_INDENT},
+    utils,
+    view_utils::{link, square_button, DEFAULT_INDENT},
 };
 
 use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};

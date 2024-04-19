@@ -3,18 +3,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use iced::{
-    alignment, theme,
-    widget::{button, text, Button},
-    Color,
-};
-
 use crate::{
     error::{Error, ErrorKind},
     serial::viewmodel::Serial,
 };
-
-pub const DEFAULT_INDENT: u16 = 5;
 
 pub fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
     let media = read_dir(dir)?
@@ -40,20 +32,4 @@ pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
     }
     files.sort();
     Ok(files)
-}
-
-pub fn square_button<M>(s: &str) -> Button<M> {
-    button(
-        text(s)
-            .horizontal_alignment(alignment::Horizontal::Center)
-            .line_height(1.0)
-            .size(20),
-    )
-    .height(30)
-    .width(30)
-}
-
-pub fn link<M>(s: &str) -> Button<M> {
-    const CYAN: Color = Color::from_rgb(0.0, 255.0, 255.0);
-    button(text(s).style(theme::Text::Color(CYAN))).style(theme::Button::Text)
 }
