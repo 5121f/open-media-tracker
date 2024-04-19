@@ -109,7 +109,9 @@ impl SerialEditScreen {
             .spacing(DEFAULT_INDENT),
             row![
                 signed_text_imput("Season path", &self.season_path, Message::SeasonPathChanged),
-                button("try next").on_press(Message::SeasonTryNext),
+                button("try next").on_press_maybe(
+                    (!self.season_path.is_empty()).then_some(Message::SeasonTryNext)
+                ),
                 square_button(">").on_press(Message::Watch {
                     path: self.season_path.clone(),
                     seria: self.seria.get() as usize
