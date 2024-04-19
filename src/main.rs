@@ -207,17 +207,10 @@ impl Application for ZCinema {
 }
 
 fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
-    let dir = dir.as_ref();
-    let read_dir = fs::read_dir(dir).map_err(|source| ErrorKind::fsio(dir, source))?;
-    let mut media = Vec::new();
-    for entry in read_dir {
-        let entry = entry.map_err(|source| ErrorKind::fsio(dir, source))?;
-        let path = entry.path();
-        if path.is_file() {
-            let serial = Serial::read_from_file(&path)?;
-            media.push(serial);
-        }
-    }
+    let media = read_dir(dir)?
+        .into_iter()
+        .map(Serial::read_from_file)
+        .collect::<Result<_, _>>()?;
     Ok(media)
 }
 
@@ -228,7 +221,7 @@ fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
     Ok(())
 }
 
-fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, Error> {
+fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
     let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
     let mut files = Vec::new();
     for entry in read_dir {
