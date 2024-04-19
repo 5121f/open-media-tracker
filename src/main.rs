@@ -38,20 +38,20 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn add_serial_dialog(&mut self) {
+    fn add_serial_screen(&mut self) {
         self.dialog = Dialog::add_serial();
     }
 
-    fn change_serial_dialog(&mut self, id: usize) {
+    fn change_serial_screen(&mut self, id: usize) {
         let serial = &self.media[id];
         self.dialog = Dialog::change_serial(serial, id)
     }
 
-    fn main_window(&mut self) {
-        self.dialog = Dialog::main_window(&self.media);
+    fn main_screen(&mut self) {
+        self.dialog = Dialog::main(&self.media);
     }
 
-    fn error_dialog(&mut self, error: Error) {
+    fn error_screen(&mut self, error: Error) {
         self.error_dialog = Some(error.into());
     }
 
@@ -86,8 +86,8 @@ impl ZCinema {
         match message {
             Message::MainScreen(message) => {
                 match message {
-                    MainScreenMessage::AddSerial => self.add_serial_dialog(),
-                    MainScreenMessage::ChangeSerial(id) => self.change_serial_dialog(id),
+                    MainScreenMessage::AddSerial => self.add_serial_screen(),
+                    MainScreenMessage::ChangeSerial(id) => self.change_serial_screen(id),
                 }
                 Ok(Command::none())
             }
@@ -113,14 +113,14 @@ impl ZCinema {
                             self.media.push(serial);
                             self.save_serial(self.media.len() - 1)?;
                         }
-                        self.main_window();
+                        self.main_screen();
                     }
                     SerialEditScreenMessage::Delete(id) => {
                         self.remove_serial(id)?;
-                        self.main_window();
+                        self.main_screen();
                     }
                     SerialEditScreenMessage::Back => {
-                        self.main_window();
+                        self.main_screen();
                     }
                     SerialEditScreenMessage::Watch { path, seria } => {
                         utils::watch(path, seria)?;
@@ -147,7 +147,7 @@ impl ZCinema {
     fn new2() -> Result<Self, Error> {
         let data_dir = Self::data_dir().map_err(|kind| Error::critical(kind))?;
         let media = Self::read_media(&data_dir).map_err(|kind| Error::critical(kind))?;
-        let main_window = Dialog::main_window(&media);
+        let main_window = Dialog::main(&media);
         Ok(Self {
             media,
             dialog: main_window,
@@ -183,7 +183,7 @@ impl Application for ZCinema {
         match self.update2(message) {
             Ok(cmd) => cmd,
             Err(error) => {
-                self.error_dialog(error);
+                self.error_screen(error);
                 Command::none()
             }
         }

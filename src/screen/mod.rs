@@ -17,7 +17,7 @@ pub enum Dialog {
 }
 
 impl Dialog {
-    pub fn main_window(media: &[Serial]) -> Self {
+    pub fn main(media: &[Serial]) -> Self {
         let media = media.into_iter().map(|m| m.clone()).collect();
         let dialog = MainScreen::new(media);
         Self::MainWindow(dialog)
