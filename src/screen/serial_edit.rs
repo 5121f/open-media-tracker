@@ -5,7 +5,7 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, text_input, Row},
+    widget::{button, column, horizontal_space, row, Row},
     Element,
 };
 
@@ -13,7 +13,7 @@ use crate::{
     error::{Error, ErrorKind},
     serial::model::Serial,
     utils,
-    view_utils::{link, square_button, DEFAULT_INDENT},
+    view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };
 
 use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
@@ -94,28 +94,21 @@ impl SerialEditScreen {
         }
         let back_button = link("< Back").on_press(Message::Back);
         let edit_area = column![
+            signed_text_imput("Name", &self.name, Message::NameChanged),
             row![
-                text("Name"),
-                text_input("Name", &self.name).on_input(Message::NameChanged)
-            ]
-            .spacing(DEFAULT_INDENT),
-            row![
-                text("Season"),
-                text_input("Season", &self.season.to_string()).on_input(Message::SeasonChanged),
+                signed_text_imput("Season", &self.season.to_string(), Message::SeasonChanged),
                 square_button("-").on_press(Message::SeasonDec),
                 square_button("+").on_press(Message::SeasonInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                text("Seria"),
-                text_input("Seria", &self.seria.to_string()).on_input(Message::SeriaChanged),
+                signed_text_imput("Seria", &self.seria.to_string(), Message::SeriaChanged),
                 square_button("-").on_press(Message::SeriaDec),
                 square_button("+").on_press(Message::SeriaInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                text("Season path"),
-                text_input("Season path", &self.season_path).on_input(Message::SeasonPathChanged),
+                signed_text_imput("Season path", &self.season_path, Message::SeasonPathChanged),
                 button("try next").on_press(Message::SeasonTryNext),
                 square_button(">").on_press(Message::Watch {
                     path: self.season_path.clone(),
