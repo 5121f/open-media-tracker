@@ -222,12 +222,7 @@ fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
 }
 
 fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
-    let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
-    let mut files = Vec::new();
-    for entry in read_dir {
-        let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
-        files.push(entry.path());
-    }
+    let files = read_dir(path)?;
     let seria = &files[seria_number];
     open::that(seria).map_err(|source| ErrorKind::open_vido(&seria, source.kind()))?;
     Ok(())
