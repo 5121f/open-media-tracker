@@ -35,7 +35,7 @@ struct ZCinema {
     media: Vec<Serial>,
     dialog: Dialog,
     error_dialog: Option<ErrorScreen>,
-    state_dir: PathBuf,
+    data_dir: PathBuf,
 }
 
 impl ZCinema {
@@ -59,12 +59,12 @@ impl ZCinema {
     }
 
     fn save_serial(&self, id: usize) -> Result<(), Error> {
-        Ok(self.media[id].save(&self.state_dir)?)
+        Ok(self.media[id].save(&self.data_dir)?)
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
         let serial = &self.media[id];
-        serial.remove_file(&self.state_dir)?;
+        serial.remove_file(&self.data_dir)?;
         self.media.remove(id);
         Ok(())
     }
@@ -79,8 +79,8 @@ impl ZCinema {
         Ok(media)
     }
 
-    fn state_dir() -> Result<PathBuf, ErrorKind> {
-        Ok(dirs::state_dir()
+    fn data_dir() -> Result<PathBuf, ErrorKind> {
+        Ok(dirs::data_dir()
             .ok_or(ErrorKind::StateDirNotFound)?
             .join("zcinema"))
     }
@@ -105,7 +105,7 @@ impl ZCinema {
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
                             let view_model = &mut self.media[id];
-                            view_model.rename(&self.state_dir, name)?;
+                            view_model.rename(&self.data_dir, name)?;
                             let serial = view_model.get_mut()?;
                             serial.current_season = season;
                             serial.current_seria = seria;
@@ -148,14 +148,14 @@ impl ZCinema {
     }
 
     fn new2() -> Result<Self, Error> {
-        let state_dir = Self::state_dir().map_err(|kind| Error::critical(kind))?;
-        let media = Self::read_media(&state_dir).map_err(|kind| Error::critical(kind))?;
+        let data_dir = Self::data_dir().map_err(|kind| Error::critical(kind))?;
+        let media = Self::read_media(&data_dir).map_err(|kind| Error::critical(kind))?;
         let main_window = Dialog::main_window(&media);
         Ok(Self {
             media,
             dialog: main_window,
             error_dialog: None,
-            state_dir,
+            data_dir,
         })
     }
 }
