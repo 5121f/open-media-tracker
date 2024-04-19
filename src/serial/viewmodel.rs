@@ -14,13 +14,13 @@ pub struct Serial(Rc<model::Serial>);
 
 impl Serial {
     pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8, season_path: PathBuf) -> Self {
-        let model = model::Serial {
+        model::Serial {
             name,
             current_season: season,
             current_seria: seria,
             season_path,
-        };
-        Self(Rc::new(model))
+        }
+        .into()
     }
 
     pub fn read_from_file(path: impl AsRef<Path>) -> Result<Self, ErrorKind> {
@@ -34,10 +34,6 @@ impl Serial {
 
     pub fn file_name(&self) -> String {
         file_name(&self.0.name)
-    }
-
-    pub fn rc_clone(&self) -> Self {
-        Self(Rc::clone(&self.0))
     }
 
     pub fn rename(&mut self, dir: impl AsRef<Path>, new_name: String) -> Result<(), ErrorKind> {
@@ -76,6 +72,12 @@ impl Serial {
 
     fn path(&self, dir: impl AsRef<Path>) -> PathBuf {
         dir.as_ref().join(self.file_name())
+    }
+}
+
+impl Clone for Serial {
+    fn clone(&self) -> Self {
+        Self(Rc::clone(&self.0))
     }
 }
 
