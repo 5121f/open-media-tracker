@@ -165,7 +165,7 @@ impl Application for ZCinema {
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         let zcinema = match Self::new2() {
-            Ok(s) => s,
+            Ok(zcinema) => zcinema,
             Err(error) => Self {
                 error_dialog: Some(error.into()),
                 ..Default::default()
