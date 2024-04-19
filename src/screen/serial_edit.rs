@@ -131,7 +131,10 @@ impl SerialEditScreen {
         }
         bottom_buttons = bottom_buttons.extend([
             horizontal_space().into(),
-            button("Accept").on_press(self.accept()).into(),
+            button("Accept")
+                .style(theme::Button::Positive)
+                .on_press(self.accept())
+                .into(),
         ]);
         column![back_button, edit_area, bottom_buttons]
             .padding(DEFAULT_INDENT)
