@@ -4,6 +4,8 @@ use iced::{
     Element,
 };
 
+use crate::error::Error;
+
 #[derive(Debug, Clone)]
 pub enum Message {
     Ok { critical: bool },
@@ -15,13 +17,6 @@ pub struct ErrorScreen {
 }
 
 impl ErrorScreen {
-    pub fn new(message: impl ToString, critical: bool) -> Self {
-        Self {
-            message: message.to_string(),
-            critical,
-        }
-    }
-
     pub fn view(&self) -> Element<Message> {
         let ok_button_style = if self.critical {
             theme::Button::Destructive
@@ -44,5 +39,14 @@ impl ErrorScreen {
             horizontal_space()
         ]
         .into()
+    }
+}
+
+impl From<Error> for ErrorScreen {
+    fn from(value: Error) -> Self {
+        Self {
+            message: value.to_string(),
+            critical: value.critical,
+        }
     }
 }

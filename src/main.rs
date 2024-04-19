@@ -52,9 +52,7 @@ impl ZCinema {
     }
 
     fn error_dialog(&mut self, error: Error) {
-        let critical = error.critical;
-        let dialog = ErrorScreen::new(error, critical);
-        self.error_dialog = Some(dialog);
+        self.error_dialog = Some(error.into());
     }
 
     fn save_serial(&self, id: usize) -> Result<(), Error> {
@@ -168,11 +166,10 @@ impl Application for ZCinema {
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         let zcinema = match Self::new2() {
             Ok(s) => s,
-            Err(error) => {
-                let mut zcinema = Self::default();
-                zcinema.error_dialog(error);
-                zcinema
-            }
+            Err(error) => Self {
+                error_dialog: Some(error.into()),
+                ..Default::default()
+            },
         };
 
         (zcinema, Command::none())
