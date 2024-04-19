@@ -69,6 +69,7 @@ pub struct SerialEditScreen {
     seria: NonZeroU8,
     season_path: String,
     confirm_screen: Option<Confirm>,
+    seies_on_disk: Option<usize>,
 }
 
 impl SerialEditScreen {
@@ -81,6 +82,7 @@ impl SerialEditScreen {
             seria: one,
             season_path: String::new(),
             confirm_screen: None,
+            seies_on_disk: None,
         };
         dialog
     }
@@ -93,6 +95,7 @@ impl SerialEditScreen {
             seria: serial.current_seria,
             season_path: serial.season_path.display().to_string(),
             confirm_screen: None,
+            seies_on_disk: None,
         }
     }
 
@@ -173,9 +176,15 @@ impl SerialEditScreen {
                 }
             }
             Message::SeriaInc => {
-                if !self.season_path.is_empty()
-                    && read_dir(&self.season_path)?.len() == self.seria.get() as usize
-                {
+                let seies_on_disk = match self.seies_on_disk {
+                    Some(seies_on_disk) => seies_on_disk,
+                    None => {
+                        let series_on_disk = read_dir(&self.season_path)?.len();
+                        self.set_series_on_disk(series_on_disk);
+                        series_on_disk
+                    }
+                };
+                if !self.season_path.is_empty() && seies_on_disk == self.seria.get() as usize {
                     self.confirm(format!("It's seems like {} serias is a last of it season. Switch to the next season?", self.seria));
                 } else {
                     self.seria = self.seria.saturating_add(1);
@@ -218,6 +227,10 @@ impl SerialEditScreen {
             }
         }
         Ok(())
+    }
+
+    fn set_series_on_disk(&mut self, series: usize) {
+        self.seies_on_disk = Some(series);
     }
 
     fn next_season(&mut self) -> Result<(), ErrorKind> {
