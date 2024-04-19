@@ -1,5 +1,5 @@
 use iced::{
-    widget::{button, column, horizontal_space, row, text, vertical_space},
+    widget::{button, column, horizontal_space, row, text, vertical_space, Space},
     Element,
 };
 
@@ -20,7 +20,7 @@ impl ConfirmScreen {
 
     pub fn view(&self) -> Element<Message> {
         row![
-            horizontal_space(),
+            Space::with_width(100),
             column![
                 vertical_space(),
                 text(&self.question),
@@ -31,7 +31,7 @@ impl ConfirmScreen {
                 ],
                 vertical_space()
             ],
-            horizontal_space()
+            Space::with_width(100)
         ]
         .into()
     }
