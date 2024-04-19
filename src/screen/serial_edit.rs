@@ -176,18 +176,20 @@ impl SerialEditScreen {
                 }
             }
             Message::SeriaInc => {
-                let seies_on_disk = match self.seies_on_disk {
-                    Some(seies_on_disk) => seies_on_disk,
-                    None => {
-                        let series_on_disk = read_dir(&self.season_path)?.len();
-                        self.set_series_on_disk(series_on_disk);
-                        series_on_disk
-                    }
-                };
-                if !self.season_path.is_empty() && seies_on_disk == self.seria.get() as usize {
-                    self.confirm(format!("It's seems like {} serias is a last of it season. Switch to the next season?", self.seria));
-                } else {
+                if self.season_path.is_empty() {
                     self.seria = self.seria.saturating_add(1);
+                } else {
+                    let seies_on_disk = match self.seies_on_disk {
+                        Some(seies_on_disk) => seies_on_disk,
+                        None => {
+                            let series_on_disk = read_dir(&self.season_path)?.len();
+                            self.set_series_on_disk(series_on_disk);
+                            series_on_disk
+                        }
+                    };
+                    if seies_on_disk == self.seria.get() as usize {
+                        self.confirm(format!("It's seems like {} serias is a last of it season. Switch to the next season?", self.seria));
+                    }
                 }
             }
             Message::SeriaDec => {
