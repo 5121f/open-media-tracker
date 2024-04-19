@@ -1,4 +1,5 @@
 use iced::{
+    theme,
     widget::{button, column, horizontal_space, row, text, vertical_space},
     Element,
 };
@@ -22,6 +23,11 @@ impl ErrorScreen {
     }
 
     pub fn view(&self) -> Element<Message> {
+        let ok_button_style = if self.critical {
+            theme::Button::Destructive
+        } else {
+            theme::Button::Primary
+        };
         row![
             horizontal_space(),
             column![
@@ -29,7 +35,7 @@ impl ErrorScreen {
                 text(format!("Error: {}", &self.message)),
                 row![
                     horizontal_space(),
-                    button("Ok").on_press(Message::Ok {
+                    button("Ok").style(ok_button_style).on_press(Message::Ok {
                         critical: self.critical
                     })
                 ],

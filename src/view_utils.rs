@@ -1,7 +1,7 @@
 use iced::{
     alignment, theme,
     widget::{button, row, text, text_input, Button, Row},
-    Color,
+    Alignment, Color,
 };
 
 pub const DEFAULT_INDENT: u16 = 5;
@@ -29,5 +29,5 @@ where
 {
     row![text(s), text_input(s, value).on_input(on_input)]
         .spacing(DEFAULT_INDENT)
-        .align_items(iced::Alignment::Center)
+        .align_items(Alignment::Center)
 }

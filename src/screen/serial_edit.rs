@@ -116,7 +116,8 @@ impl SerialEditScreen {
                 })
             ]
             .spacing(DEFAULT_INDENT)
-        ];
+        ]
+        .spacing(DEFAULT_INDENT);
         let mut bottom_buttons = Row::new();
         if let Kind::Change { id } = self.kind {
             let delete_button = button("Delete")

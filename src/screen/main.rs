@@ -1,9 +1,12 @@
 use iced::{
-    widget::{button, column, horizontal_space, row, text},
-    Element,
+    widget::{column, horizontal_space, row, text},
+    Alignment, Element,
 };
 
-use crate::serial::viewmodel::Serial;
+use crate::{
+    serial::viewmodel::Serial,
+    view_utils::{square_button, DEFAULT_INDENT},
+};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -23,7 +26,7 @@ impl MainScreen {
 
     pub fn view(&self) -> Element<Message> {
         column![
-            button("+").on_press(Message::AddSerial),
+            square_button("+").on_press(Message::AddSerial),
             column(
                 self.media
                     .iter()
@@ -31,12 +34,16 @@ impl MainScreen {
                     .map(|(id, m)| row![
                         text(&m.name),
                         horizontal_space(),
-                        button("...").on_press(Message::ChangeSerial(id))
-                    ])
+                        square_button("...").on_press(Message::ChangeSerial(id))
+                    ]
+                    .align_items(Alignment::Center))
                     .map(Into::into)
                     .collect::<Vec<_>>()
             )
+            .spacing(DEFAULT_INDENT)
         ]
+        .spacing(DEFAULT_INDENT)
+        .padding(DEFAULT_INDENT)
         .into()
     }
 }

@@ -1,4 +1,5 @@
 use iced::{
+    theme,
     widget::{button, column, horizontal_space, row, text, vertical_space, Space},
     Element,
 };
@@ -25,9 +26,13 @@ impl ConfirmScreen {
                 vertical_space(),
                 text(&self.question),
                 row![
-                    button("Cancel").on_press(Message::Cancel),
+                    button("Cancel")
+                        .style(theme::Button::Destructive)
+                        .on_press(Message::Cancel),
                     horizontal_space(),
-                    button("Confirm").on_press(Message::Confirm)
+                    button("Confirm")
+                        .style(theme::Button::Positive)
+                        .on_press(Message::Confirm)
                 ],
                 vertical_space()
             ],
