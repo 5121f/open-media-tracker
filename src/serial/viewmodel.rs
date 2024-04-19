@@ -23,7 +23,8 @@ impl Serial {
         Self(Rc::new(model))
     }
 
-    pub fn read_from_file(path: &Path) -> Result<Self, ErrorKind> {
+    pub fn read_from_file(path: impl AsRef<Path>) -> Result<Self, ErrorKind> {
+        let path = path.as_ref();
         let file_content =
             fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
         let model =
@@ -53,13 +54,14 @@ impl Serial {
     }
 
     pub fn save(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
+        let dir = dir.as_ref();
         let content = ron::ser::to_string_pretty(self.0.as_ref(), PrettyConfig::new())
             .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
-        if !dir.as_ref().exists() {
-            fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir.as_ref(), source))?;
+        if !dir.exists() {
+            fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir, source))?;
         }
         let path = self.path(&dir);
-        fs::write(path, content).map_err(|source| ErrorKind::fsio(dir.as_ref(), source))?;
+        fs::write(path, content).map_err(|source| ErrorKind::fsio(dir, source))?;
         Ok(())
     }
 

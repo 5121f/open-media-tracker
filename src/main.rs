@@ -69,7 +69,8 @@ impl ZCinema {
         Ok(())
     }
 
-    fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
+    fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
+        let dir = dir.as_ref();
         let media = if dir.exists() {
             read_media(dir)?
         } else {
@@ -205,7 +206,8 @@ impl Application for ZCinema {
     }
 }
 
-fn read_media(dir: &Path) -> Result<Vec<Serial>, ErrorKind> {
+fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
+    let dir = dir.as_ref();
     let read_dir = fs::read_dir(dir).map_err(|source| ErrorKind::fsio(dir, source))?;
     let mut media = Vec::new();
     for entry in read_dir {
