@@ -17,6 +17,13 @@ pub enum Dialog {
 }
 
 impl Dialog {
+    pub fn view(&self) -> Element<Message> {
+        match self {
+            Dialog::MainWindow(dialog) => dialog.view().map(Message::MainScreen),
+            Dialog::SerialChange(dialog) => dialog.view().map(Message::SerialEditScreen),
+        }
+    }
+
     pub fn main(media: &[Serial]) -> Self {
         let media = media.into_iter().map(|m| m.clone()).collect();
         let dialog = MainScreen::new(media);
@@ -31,15 +38,6 @@ impl Dialog {
     pub fn change_serial(serial: &Serial, id: usize) -> Self {
         let dialog = SerialEditScreen::change(serial, id);
         Self::SerialChange(dialog)
-    }
-}
-
-impl Dialog {
-    pub fn view(&self) -> Element<Message> {
-        match self {
-            Dialog::MainWindow(dialog) => dialog.view().map(Message::MainScreen),
-            Dialog::SerialChange(dialog) => dialog.view().map(Message::SerialEditScreen),
-        }
     }
 }
 
