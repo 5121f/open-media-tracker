@@ -11,7 +11,7 @@ use iced::{
 
 use crate::{
     error::{Error, ErrorKind},
-    serial::model::Serial,
+    serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };

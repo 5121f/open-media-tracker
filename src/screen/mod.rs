@@ -3,13 +3,15 @@ pub mod error;
 pub mod main;
 pub mod serial_edit;
 
+use std::rc::Rc;
+
 pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
 pub use serial_edit::{Message as SerialEditScreenMessage, SerialEditScreen};
 
 use iced::Element;
 
-use crate::{serial::viewmodel::Serial, Message};
+use crate::{serial::Serial, Message};
 
 pub enum Dialog {
     MainWindow(MainScreen),
@@ -24,7 +26,7 @@ impl Dialog {
         }
     }
 
-    pub fn main(media: &[Serial]) -> Self {
+    pub fn main(media: &[Rc<Serial>]) -> Self {
         let media = media.into_iter().map(|m| m.clone()).collect();
         let dialog = MainScreen::new(media);
         Self::MainWindow(dialog)

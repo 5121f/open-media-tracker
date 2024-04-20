@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     error::{Error, ErrorKind},
-    serial::viewmodel::Serial,
+    serial::Serial,
 };
 
 pub fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {

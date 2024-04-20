@@ -4,7 +4,10 @@ mod serial;
 mod utils;
 mod view_utils;
 
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    rc::Rc,
+};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
@@ -15,7 +18,7 @@ use crate::{
         serial_edit, Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage,
         SerialEditScreenMessage,
     },
-    serial::viewmodel::Serial,
+    serial::Serial,
 };
 
 fn main() -> iced::Result {
@@ -31,7 +34,7 @@ enum Message {
 
 #[derive(Default)]
 struct ZCinema {
-    media: Vec<Serial>,
+    media: Vec<Rc<Serial>>,
     dialog: Dialog,
     error_dialog: Option<ErrorScreen>,
     data_dir: PathBuf,
@@ -48,7 +51,8 @@ impl ZCinema {
     }
 
     fn main_screen(&mut self) {
-        self.dialog = Dialog::main(&self.media);
+        let media: Vec<_> = self.media.iter().map(Rc::clone).collect();
+        self.dialog = Dialog::main(&media);
     }
 
     fn error_screen(&mut self, error: Error) {
@@ -101,15 +105,15 @@ impl ZCinema {
                         season_path,
                     } => {
                         if let serial_edit::Kind::Change { id } = kind {
-                            let view_model = &mut self.media[id];
-                            view_model.rename(&self.data_dir, name)?;
-                            let serial = view_model.get_mut()?;
+                            let serial =
+                                Rc::get_mut(&mut self.media[id]).ok_or(ErrorKind::Unknown)?;
+                            serial.rename(&self.data_dir, name)?;
                             serial.current_season = season;
                             serial.current_seria = seria;
                             serial.season_path = season_path;
                             self.save_serial(id)?;
                         } else {
-                            let serial = Serial::new(name, season, seria, season_path);
+                            let serial = Serial::new(name, season, seria, season_path).into();
                             self.media.push(serial);
                             self.save_serial(self.media.len() - 1)?;
                         }
@@ -146,7 +150,11 @@ impl ZCinema {
 
     fn new2() -> Result<Self, Error> {
         let data_dir = Self::data_dir().map_err(|kind| Error::critical(kind))?;
-        let media = Self::read_media(&data_dir).map_err(|kind| Error::critical(kind))?;
+        let media: Vec<_> = Self::read_media(&data_dir)
+            .map_err(|kind| Error::critical(kind))?
+            .into_iter()
+            .map(Rc::new)
+            .collect();
         let main_window = Dialog::main(&media);
         Ok(Self {
             media,

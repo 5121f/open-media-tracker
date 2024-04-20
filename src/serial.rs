@@ -1,57 +1,60 @@
 use std::{
     fs,
     num::NonZeroU8,
-    ops::{Deref, DerefMut},
     path::{Path, PathBuf},
-    rc::Rc,
 };
 
 use ron::ser::PrettyConfig;
+use serde::{Deserialize, Serialize};
 
-use crate::{error::ErrorKind, serial::model};
+use crate::error::ErrorKind;
 
-pub struct Serial(Rc<model::Serial>);
+#[derive(Serialize, Deserialize)]
+pub struct Serial {
+    pub name: String,
+    pub current_season: NonZeroU8,
+    pub current_seria: NonZeroU8,
+    pub season_path: PathBuf,
+}
 
 impl Serial {
     pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8, season_path: PathBuf) -> Self {
-        model::Serial {
+        Self {
             name,
             current_season: season,
             current_seria: seria,
             season_path,
         }
-        .into()
     }
 
     pub fn read_from_file(path: impl AsRef<Path>) -> Result<Self, ErrorKind> {
         let path = path.as_ref();
         let file_content =
             fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
-        let model =
+        let serail =
             ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
-        Ok(Self(Rc::new(model)))
+        Ok(serail)
     }
 
     pub fn file_name(&self) -> String {
-        file_name(&self.0.name)
+        file_name(&self.name)
     }
 
     pub fn rename(&mut self, dir: impl AsRef<Path>, new_name: String) -> Result<(), ErrorKind> {
         let dir = dir.as_ref();
-        if self.0.name != new_name {
+        if self.name != new_name {
             let current_path = self.path(dir);
             let new_path = dir.join(file_name(&new_name));
-            let serial = Rc::get_mut(&mut self.0).ok_or(ErrorKind::Unknown)?;
-            serial.name = new_name;
+            self.name = new_name;
             fs::rename(current_path, new_path)
-                .map_err(|source| ErrorKind::fsio(serial.name.clone(), source))?;
+                .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
         }
         Ok(())
     }
 
     pub fn save(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
         let dir = dir.as_ref();
-        let content = ron::ser::to_string_pretty(self.0.as_ref(), PrettyConfig::new())
+        let content = ron::ser::to_string_pretty(&self, PrettyConfig::new())
             .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
         if !dir.exists() {
             fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir, source))?;
@@ -66,38 +69,8 @@ impl Serial {
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
 
-    pub fn get_mut(&mut self) -> Result<&mut model::Serial, ErrorKind> {
-        Rc::get_mut(&mut self.0).ok_or(ErrorKind::Unknown)
-    }
-
     fn path(&self, dir: impl AsRef<Path>) -> PathBuf {
         dir.as_ref().join(self.file_name())
-    }
-}
-
-impl Clone for Serial {
-    fn clone(&self) -> Self {
-        Self(Rc::clone(&self.0))
-    }
-}
-
-impl Deref for Serial {
-    type Target = Rc<model::Serial>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Serial {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl From<model::Serial> for Serial {
-    fn from(value: model::Serial) -> Self {
-        Self(Rc::new(value))
     }
 }
 

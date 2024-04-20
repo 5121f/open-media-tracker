@@ -1,10 +1,12 @@
+use std::rc::Rc;
+
 use iced::{
     widget::{column, horizontal_space, row, scrollable, text},
     Alignment, Element,
 };
 
 use crate::{
-    serial::viewmodel::Serial,
+    serial::Serial,
     view_utils::{square_button, DEFAULT_INDENT},
 };
 
@@ -16,11 +18,11 @@ pub enum Message {
 
 #[derive(Default)]
 pub struct MainScreen {
-    media: Vec<Serial>,
+    media: Vec<Rc<Serial>>,
 }
 
 impl MainScreen {
-    pub fn new(media: Vec<Serial>) -> Self {
+    pub fn new(media: Vec<Rc<Serial>>) -> Self {
         Self { media }
     }
 
