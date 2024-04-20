@@ -82,7 +82,7 @@ impl ZCinema {
 
     fn data_dir() -> Result<PathBuf, ErrorKind> {
         Ok(dirs::data_dir()
-            .ok_or(ErrorKind::StateDirNotFound)?
+            .ok_or(ErrorKind::UserDataDirNotFound)?
             .join("zcinema"))
     }
 

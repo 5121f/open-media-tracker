@@ -49,8 +49,8 @@ pub enum ErrorKind {
         serial_name: String,
         source: ron::Error,
     },
-    #[error("Could not be found user's state directory")]
-    StateDirNotFound,
+    #[error("Failed to found user's data directory")]
+    UserDataDirNotFound,
     #[error("{video_path}: Falied to open video in default program: {kind}")]
     OpenVideo {
         video_path: PathBuf,
