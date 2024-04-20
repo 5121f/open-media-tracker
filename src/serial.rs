@@ -12,8 +12,8 @@ use crate::error::ErrorKind;
 #[derive(Serialize, Deserialize)]
 pub struct Serial {
     pub name: String,
-    pub current_season: NonZeroU8,
-    pub current_seria: NonZeroU8,
+    pub season: NonZeroU8,
+    pub seria: NonZeroU8,
     pub season_path: PathBuf,
 }
 
@@ -21,8 +21,8 @@ impl Serial {
     pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8, season_path: PathBuf) -> Self {
         Self {
             name,
-            current_season: season,
-            current_seria: seria,
+            season,
+            seria,
             season_path,
         }
     }

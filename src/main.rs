@@ -108,8 +108,8 @@ impl ZCinema {
                             let serial =
                                 Rc::get_mut(&mut self.media[id]).ok_or(ErrorKind::Unknown)?;
                             serial.rename(&self.data_dir, name)?;
-                            serial.current_season = season;
-                            serial.current_seria = seria;
+                            serial.season = season;
+                            serial.seria = seria;
                             serial.season_path = season_path;
                             self.save_serial(id)?;
                         } else {

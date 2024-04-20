@@ -91,8 +91,8 @@ impl SerialEditScreen {
         Self {
             kind: Kind::Change { id },
             name: serial.name.clone(),
-            season: serial.current_season,
-            seria: serial.current_seria,
+            season: serial.season,
+            seria: serial.seria,
             season_path: serial.season_path.display().to_string(),
             confirm_screen: None,
             seies_on_disk: None,
