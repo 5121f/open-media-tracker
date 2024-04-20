@@ -86,6 +86,14 @@ impl ZCinema {
             .join("zcinema"))
     }
 
+    fn close_error_screen(&mut self) {
+        self.error_dialog = None;
+    }
+
+    fn close_app(&self) -> Command<Message> {
+        window::close(window::Id::MAIN)
+    }
+
     fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
         match message {
             Message::MainScreen(message) => {
@@ -139,11 +147,10 @@ impl ZCinema {
             }
             Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
                 if critical {
-                    Ok(window::close(window::Id::MAIN))
-                } else {
-                    self.error_dialog = None;
-                    Ok(Command::none())
+                    return Ok(self.close_app());
                 }
+                self.close_error_screen();
+                Ok(Command::none())
             }
         }
     }
