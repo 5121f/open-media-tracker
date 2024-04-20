@@ -304,7 +304,6 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
             .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
             .to_str()
             .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        dbg!(dir_name);
         if dir_name == dir {
             season_dir_index = Some(i);
         }
