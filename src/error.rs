@@ -58,6 +58,8 @@ pub enum ErrorKind {
     },
     #[error("{path}: Failed to find parent directory")]
     FaliedToGetParentDir { path: PathBuf },
+    #[error("Failed to find next season path")]
+    FailedToFindNextSeasonPath,
     #[error("Uncnown error")]
     Unknown,
 }

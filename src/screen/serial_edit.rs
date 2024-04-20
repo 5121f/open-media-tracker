@@ -190,6 +190,8 @@ impl SerialEditScreen {
                 };
                 if seies_on_disk == self.seria.get() as usize {
                     self.confirm(format!("It's seems like {} serias is a last of it season. Switch to the next season?", self.seria));
+                } else {
+                    self.seria = self.seria.saturating_add(1);
                 }
             }
             Message::SeriaDec => {
@@ -236,15 +238,17 @@ impl SerialEditScreen {
     }
 
     fn next_season(&mut self) -> Result<(), ErrorKind> {
-        let parent = PathBuf::from(&self.season_path)
-            .parent()
-            .ok_or(ErrorKind::parent_dir(&self.season_path))?
-            .to_owned();
-        let paths = utils::read_dir(parent)?;
-        let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
-        let proposed_index = (self.season.get() + 1) as usize;
-        let proposed_path = &dirs[proposed_index];
-        self.confirm_proposed_season(proposed_path);
+        if let Err(error) = self.next_season2() {
+            self.close_confirm_screen();
+            return Err(error.into());
+        }
+        Ok(())
+    }
+
+    fn next_season2(&mut self) -> Result<(), ErrorKind> {
+        let season_path = PathBuf::from(&self.season_path);
+        let next_season = next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+        self.confirm_proposed_season(next_season);
         Ok(())
     }
 
@@ -280,4 +284,37 @@ impl SerialEditScreen {
             season_path: PathBuf::from(&self.season_path),
         }
     }
+}
+
+fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
+    let path = path.as_ref();
+    let dir_name = path
+        .file_name()
+        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+    let parent = path
+        .parent()
+        .ok_or(ErrorKind::parent_dir(&dir_name))?
+        .to_owned();
+    let paths = utils::read_dir(parent)?;
+    let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
+    let mut season_dir_index = None;
+    for (i, dir) in dirs.iter().enumerate() {
+        let dir = dir
+            .file_name()
+            .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
+            .to_str()
+            .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+        dbg!(dir_name);
+        if dir_name == dir {
+            season_dir_index = Some(i);
+        }
+    }
+    let Some(season_dir_index) = season_dir_index else {
+        return Ok(None);
+    };
+    let next_season_index = season_dir_index + 1;
+    if next_season_index >= dirs.len() {
+        return Ok(None);
+    }
+    Ok(Some(dirs[next_season_index].to_path_buf()))
 }
