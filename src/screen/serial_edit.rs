@@ -220,6 +220,7 @@ impl SerialEditScreen {
     fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
         if self.season_path.is_empty() {
             self.seria = value;
+            return Ok(());
         }
         let seies_on_disk = match self.seies_on_disk {
             Some(seies_on_disk) => seies_on_disk,
@@ -229,10 +230,10 @@ impl SerialEditScreen {
                 series_on_disk
             }
         };
-        if seies_on_disk == self.seria.get() as usize {
+        if seies_on_disk < value.get() as usize {
             self.confirm(format!(
                 "It's seems like {} serias is a last of it season. Switch to the next season?",
-                self.seria
+                seies_on_disk
             ));
         } else {
             self.seria = value;
