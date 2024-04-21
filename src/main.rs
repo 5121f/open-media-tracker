@@ -5,6 +5,7 @@ mod utils;
 mod view_utils;
 
 use std::{
+    cell::RefCell,
     path::{Path, PathBuf},
     rc::Rc,
 };
@@ -34,19 +35,15 @@ enum Message {
 
 #[derive(Default)]
 struct ZCinema {
-    media: Vec<Rc<Serial>>,
+    media: Vec<Rc<RefCell<Serial>>>,
     dialog: Dialog,
     error_dialog: Option<ErrorScreen>,
     data_dir: PathBuf,
 }
 
 impl ZCinema {
-    fn add_serial_screen(&mut self) {
-        self.dialog = Dialog::add_serial();
-    }
-
     fn change_serial_screen(&mut self, id: usize) {
-        let serial = &self.media[id];
+        let serial = Rc::clone(&self.media[id]);
         self.dialog = Dialog::change_serial(serial, id)
     }
 
@@ -60,12 +57,15 @@ impl ZCinema {
     }
 
     fn save_serial(&self, id: usize) -> Result<(), Error> {
-        Ok(self.media[id].save(&self.data_dir)?)
+        let serial = self.media[id].borrow();
+        Ok(serial.save(&self.data_dir)?)
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
-        let serial = &self.media[id];
-        serial.remove_file(&self.data_dir)?;
+        {
+            let serial = self.media[id].borrow();
+            serial.remove_file(&self.data_dir)?;
+        }
         self.media.remove(id);
         Ok(())
     }
@@ -98,35 +98,18 @@ impl ZCinema {
         match message {
             Message::MainScreen(message) => {
                 match message {
-                    MainScreenMessage::AddSerial => self.add_serial_screen(),
+                    MainScreenMessage::AddSerial => {
+                        let serial = Rc::new(RefCell::new(Serial::default()));
+                        self.media.push(serial);
+                        self.change_serial_screen(self.media.len() - 1);
+                    }
                     MainScreenMessage::ChangeSerial(id) => self.change_serial_screen(id),
                 }
                 Ok(Command::none())
             }
             Message::SerialEditScreen(message) => {
                 match message {
-                    SerialEditScreenMessage::Accept {
-                        kind,
-                        name,
-                        season,
-                        seria,
-                        season_path,
-                    } => {
-                        if let serial_edit::Kind::Change { id } = kind {
-                            let serial =
-                                Rc::get_mut(&mut self.media[id]).ok_or(ErrorKind::Unknown)?;
-                            serial.rename(&self.data_dir, name)?;
-                            serial.season = season;
-                            serial.seria = seria;
-                            serial.season_path = season_path;
-                            self.save_serial(id)?;
-                        } else {
-                            let serial = Serial::new(name, season, seria, season_path).into();
-                            self.media.push(serial);
-                            self.save_serial(self.media.len() - 1)?;
-                        }
-                        self.main_screen();
-                    }
+                    SerialEditScreenMessage::Accept => self.main_screen(),
                     SerialEditScreenMessage::Delete(id) => {
                         self.remove_serial(id)?;
                         self.main_screen();
@@ -160,6 +143,7 @@ impl ZCinema {
         let media: Vec<_> = Self::read_media(&data_dir)
             .map_err(|kind| Error::critical(kind))?
             .into_iter()
+            .map(RefCell::new)
             .map(Rc::new)
             .collect();
         let main_window = Dialog::main(&media);

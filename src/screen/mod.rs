@@ -3,7 +3,7 @@ pub mod error;
 pub mod main;
 pub mod serial_edit;
 
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
@@ -26,19 +26,14 @@ impl Dialog {
         }
     }
 
-    pub fn main(media: &[Rc<Serial>]) -> Self {
+    pub fn main(media: &[Rc<RefCell<Serial>>]) -> Self {
         let media = media.into_iter().map(Rc::clone).collect();
         let dialog = MainScreen::new(media);
         Self::MainWindow(dialog)
     }
 
-    pub fn add_serial() -> Self {
-        let dialog = SerialEditScreen::new();
-        Self::SerialChange(dialog)
-    }
-
-    pub fn change_serial(serial: &Serial, id: usize) -> Self {
-        let dialog = SerialEditScreen::change(serial, id);
+    pub fn change_serial(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
+        let dialog = SerialEditScreen::new(serial, id);
         Self::SerialChange(dialog)
     }
 }

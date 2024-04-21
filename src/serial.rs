@@ -69,6 +69,10 @@ impl Serial {
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
 
+    pub fn season_path_is_present(&self) -> bool {
+        !self.season_path.as_os_str().is_empty()
+    }
+
     fn path(&self, dir: impl AsRef<Path>) -> PathBuf {
         dir.as_ref().join(self.file_name())
     }
@@ -76,4 +80,16 @@ impl Serial {
 
 pub fn file_name(name: &str) -> String {
     format!("{}.ron", name)
+}
+
+impl Default for Serial {
+    fn default() -> Self {
+        let one = NonZeroU8::MIN;
+        Self {
+            name: Default::default(),
+            season: one,
+            seria: one,
+            season_path: Default::default(),
+        }
+    }
 }

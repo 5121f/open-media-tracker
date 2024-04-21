@@ -1,6 +1,8 @@
 use std::{
+    cell::RefCell,
     num::NonZeroU8,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 use iced::{
@@ -18,27 +20,12 @@ use crate::{
 
 use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 
-#[derive(Debug, Clone, Copy)]
-pub enum Kind {
-    New,
-    Change { id: usize },
-}
-
 #[derive(Debug, Clone)]
 pub enum Message {
     Back,
-    Accept {
-        kind: Kind,
-        name: String,
-        season: NonZeroU8,
-        seria: NonZeroU8,
-        season_path: PathBuf,
-    },
+    Accept,
     Delete(usize),
-    Watch {
-        path: String,
-        seria: usize,
-    },
+    Watch { path: String, seria: usize },
     NameChanged(String),
     SeasonChanged(String),
     SeriaChanged(String),
@@ -62,84 +49,65 @@ struct Confirm {
 }
 
 pub struct SerialEditScreen {
-    kind: Kind,
-    name: String,
-    season: NonZeroU8,
-    seria: NonZeroU8,
-    season_path: String,
+    serial: Rc<RefCell<Serial>>,
     confirm_screen: Option<Confirm>,
     seies_on_disk: Option<usize>,
+    id: usize,
 }
 
 impl SerialEditScreen {
-    pub fn new() -> Self {
-        let one = NonZeroU8::MIN;
+    pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
         let dialog = Self {
-            kind: Kind::New,
-            name: String::new(),
-            season: one,
-            seria: one,
-            season_path: String::new(),
             confirm_screen: None,
             seies_on_disk: None,
+            serial,
+            id,
         };
         dialog
-    }
-
-    pub fn change(serial: &Serial, id: usize) -> Self {
-        Self {
-            kind: Kind::Change { id },
-            name: serial.name.clone(),
-            season: serial.season,
-            seria: serial.seria,
-            season_path: serial.season_path.display().to_string(),
-            confirm_screen: None,
-            seies_on_disk: None,
-        }
     }
 
     pub fn view(&self) -> Element<Message> {
         if let Some(confirm_screen) = &self.confirm_screen {
             return confirm_screen.screen.view().map(Message::ConfirmScreen);
         }
+        let serial = self.serial.borrow();
+        let season_path = serial.season_path.display().to_string();
         let back_button = link("< Back").on_press(Message::Back);
         let edit_area = column![
-            signed_text_imput("Name", &self.name, Message::NameChanged),
+            signed_text_imput("Name", &serial.name, Message::NameChanged),
             row![
-                signed_text_imput("Season", &self.season.to_string(), Message::SeasonChanged),
+                signed_text_imput("Season", &serial.season.to_string(), Message::SeasonChanged),
                 square_button("-").on_press(Message::SeasonDec),
                 square_button("+").on_press(Message::SeasonInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput("Seria", &self.seria.to_string(), Message::SeriaChanged),
+                signed_text_imput("Seria", &serial.seria.to_string(), Message::SeriaChanged),
                 square_button("-").on_press(Message::SeriaDec),
                 square_button("+").on_press(Message::SeriaInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput("Season path", &self.season_path, Message::SeasonPathChanged),
+                signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
                 square_button("...").on_press(Message::SeasonPathSelect),
                 square_button(">").on_press(Message::Watch {
-                    path: self.season_path.clone(),
-                    seria: self.seria.get() as usize
+                    path: season_path,
+                    seria: serial.seria.get() as usize
                 })
             ]
             .spacing(DEFAULT_INDENT)
         ]
         .spacing(DEFAULT_INDENT);
         let mut bottom_buttons = Row::new();
-        if let Kind::Change { id } = self.kind {
-            let delete_button = button("Delete")
-                .style(theme::Button::Destructive)
-                .on_press(Message::Delete(id));
-            bottom_buttons = bottom_buttons.push(delete_button);
-        }
+        let delete_button = button("Delete")
+            .style(theme::Button::Destructive)
+            .on_press(Message::Delete(self.id));
+        bottom_buttons = bottom_buttons.push(delete_button);
         bottom_buttons = bottom_buttons.extend([
             horizontal_space().into(),
             button("Accept")
                 .style(theme::Button::Positive)
-                .on_press(self.accept())
+                .on_press(Message::Accept)
                 .into(),
         ]);
         column![back_button, edit_area, bottom_buttons]
@@ -150,12 +118,11 @@ impl SerialEditScreen {
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
         match message {
-            Message::Back | Message::Accept { .. } | Message::Delete(_) | Message::Watch { .. } => {
-            }
-            Message::NameChanged(value) => self.name = value,
+            Message::Back | Message::Accept | Message::Delete(_) | Message::Watch { .. } => {}
+            Message::NameChanged(value) => self.serial.borrow_mut().name = value,
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
-                    self.season = number;
+                    self.serial.borrow_mut().season = number;
                 }
             }
             Message::SeriaChanged(value) => {
@@ -165,17 +132,21 @@ impl SerialEditScreen {
             }
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
-                if let Some(number) = NonZeroU8::new(self.season.get() - 1) {
-                    self.season = number;
+                let mut serial = self.serial.borrow_mut();
+                if let Some(number) = NonZeroU8::new(serial.season.get() - 1) {
+                    serial.season = number;
                 }
             }
             Message::SeriaInc => self.increase_seria()?,
             Message::SeriaDec => {
-                if let Some(number) = NonZeroU8::new(self.seria.get() - 1) {
-                    self.seria = number;
+                let mut serial = self.serial.borrow_mut();
+                if let Some(number) = NonZeroU8::new(serial.seria.get() - 1) {
+                    serial.seria = number;
                 }
             }
-            Message::SeasonPathChanged(value) => self.season_path = value,
+            Message::SeasonPathChanged(value) => {
+                self.serial.borrow_mut().season_path = PathBuf::from(value)
+            }
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
                     let Some(confirm) = &self.confirm_screen else {
@@ -183,7 +154,7 @@ impl SerialEditScreen {
                     };
                     match &confirm.kind {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
-                            self.season_path = season_path.display().to_string();
+                            self.serial.borrow_mut().season_path = season_path.clone();
                             self.close_confirm_screen();
                         }
                         ConfirmKind::SeriaOverflow => self.increase_season()?,
@@ -195,7 +166,7 @@ impl SerialEditScreen {
             },
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.season_path = folder.display().to_string();
+                    self.serial.borrow_mut().season_path = folder;
                 }
             }
         }
@@ -207,18 +178,22 @@ impl SerialEditScreen {
     }
 
     fn increase_seria(&mut self) -> Result<(), Error> {
-        self.set_seria(self.seria.saturating_add(1))
+        let next_seria = self.serial.borrow().seria.saturating_add(1);
+        self.set_seria(next_seria)
     }
 
     fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
-        if self.season_path.is_empty() {
-            self.seria = value;
-            return Ok(());
+        {
+            let mut serial = self.serial.borrow_mut();
+            if !serial.season_path_is_present() {
+                serial.seria = value;
+                return Ok(());
+            }
         }
         let seies_on_disk = match self.seies_on_disk {
             Some(seies_on_disk) => seies_on_disk,
             None => {
-                let series_on_disk = read_dir(&self.season_path)?.len();
+                let series_on_disk = read_dir(&self.serial.borrow().season_path)?.len();
                 self.set_series_on_disk(series_on_disk);
                 series_on_disk
             }
@@ -229,22 +204,24 @@ impl SerialEditScreen {
                 seies_on_disk
             ));
         } else {
-            self.seria = value;
+            let mut serial = self.serial.borrow_mut();
+            serial.seria = value;
         }
         Ok(())
     }
 
     fn set_seria_to_one(&mut self) {
-        self.seria = NonZeroU8::MIN;
+        self.serial.borrow_mut().seria = NonZeroU8::MIN;
     }
 
     fn increase_season(&mut self) -> Result<(), ErrorKind> {
-        if self.season_path.is_empty() {
+        if !self.serial.borrow().season_path_is_present() {
             self.set_seria_to_one();
-            self.season = self.season.saturating_add(1);
+            let mut serial = self.serial.borrow_mut();
+            serial.season = serial.season.saturating_add(1);
         } else {
-            let season_path =
-                next_dir(&self.season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+            let season_path = next_dir(&self.serial.borrow().season_path)?
+                .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
             let confirm = Confirm {
                 screen: ConfirmScreen::new(format!("Proposed path: {}", season_path.display())),
                 kind: ConfirmKind::TrySwitchToNewSeason { season_path },
@@ -264,16 +241,6 @@ impl SerialEditScreen {
             kind: ConfirmKind::SeriaOverflow,
         };
         self.confirm_screen = Some(confirm);
-    }
-
-    fn accept(&self) -> Message {
-        Message::Accept {
-            kind: self.kind,
-            name: self.name.clone(),
-            season: self.season,
-            seria: self.seria,
-            season_path: PathBuf::from(&self.season_path),
-        }
     }
 }
 

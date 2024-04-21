@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use iced::{
     theme,
@@ -19,11 +19,11 @@ pub enum Message {
 
 #[derive(Default)]
 pub struct MainScreen {
-    media: Vec<Rc<Serial>>,
+    media: Vec<Rc<RefCell<Serial>>>,
 }
 
 impl MainScreen {
-    pub fn new(media: Vec<Rc<Serial>>) -> Self {
+    pub fn new(media: Vec<Rc<RefCell<Serial>>>) -> Self {
         Self { media }
     }
 
@@ -42,7 +42,7 @@ impl MainScreen {
                         .iter()
                         .enumerate()
                         .map(|(id, m)| row![
-                            text(&m.name),
+                            text(&m.borrow().name),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSerial(id))
                         ]
