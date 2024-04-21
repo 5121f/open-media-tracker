@@ -7,8 +7,8 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, row},
-    Element,
+    widget::{button, column, horizontal_space, row, text, Space},
+    Element, Length,
 };
 
 use crate::{
@@ -71,43 +71,50 @@ impl SerialEditScreen {
         }
         let serial = self.serial.borrow();
         let season_path = serial.season_path().display().to_string();
-        let back_button = link("< Back").on_press(Message::Back);
-        let edit_area = column![
-            signed_text_imput("Name", serial.name(), Message::NameChanged),
+        column![
             row![
-                signed_text_imput(
-                    "Season",
-                    &serial.season().to_string(),
-                    Message::SeasonChanged
-                ),
-                square_button("-").on_press(Message::SeasonDec),
-                square_button("+").on_press(Message::SeasonInc)
-            ]
-            .spacing(DEFAULT_INDENT),
-            row![
-                signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
-                square_button("-").on_press(Message::SeriaDec),
-                square_button("+").on_press(Message::SeriaInc)
-            ]
-            .spacing(DEFAULT_INDENT),
-            row![
-                signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
-                square_button("...").on_press(Message::SeasonPathSelect),
-                square_button(">").on_press(Message::Watch {
-                    path: season_path,
-                    seria: serial.seria().get() as usize
-                })
+                link("< Back").on_press(Message::Back),
+                horizontal_space(),
+                text(serial.name()),
+                horizontal_space(),
+                button("Delete")
+                    .style(theme::Button::Destructive)
+                    .on_press(Message::Delete(self.id)),
+            ],
+            Space::with_height(Length::Fixed(15.0)),
+            column![
+                signed_text_imput("Name", serial.name(), Message::NameChanged),
+                row![
+                    signed_text_imput(
+                        "Season",
+                        &serial.season().to_string(),
+                        Message::SeasonChanged
+                    ),
+                    square_button("-").on_press(Message::SeasonDec),
+                    square_button("+").on_press(Message::SeasonInc)
+                ]
+                .spacing(DEFAULT_INDENT),
+                row![
+                    signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
+                    square_button("-").on_press(Message::SeriaDec),
+                    square_button("+").on_press(Message::SeriaInc)
+                ]
+                .spacing(DEFAULT_INDENT),
+                row![
+                    signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
+                    square_button("...").on_press(Message::SeasonPathSelect),
+                    square_button(">").on_press(Message::Watch {
+                        path: season_path,
+                        seria: serial.seria().get() as usize
+                    })
+                ]
+                .spacing(DEFAULT_INDENT)
             ]
             .spacing(DEFAULT_INDENT)
         ]
-        .spacing(DEFAULT_INDENT);
-        let delete_button = button("Delete")
-            .style(theme::Button::Destructive)
-            .on_press(Message::Delete(self.id));
-        column![back_button, edit_area, delete_button]
-            .padding(DEFAULT_INDENT)
-            .spacing(DEFAULT_INDENT)
-            .into()
+        .padding(DEFAULT_INDENT)
+        .spacing(DEFAULT_INDENT)
+        .into()
     }
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
