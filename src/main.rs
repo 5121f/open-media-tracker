@@ -5,7 +5,7 @@ mod serial;
 mod utils;
 mod view_utils;
 
-use std::{cell::RefCell, path::Path, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
@@ -60,10 +60,9 @@ impl ZCinema {
         Ok(())
     }
 
-    fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
-        let dir = dir.as_ref();
-        let media = if dir.exists() {
-            utils::read_media(dir)?
+    fn read_media(config: Rc<Config>) -> Result<Vec<Serial>, ErrorKind> {
+        let media = if config.data_dir.exists() {
+            utils::read_media(config)?
         } else {
             Vec::new()
         };
@@ -124,7 +123,8 @@ impl ZCinema {
 
     fn new2() -> Result<Self, Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
-        let media: Vec<_> = Self::read_media(&config.data_dir)
+        let config = Rc::new(config);
+        let media: Vec<_> = Self::read_media(config.clone())
             .map_err(|kind| Error::critical(kind))?
             .into_iter()
             .map(RefCell::new)
@@ -135,7 +135,7 @@ impl ZCinema {
             media,
             dialog: main_window,
             error_dialog: None,
-            config: Rc::new(config),
+            config,
         })
     }
 }

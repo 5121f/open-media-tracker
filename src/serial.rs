@@ -32,12 +32,13 @@ impl Serial {
         }
     }
 
-    pub fn read_from_file(path: impl AsRef<Path>) -> Result<Self, ErrorKind> {
+    pub fn read_from_file(path: impl AsRef<Path>, config: Rc<Config>) -> Result<Self, ErrorKind> {
         let path = path.as_ref();
         let file_content =
             fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
-        let serail =
+        let mut serail: Serial =
             ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
+        serail.config = config;
         Ok(serail)
     }
 

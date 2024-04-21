@@ -1,17 +1,19 @@
 use std::{
     fs,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 use crate::{
+    config::Config,
     error::{Error, ErrorKind},
     serial::Serial,
 };
 
-pub fn read_media(dir: impl AsRef<Path>) -> Result<Vec<Serial>, ErrorKind> {
-    let media = read_dir(dir)?
+pub fn read_media(config: Rc<Config>) -> Result<Vec<Serial>, ErrorKind> {
+    let media = read_dir(&config.data_dir)?
         .into_iter()
-        .map(Serial::read_from_file)
+        .map(|m| Serial::read_from_file(m, config.clone()))
         .collect::<Result<_, _>>()?;
     Ok(media)
 }
