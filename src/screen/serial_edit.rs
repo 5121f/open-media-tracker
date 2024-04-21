@@ -7,7 +7,7 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, Row},
+    widget::{button, column, row},
     Element,
 };
 
@@ -23,7 +23,6 @@ use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 #[derive(Debug, Clone)]
 pub enum Message {
     Back,
-    Accept,
     Delete(usize),
     Watch { path: String, seria: usize },
     NameChanged(String),
@@ -102,19 +101,10 @@ impl SerialEditScreen {
             .spacing(DEFAULT_INDENT)
         ]
         .spacing(DEFAULT_INDENT);
-        let mut bottom_buttons = Row::new();
         let delete_button = button("Delete")
             .style(theme::Button::Destructive)
             .on_press(Message::Delete(self.id));
-        bottom_buttons = bottom_buttons.push(delete_button);
-        bottom_buttons = bottom_buttons.extend([
-            horizontal_space().into(),
-            button("Accept")
-                .style(theme::Button::Positive)
-                .on_press(Message::Accept)
-                .into(),
-        ]);
-        column![back_button, edit_area, bottom_buttons]
+        column![back_button, edit_area, delete_button]
             .padding(DEFAULT_INDENT)
             .spacing(DEFAULT_INDENT)
             .into()
@@ -122,7 +112,7 @@ impl SerialEditScreen {
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
         match message {
-            Message::Back | Message::Accept | Message::Delete(_) | Message::Watch { .. } => {}
+            Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 let mut serial = self.serial.borrow_mut();
                 serial.rename(value)?;

@@ -92,7 +92,6 @@ impl ZCinema {
             }
             Message::SerialEditScreen(message) => {
                 match message {
-                    SerialEditScreenMessage::Accept => self.main_screen(),
                     SerialEditScreenMessage::Delete(id) => {
                         self.remove_serial(id)?;
                         self.main_screen();
