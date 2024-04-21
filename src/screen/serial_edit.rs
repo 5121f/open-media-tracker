@@ -12,6 +12,7 @@ use iced::{
 };
 
 use crate::{
+    config::Config,
     error::{Error, ErrorKind},
     serial::Serial,
     utils::{self, read_dir},
@@ -53,17 +54,15 @@ pub struct SerialEditScreen {
     confirm_screen: Option<Confirm>,
     seies_on_disk: Option<usize>,
     id: usize,
-    data_dir: PathBuf,
 }
 
 impl SerialEditScreen {
-    pub fn new(serial: Rc<RefCell<Serial>>, id: usize, data_dir: PathBuf) -> Self {
+    pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
         let dialog = Self {
             confirm_screen: None,
             seies_on_disk: None,
             serial,
             id,
-            data_dir,
         };
         dialog
     }
@@ -123,7 +122,7 @@ impl SerialEditScreen {
             Message::Back | Message::Accept | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 let mut serial = self.serial.borrow_mut();
-                serial.rename(&self.data_dir, value)?;
+                serial.rename(value)?;
             }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {

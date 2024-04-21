@@ -2,12 +2,13 @@ use std::{
     fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::error::ErrorKind;
+use crate::{config::Config, error::ErrorKind};
 
 #[derive(Serialize, Deserialize)]
 pub struct Serial {
@@ -15,15 +16,19 @@ pub struct Serial {
     pub season: NonZeroU8,
     pub seria: NonZeroU8,
     pub season_path: PathBuf,
+    #[serde(skip)]
+    config: Rc<Config>,
 }
 
 impl Serial {
-    pub fn new(name: String, season: NonZeroU8, seria: NonZeroU8, season_path: PathBuf) -> Self {
+    pub fn new(config: Rc<Config>) -> Self {
+        let one = NonZeroU8::MIN;
         Self {
-            name,
-            season,
-            seria,
-            season_path,
+            name: Default::default(),
+            season: one,
+            seria: one,
+            season_path: Default::default(),
+            config,
         }
     }
 
@@ -40,16 +45,16 @@ impl Serial {
         file_name(&self.name)
     }
 
-    pub fn rename(&mut self, dir: impl AsRef<Path>, new_name: String) -> Result<(), ErrorKind> {
-        let dir = dir.as_ref();
+    pub fn rename(&mut self, new_name: String) -> Result<(), ErrorKind> {
+        let data_dir = &self.config.data_dir;
         if self.name != new_name {
-            let current_path = self.path(dir);
-            let new_path = dir.join(file_name(&new_name));
+            let current_path = self.path(data_dir);
+            let new_path = data_dir.join(file_name(&new_name));
             self.name = new_name;
             fs::rename(current_path, new_path)
                 .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
         }
-        self.save(dir)?;
+        self.save(data_dir)?;
         Ok(())
     }
 
@@ -85,16 +90,4 @@ impl Serial {
 
 pub fn file_name(name: &str) -> String {
     format!("{}.ron", name)
-}
-
-impl Default for Serial {
-    fn default() -> Self {
-        let one = NonZeroU8::MIN;
-        Self {
-            name: Default::default(),
-            season: one,
-            seria: one,
-            season_path: Default::default(),
-        }
-    }
 }

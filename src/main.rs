@@ -1,19 +1,17 @@
+mod config;
 mod error;
 mod screen;
 mod serial;
 mod utils;
 mod view_utils;
 
-use std::{
-    cell::RefCell,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::{cell::RefCell, path::Path, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
 
 use crate::{
+    config::Config,
     error::Error,
     screen::{
         serial_edit, Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage,
@@ -38,13 +36,13 @@ struct ZCinema {
     media: Vec<Rc<RefCell<Serial>>>,
     dialog: Dialog,
     error_dialog: Option<ErrorScreen>,
-    data_dir: PathBuf,
+    config: Rc<Config>,
 }
 
 impl ZCinema {
     fn change_serial_screen(&mut self, id: usize) {
         let serial = Rc::clone(&self.media[id]);
-        self.dialog = Dialog::change_serial(serial, id, self.data_dir.clone())
+        self.dialog = Dialog::change_serial(serial, id)
     }
 
     fn main_screen(&mut self) {
@@ -58,13 +56,13 @@ impl ZCinema {
 
     fn save_serial(&self, id: usize) -> Result<(), Error> {
         let serial = self.media[id].borrow();
-        Ok(serial.save(&self.data_dir)?)
+        Ok(serial.save(&self.config.data_dir)?)
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
         {
             let serial = self.media[id].borrow();
-            serial.remove_file(&self.data_dir)?;
+            serial.remove_file(&self.config.data_dir)?;
         }
         self.media.remove(id);
         Ok(())
@@ -80,12 +78,6 @@ impl ZCinema {
         Ok(media)
     }
 
-    fn data_dir() -> Result<PathBuf, ErrorKind> {
-        Ok(dirs::data_dir()
-            .ok_or(ErrorKind::UserDataDirNotFound)?
-            .join("zcinema"))
-    }
-
     fn close_error_screen(&mut self) {
         self.error_dialog = None;
     }
@@ -99,7 +91,7 @@ impl ZCinema {
             Message::MainScreen(message) => {
                 match message {
                     MainScreenMessage::AddSerial => {
-                        let serial = Rc::new(RefCell::new(Serial::default()));
+                        let serial = Rc::new(RefCell::new(Serial::new(Rc::clone(&self.config))));
                         self.media.push(serial);
                         self.change_serial_screen(self.media.len() - 1);
                     }
@@ -139,8 +131,8 @@ impl ZCinema {
     }
 
     fn new2() -> Result<Self, Error> {
-        let data_dir = Self::data_dir().map_err(|kind| Error::critical(kind))?;
-        let media: Vec<_> = Self::read_media(&data_dir)
+        let config = Config::read().map_err(|kind| Error::critical(kind))?;
+        let media: Vec<_> = Self::read_media(&config.data_dir)
             .map_err(|kind| Error::critical(kind))?
             .into_iter()
             .map(RefCell::new)
@@ -151,7 +143,7 @@ impl ZCinema {
             media,
             dialog: main_window,
             error_dialog: None,
-            data_dir,
+            config: Rc::new(config),
         })
     }
 }

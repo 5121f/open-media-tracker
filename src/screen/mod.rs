@@ -32,8 +32,8 @@ impl Dialog {
         Self::MainWindow(dialog)
     }
 
-    pub fn change_serial(serial: Rc<RefCell<Serial>>, id: usize, data_dir: PathBuf) -> Self {
-        let dialog = SerialEditScreen::new(serial, id, data_dir);
+    pub fn change_serial(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
+        let dialog = SerialEditScreen::new(serial, id);
         Self::SerialChange(dialog)
     }
 }
