@@ -76,7 +76,7 @@ impl SerialEditScreen {
         let season_path = serial.season_path.display().to_string();
         let back_button = link("< Back").on_press(Message::Back);
         let edit_area = column![
-            signed_text_imput("Name", &serial.name, Message::NameChanged),
+            signed_text_imput("Name", serial.name(), Message::NameChanged),
             row![
                 signed_text_imput("Season", &serial.season.to_string(), Message::SeasonChanged),
                 square_button("-").on_press(Message::SeasonDec),

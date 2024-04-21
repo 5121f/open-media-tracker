@@ -11,7 +11,7 @@ use crate::error::ErrorKind;
 
 #[derive(Serialize, Deserialize)]
 pub struct Serial {
-    pub name: String,
+    name: String,
     pub season: NonZeroU8,
     pub seria: NonZeroU8,
     pub season_path: PathBuf,
@@ -72,6 +72,10 @@ impl Serial {
 
     pub fn season_path_is_present(&self) -> bool {
         !self.season_path.as_os_str().is_empty()
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     fn path(&self, dir: impl AsRef<Path>) -> PathBuf {

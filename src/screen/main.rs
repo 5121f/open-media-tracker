@@ -42,7 +42,7 @@ impl MainScreen {
                         .iter()
                         .enumerate()
                         .map(|(id, m)| row![
-                            text(&m.borrow().name),
+                            text(&m.borrow().name()),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSerial(id))
                         ]
