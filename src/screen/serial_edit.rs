@@ -164,7 +164,7 @@ impl SerialEditScreen {
             }
             Message::SeriaChanged(value) => {
                 if let Ok(number) = value.parse() {
-                    self.seria = number;
+                    self.set_seria(number)?;
                 }
             }
             Message::SeasonInc => self.increase_season(),
@@ -173,25 +173,7 @@ impl SerialEditScreen {
                     self.season = number;
                 }
             }
-            Message::SeriaInc => {
-                if self.season_path.is_empty() {
-                    self.seria = self.seria.saturating_add(1);
-                    return Ok(());
-                }
-                let seies_on_disk = match self.seies_on_disk {
-                    Some(seies_on_disk) => seies_on_disk,
-                    None => {
-                        let series_on_disk = read_dir(&self.season_path)?.len();
-                        self.set_series_on_disk(series_on_disk);
-                        series_on_disk
-                    }
-                };
-                if seies_on_disk == self.seria.get() as usize {
-                    self.confirm(format!("It's seems like {} serias is a last of it season. Switch to the next season?", self.seria));
-                } else {
-                    self.seria = self.seria.saturating_add(1);
-                }
-            }
+            Message::SeriaInc => self.increase_seria()?,
             Message::SeriaDec => {
                 if let Some(number) = NonZeroU8::new(self.seria.get() - 1) {
                     self.seria = number;
@@ -231,12 +213,39 @@ impl SerialEditScreen {
         self.seies_on_disk = Some(series);
     }
 
-    fn set_first_seria(&mut self) {
+    fn increase_seria(&mut self) -> Result<(), Error> {
+        self.set_seria(self.seria.saturating_add(1))
+    }
+
+    fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
+        if self.season_path.is_empty() {
+            self.seria = value;
+        }
+        let seies_on_disk = match self.seies_on_disk {
+            Some(seies_on_disk) => seies_on_disk,
+            None => {
+                let series_on_disk = read_dir(&self.season_path)?.len();
+                self.set_series_on_disk(series_on_disk);
+                series_on_disk
+            }
+        };
+        if seies_on_disk == self.seria.get() as usize {
+            self.confirm(format!(
+                "It's seems like {} serias is a last of it season. Switch to the next season?",
+                self.seria
+            ));
+        } else {
+            self.seria = value;
+        }
+        Ok(())
+    }
+
+    fn set_seria_to_one(&mut self) {
         self.seria = NonZeroU8::MIN;
     }
 
     fn increase_season(&mut self) {
-        self.set_first_seria();
+        self.set_seria_to_one();
         self.season = self.season.saturating_add(1);
     }
 
