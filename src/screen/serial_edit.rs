@@ -52,7 +52,7 @@ pub enum Message {
 }
 
 enum ConfirmKind {
-    TrySwitchToNewSeason { potential_new_season: PathBuf },
+    TrySwitchToNewSeason { season_path: PathBuf },
     SeriaOverflow,
 }
 
@@ -182,10 +182,8 @@ impl SerialEditScreen {
                         return Ok(());
                     };
                     match &confirm.kind {
-                        ConfirmKind::TrySwitchToNewSeason {
-                            potential_new_season,
-                        } => {
-                            self.season_path = potential_new_season.display().to_string();
+                        ConfirmKind::TrySwitchToNewSeason { season_path } => {
+                            self.season_path = season_path.display().to_string();
                             self.close_confirm_screen();
                         }
                         ConfirmKind::SeriaOverflow => self.increase_season()?,
@@ -245,14 +243,11 @@ impl SerialEditScreen {
             self.set_seria_to_one();
             self.season = self.season.saturating_add(1);
         } else {
-            let season_path = PathBuf::from(&self.season_path);
-            let next_season =
-                next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+            let season_path =
+                next_dir(&self.season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
             let confirm = Confirm {
-                screen: ConfirmScreen::new(format!("Proposed path: {}", next_season.display())),
-                kind: ConfirmKind::TrySwitchToNewSeason {
-                    potential_new_season: next_season,
-                },
+                screen: ConfirmScreen::new(format!("Proposed path: {}", season_path.display())),
+                kind: ConfirmKind::TrySwitchToNewSeason { season_path },
             };
             self.confirm_screen = Some(confirm);
         }
