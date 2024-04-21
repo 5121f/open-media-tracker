@@ -167,9 +167,7 @@ impl SerialEditScreen {
                     self.seria = number;
                 }
             }
-            Message::SeasonInc => {
-                self.season = self.season.saturating_add(1);
-            }
+            Message::SeasonInc => self.increase_season(),
             Message::SeasonDec => {
                 if let Some(number) = NonZeroU8::new(self.season.get() - 1) {
                     self.season = number;
@@ -233,13 +231,21 @@ impl SerialEditScreen {
         self.seies_on_disk = Some(series);
     }
 
+    fn set_first_seria(&mut self) {
+        self.seria = NonZeroU8::MIN;
+    }
+
+    fn increase_season(&mut self) {
+        self.set_first_seria();
+        self.season = self.season.saturating_add(1);
+    }
+
     fn next_season(&mut self) -> Result<(), ErrorKind> {
         if let Err(error) = self.next_season2() {
             self.close_confirm_screen();
             return Err(error.into());
         }
-        self.seria = NonZeroU8::MIN;
-        self.season = self.season.saturating_add(1);
+        self.increase_season();
         Ok(())
     }
 
