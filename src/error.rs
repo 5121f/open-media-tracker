@@ -40,7 +40,7 @@ impl From<ErrorKind> for Error {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
-    #[error("{path}: {kind}")]
+    #[error("{path}: I/O error: {kind}")]
     FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     Parce { path: PathBuf, source: SpannedError },
