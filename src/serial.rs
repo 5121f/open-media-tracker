@@ -49,6 +49,7 @@ impl Serial {
             fs::rename(current_path, new_path)
                 .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
         }
+        self.save(dir)?;
         Ok(())
     }
 
