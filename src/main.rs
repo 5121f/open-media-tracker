@@ -13,10 +13,7 @@ use iced::{executor, window, Application, Command, Element, Settings, Theme};
 use crate::{
     config::Config,
     error::Error,
-    screen::{
-        serial_edit, Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage,
-        SerialEditScreenMessage,
-    },
+    screen::{Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
     serial::Serial,
 };
 
@@ -52,11 +49,6 @@ impl ZCinema {
 
     fn error_screen(&mut self, error: Error) {
         self.error_dialog = Some(error.into());
-    }
-
-    fn save_serial(&self, id: usize) -> Result<(), Error> {
-        let serial = self.media[id].borrow();
-        Ok(serial.save(&self.config.data_dir)?)
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {

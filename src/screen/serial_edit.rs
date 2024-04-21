@@ -12,7 +12,6 @@ use iced::{
 };
 
 use crate::{
-    config::Config,
     error::{Error, ErrorKind},
     serial::Serial,
     utils::{self, read_dir},
