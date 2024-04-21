@@ -27,7 +27,7 @@ impl Dialog {
     }
 
     pub fn main(media: &[Rc<Serial>]) -> Self {
-        let media = media.into_iter().map(|m| m.clone()).collect();
+        let media = media.into_iter().map(Rc::clone).collect();
         let dialog = MainScreen::new(media);
         Self::MainWindow(dialog)
     }
