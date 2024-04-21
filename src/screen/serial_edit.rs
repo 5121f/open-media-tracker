@@ -213,11 +213,7 @@ impl SerialEditScreen {
                             self.season_path = potential_new_season.display().to_string();
                             self.close_confirm_screen();
                         }
-                        ConfirmKind::SeriaOverflow => {
-                            self.seria = NonZeroU8::MIN;
-                            self.season = self.season.saturating_add(1);
-                            self.next_season()?;
-                        }
+                        ConfirmKind::SeriaOverflow => self.next_season()?,
                     }
                 }
                 ConfirmScreenMessage::Cancel => {
@@ -242,6 +238,8 @@ impl SerialEditScreen {
             self.close_confirm_screen();
             return Err(error.into());
         }
+        self.seria = NonZeroU8::MIN;
+        self.season = self.season.saturating_add(1);
         Ok(())
     }
 
