@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use iced::{
-    widget::{column, horizontal_space, row, scrollable, text},
+    theme,
+    widget::{button, column, horizontal_space, row, scrollable, text},
     Alignment, Element,
 };
 
@@ -28,7 +29,13 @@ impl MainScreen {
 
     pub fn view(&self) -> Element<Message> {
         column![
-            square_button("+").on_press(Message::AddSerial),
+            row![
+                horizontal_space(),
+                button("Add serial")
+                    .style(theme::Button::Positive)
+                    .on_press(Message::AddSerial),
+                horizontal_space(),
+            ],
             scrollable(
                 column(
                     self.media
