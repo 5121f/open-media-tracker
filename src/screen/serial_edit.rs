@@ -44,7 +44,6 @@ pub enum Message {
     SeriaChanged(String),
     SeasonPathChanged(String),
     SeasonPathSelect,
-    SeasonTryNext,
     SeasonInc,
     SeasonDec,
     SeriaInc,
@@ -121,9 +120,6 @@ impl SerialEditScreen {
             row![
                 signed_text_imput("Season path", &self.season_path, Message::SeasonPathChanged),
                 square_button("...").on_press(Message::SeasonPathSelect),
-                button("try next").on_press_maybe(
-                    (!self.season_path.is_empty()).then_some(Message::SeasonTryNext)
-                ),
                 square_button(">").on_press(Message::Watch {
                     path: self.season_path.clone(),
                     seria: self.seria.get() as usize
@@ -167,7 +163,7 @@ impl SerialEditScreen {
                     self.set_seria(number)?;
                 }
             }
-            Message::SeasonInc => self.increase_season(),
+            Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
                 if let Some(number) = NonZeroU8::new(self.season.get() - 1) {
                     self.season = number;
@@ -180,7 +176,6 @@ impl SerialEditScreen {
                 }
             }
             Message::SeasonPathChanged(value) => self.season_path = value,
-            Message::SeasonTryNext => self.next_season()?,
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
                     let Some(confirm) = &self.confirm_screen else {
@@ -193,7 +188,7 @@ impl SerialEditScreen {
                             self.season_path = potential_new_season.display().to_string();
                             self.close_confirm_screen();
                         }
-                        ConfirmKind::SeriaOverflow => self.next_season()?,
+                        ConfirmKind::SeriaOverflow => self.increase_season()?,
                     }
                 }
                 ConfirmScreenMessage::Cancel => {
@@ -245,21 +240,20 @@ impl SerialEditScreen {
         self.seria = NonZeroU8::MIN;
     }
 
-    fn increase_season(&mut self) {
-        self.set_seria_to_one();
-        self.season = self.season.saturating_add(1);
-    }
-
-    fn next_season(&mut self) -> Result<(), ErrorKind> {
-        if let Err(error) = self.next_season2() {
-            self.close_confirm_screen();
-            return Err(error.into());
+    fn increase_season(&mut self) -> Result<(), ErrorKind> {
+        if self.season_path.is_empty() {
+            self.set_seria_to_one();
+            self.season = self.season.saturating_add(1);
+        } else {
+            if let Err(error) = self.increase_season2() {
+                self.close_confirm_screen();
+                return Err(error.into());
+            }
         }
-        self.increase_season();
         Ok(())
     }
 
-    fn next_season2(&mut self) -> Result<(), ErrorKind> {
+    fn increase_season2(&mut self) -> Result<(), ErrorKind> {
         let season_path = PathBuf::from(&self.season_path);
         let next_season = next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
         self.confirm_proposed_season(next_season);
