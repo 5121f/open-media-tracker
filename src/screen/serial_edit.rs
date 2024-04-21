@@ -71,18 +71,22 @@ impl SerialEditScreen {
             return confirm_screen.screen.view().map(Message::ConfirmScreen);
         }
         let serial = self.serial.borrow();
-        let season_path = serial.season_path.display().to_string();
+        let season_path = serial.season_path().display().to_string();
         let back_button = link("< Back").on_press(Message::Back);
         let edit_area = column![
             signed_text_imput("Name", serial.name(), Message::NameChanged),
             row![
-                signed_text_imput("Season", &serial.season.to_string(), Message::SeasonChanged),
+                signed_text_imput(
+                    "Season",
+                    &serial.season().to_string(),
+                    Message::SeasonChanged
+                ),
                 square_button("-").on_press(Message::SeasonDec),
                 square_button("+").on_press(Message::SeasonInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput("Seria", &serial.seria.to_string(), Message::SeriaChanged),
+                signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
                 square_button("-").on_press(Message::SeriaDec),
                 square_button("+").on_press(Message::SeriaInc)
             ]
@@ -92,7 +96,7 @@ impl SerialEditScreen {
                 square_button("...").on_press(Message::SeasonPathSelect),
                 square_button(">").on_press(Message::Watch {
                     path: season_path,
-                    seria: serial.seria.get() as usize
+                    seria: serial.seria().get() as usize
                 })
             ]
             .spacing(DEFAULT_INDENT)
@@ -125,7 +129,7 @@ impl SerialEditScreen {
             }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
-                    self.serial.borrow_mut().season = number;
+                    self.serial.borrow_mut().set_season(number)?;
                 }
             }
             Message::SeriaChanged(value) => {
@@ -136,20 +140,21 @@ impl SerialEditScreen {
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
                 let mut serial = self.serial.borrow_mut();
-                if let Some(number) = NonZeroU8::new(serial.season.get() - 1) {
-                    serial.season = number;
+                if let Some(number) = NonZeroU8::new(serial.season().get() - 1) {
+                    serial.set_season(number)?;
                 }
             }
             Message::SeriaInc => self.increase_seria()?,
             Message::SeriaDec => {
                 let mut serial = self.serial.borrow_mut();
-                if let Some(number) = NonZeroU8::new(serial.seria.get() - 1) {
-                    serial.seria = number;
+                if let Some(number) = NonZeroU8::new(serial.seria().get() - 1) {
+                    serial.set_seria(number)?;
                 }
             }
-            Message::SeasonPathChanged(value) => {
-                self.serial.borrow_mut().season_path = PathBuf::from(value)
-            }
+            Message::SeasonPathChanged(value) => self
+                .serial
+                .borrow_mut()
+                .set_season_path(PathBuf::from(value))?,
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
                     let Some(confirm) = &self.confirm_screen else {
@@ -157,7 +162,9 @@ impl SerialEditScreen {
                     };
                     match &confirm.kind {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
-                            self.serial.borrow_mut().season_path = season_path.clone();
+                            self.serial
+                                .borrow_mut()
+                                .set_season_path(season_path.clone())?;
                             self.close_confirm_screen();
                         }
                         ConfirmKind::SeriaOverflow => self.increase_season()?,
@@ -169,7 +176,7 @@ impl SerialEditScreen {
             },
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.serial.borrow_mut().season_path = folder;
+                    self.serial.borrow_mut().set_season_path(folder)?;
                 }
             }
         }
@@ -181,7 +188,7 @@ impl SerialEditScreen {
     }
 
     fn increase_seria(&mut self) -> Result<(), Error> {
-        let next_seria = self.serial.borrow().seria.saturating_add(1);
+        let next_seria = self.serial.borrow().seria().saturating_add(1);
         self.set_seria(next_seria)
     }
 
@@ -189,14 +196,17 @@ impl SerialEditScreen {
         {
             let mut serial = self.serial.borrow_mut();
             if !serial.season_path_is_present() {
-                serial.seria = value;
+                serial.set_seria(value)?;
                 return Ok(());
             }
         }
         let seies_on_disk = match self.seies_on_disk {
             Some(seies_on_disk) => seies_on_disk,
             None => {
-                let series_on_disk = read_dir(&self.serial.borrow().season_path)?.len();
+                let series_on_disk = {
+                    let serial = self.serial.borrow();
+                    read_dir(&serial.season_path())?.len()
+                };
                 self.set_series_on_disk(series_on_disk);
                 series_on_disk
             }
@@ -208,22 +218,24 @@ impl SerialEditScreen {
             ));
         } else {
             let mut serial = self.serial.borrow_mut();
-            serial.seria = value;
+            serial.set_seria(value)?;
         }
         Ok(())
     }
 
-    fn set_seria_to_one(&mut self) {
-        self.serial.borrow_mut().seria = NonZeroU8::MIN;
+    fn set_seria_to_one(&mut self) -> Result<(), ErrorKind> {
+        let mut serial = self.serial.borrow_mut();
+        serial.set_seria(NonZeroU8::MIN)
     }
 
     fn increase_season(&mut self) -> Result<(), ErrorKind> {
         if !self.serial.borrow().season_path_is_present() {
-            self.set_seria_to_one();
+            self.set_seria_to_one()?;
+            let next_seria = self.serial.borrow().season().saturating_add(1);
             let mut serial = self.serial.borrow_mut();
-            serial.season = serial.season.saturating_add(1);
+            serial.set_season(next_seria)?;
         } else {
-            let season_path = next_dir(&self.serial.borrow().season_path)?
+            let season_path = next_dir(&self.serial.borrow().season_path())?
                 .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
             let confirm = Confirm {
                 screen: ConfirmScreen::new(format!("Proposed path: {}", season_path.display())),

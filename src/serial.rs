@@ -13,9 +13,9 @@ use crate::{config::Config, error::ErrorKind};
 #[derive(Serialize, Deserialize)]
 pub struct Serial {
     name: String,
-    pub season: NonZeroU8,
-    pub seria: NonZeroU8,
-    pub season_path: PathBuf,
+    season: NonZeroU8,
+    seria: NonZeroU8,
+    season_path: PathBuf,
     #[serde(skip)]
     config: Rc<Config>,
 }
@@ -54,12 +54,12 @@ impl Serial {
             fs::rename(current_path, new_path)
                 .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
         }
-        self.save(data_dir)?;
+        self.save()?;
         Ok(())
     }
 
-    pub fn save(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
-        let dir = dir.as_ref();
+    pub fn save(&self) -> Result<(), ErrorKind> {
+        let dir = &self.config.data_dir;
         let content = ron::ser::to_string_pretty(&self, PrettyConfig::new())
             .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
         if !dir.exists() {
@@ -77,6 +77,33 @@ impl Serial {
 
     pub fn season_path_is_present(&self) -> bool {
         !self.season_path.as_os_str().is_empty()
+    }
+
+    pub fn set_season(&mut self, value: NonZeroU8) -> Result<(), ErrorKind> {
+        self.season = value;
+        self.save()
+    }
+
+    pub fn set_seria(&mut self, value: NonZeroU8) -> Result<(), ErrorKind> {
+        self.seria = value;
+        self.save()
+    }
+
+    pub fn set_season_path(&mut self, value: PathBuf) -> Result<(), ErrorKind> {
+        self.season_path = value;
+        self.save()
+    }
+
+    pub fn season(&self) -> NonZeroU8 {
+        self.season
+    }
+
+    pub fn seria(&self) -> NonZeroU8 {
+        self.seria
+    }
+
+    pub fn season_path(&self) -> &Path {
+        &self.season_path
     }
 
     pub fn name(&self) -> &str {
