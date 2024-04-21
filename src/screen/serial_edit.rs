@@ -245,18 +245,17 @@ impl SerialEditScreen {
             self.set_seria_to_one();
             self.season = self.season.saturating_add(1);
         } else {
-            if let Err(error) = self.increase_season2() {
-                self.close_confirm_screen();
-                return Err(error.into());
-            }
+            let season_path = PathBuf::from(&self.season_path);
+            let next_season =
+                next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+            let confirm = Confirm {
+                screen: ConfirmScreen::new(format!("Proposed path: {}", next_season.display())),
+                kind: ConfirmKind::TrySwitchToNewSeason {
+                    potential_new_season: next_season,
+                },
+            };
+            self.confirm_screen = Some(confirm);
         }
-        Ok(())
-    }
-
-    fn increase_season2(&mut self) -> Result<(), ErrorKind> {
-        let season_path = PathBuf::from(&self.season_path);
-        let next_season = next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        self.confirm_proposed_season(next_season);
         Ok(())
     }
 
@@ -268,17 +267,6 @@ impl SerialEditScreen {
         let confirm = Confirm {
             screen: ConfirmScreen::new(message),
             kind: ConfirmKind::SeriaOverflow,
-        };
-        self.confirm_screen = Some(confirm);
-    }
-
-    fn confirm_proposed_season(&mut self, path: impl AsRef<Path>) {
-        let path = path.as_ref();
-        let confirm = Confirm {
-            screen: ConfirmScreen::new(format!("Proposed path: {}", path.display())),
-            kind: ConfirmKind::TrySwitchToNewSeason {
-                potential_new_season: path.to_path_buf(),
-            },
         };
         self.confirm_screen = Some(confirm);
     }
