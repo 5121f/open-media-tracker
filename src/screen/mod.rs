@@ -3,7 +3,7 @@ pub mod error;
 pub mod main;
 pub mod serial_edit;
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, path::PathBuf, rc::Rc};
 
 pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
@@ -32,8 +32,8 @@ impl Dialog {
         Self::MainWindow(dialog)
     }
 
-    pub fn change_serial(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
-        let dialog = SerialEditScreen::new(serial, id);
+    pub fn change_serial(serial: Rc<RefCell<Serial>>, id: usize, data_dir: PathBuf) -> Self {
+        let dialog = SerialEditScreen::new(serial, id, data_dir);
         Self::SerialChange(dialog)
     }
 }

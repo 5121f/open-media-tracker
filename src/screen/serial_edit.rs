@@ -53,15 +53,17 @@ pub struct SerialEditScreen {
     confirm_screen: Option<Confirm>,
     seies_on_disk: Option<usize>,
     id: usize,
+    data_dir: PathBuf,
 }
 
 impl SerialEditScreen {
-    pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
+    pub fn new(serial: Rc<RefCell<Serial>>, id: usize, data_dir: PathBuf) -> Self {
         let dialog = Self {
             confirm_screen: None,
             seies_on_disk: None,
             serial,
             id,
+            data_dir,
         };
         dialog
     }
@@ -119,7 +121,10 @@ impl SerialEditScreen {
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
         match message {
             Message::Back | Message::Accept | Message::Delete(_) | Message::Watch { .. } => {}
-            Message::NameChanged(value) => self.serial.borrow_mut().name = value,
+            Message::NameChanged(value) => {
+                let mut serial = self.serial.borrow_mut();
+                serial.rename(&self.data_dir, value)?;
+            }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
                     self.serial.borrow_mut().season = number;

@@ -44,7 +44,7 @@ struct ZCinema {
 impl ZCinema {
     fn change_serial_screen(&mut self, id: usize) {
         let serial = Rc::clone(&self.media[id]);
-        self.dialog = Dialog::change_serial(serial, id)
+        self.dialog = Dialog::change_serial(serial, id, self.data_dir.clone())
     }
 
     fn main_screen(&mut self) {
