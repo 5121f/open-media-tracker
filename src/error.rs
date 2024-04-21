@@ -60,8 +60,6 @@ pub enum ErrorKind {
     FaliedToGetParentDir { path: PathBuf },
     #[error("Failed to find next season path")]
     FailedToFindNextSeasonPath,
-    #[error("Uncnown error")]
-    Unknown,
 }
 
 impl ErrorKind {
