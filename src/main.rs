@@ -182,12 +182,6 @@ impl Application for ZCinema {
     }
 }
 
-impl Default for Dialog<ErrorScreen> {
-    fn default() -> Self {
-        Dialog::closed()
-    }
-}
-
 pub enum Screens {
     MainWindow(MainScreen),
     SerialChange(SerialEditScreen),

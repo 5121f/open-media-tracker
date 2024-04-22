@@ -9,7 +9,6 @@ pub use main::{MainScreen, Message as MainScreenMessage};
 pub use serial_edit::{Message as SerialEditScreenMessage, SerialEditScreen};
 
 // Optional Dialog
-#[derive(Default)]
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
@@ -27,5 +26,11 @@ impl<T> Dialog<T> {
 
     pub fn get(&self) -> Option<&T> {
         self.0.as_ref()
+    }
+}
+
+impl<T> Default for Dialog<T> {
+    fn default() -> Self {
+        Self::closed()
     }
 }
