@@ -13,7 +13,7 @@ use iced::{
 
 use crate::{
     error::{Error, ErrorKind},
-    screen::{ConfirmScreen, ConfirmScreenMessage},
+    screen::{ConfirmScreen, ConfirmScreenMessage, Od},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
@@ -43,7 +43,7 @@ enum ConfirmKind {
 
 pub struct SerialEditScreen {
     serial: Rc<RefCell<Serial>>,
-    confirm_screen: Option<ConfirmScreen<ConfirmKind>>,
+    confirm_screen: Od<ConfirmScreen<ConfirmKind>>,
     seies_on_disk: Option<usize>,
     id: usize,
 }
@@ -51,7 +51,7 @@ pub struct SerialEditScreen {
 impl SerialEditScreen {
     pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
         let dialog = Self {
-            confirm_screen: None,
+            confirm_screen: Od::closed(),
             seies_on_disk: None,
             serial,
             id,
@@ -60,7 +60,7 @@ impl SerialEditScreen {
     }
 
     pub fn view(&self) -> Element<Message> {
-        if let Some(confirm_screen) = &self.confirm_screen {
+        if let Some(confirm_screen) = &self.confirm_screen.get() {
             return confirm_screen.view().map(Message::ConfirmScreen);
         }
         let serial = self.serial.borrow();
@@ -148,7 +148,7 @@ impl SerialEditScreen {
                 .set_season_path(PathBuf::from(value))?,
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
-                    let Some(confirm) = &self.confirm_screen else {
+                    let Some(confirm) = &self.confirm_screen.get() else {
                         return Ok(());
                     };
                     match &confirm.kind() {
@@ -156,13 +156,13 @@ impl SerialEditScreen {
                             self.serial
                                 .borrow_mut()
                                 .set_season_path(season_path.clone())?;
-                            self.close_confirm_screen();
+                            self.confirm_screen.close();
                         }
                         ConfirmKind::SeriaOverflow => self.increase_season()?,
                     }
                 }
                 ConfirmScreenMessage::Cancel => {
-                    self.close_confirm_screen();
+                    self.confirm_screen.close();
                 }
             },
             Message::SeasonPathSelect => {
@@ -237,13 +237,9 @@ impl SerialEditScreen {
         Ok(())
     }
 
-    fn close_confirm_screen(&mut self) {
-        self.confirm_screen = None;
-    }
-
     fn confirm(&mut self, kind: ConfirmKind, message: String) {
         let confirm = ConfirmScreen::new(kind, message);
-        self.confirm_screen = Some(confirm);
+        self.confirm_screen = Od::new(confirm);
     }
 }
 

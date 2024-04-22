@@ -13,7 +13,9 @@ use iced::{executor, window, Application, Command, Element, Settings, Theme};
 use crate::{
     config::Config,
     error::Error,
-    screen::{Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
+    screen::{
+        Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, Od, SerialEditScreenMessage,
+    },
     serial::Serial,
 };
 
@@ -32,7 +34,7 @@ enum Message {
 struct ZCinema {
     media: Vec<Rc<RefCell<Serial>>>,
     dialog: Dialog,
-    error_dialog: Option<ErrorScreen>,
+    error_dialog: Od<ErrorScreen>,
     config: Rc<Config>,
 }
 
@@ -48,7 +50,7 @@ impl ZCinema {
     }
 
     fn error_screen(&mut self, error: Error) {
-        self.error_dialog = Some(error.into());
+        self.error_dialog = Od::new(error.into());
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
@@ -67,10 +69,6 @@ impl ZCinema {
             Vec::new()
         };
         Ok(media)
-    }
-
-    fn close_error_screen(&mut self) {
-        self.error_dialog = None;
     }
 
     fn close_app(&self) -> Command<Message> {
@@ -115,7 +113,7 @@ impl ZCinema {
                 if critical {
                     return Ok(self.close_app());
                 }
-                self.close_error_screen();
+                self.error_dialog.close();
                 Ok(Command::none())
             }
         }
@@ -134,7 +132,7 @@ impl ZCinema {
         Ok(Self {
             media,
             dialog: main_window,
-            error_dialog: None,
+            error_dialog: Od::closed(),
             config,
         })
     }
@@ -150,7 +148,7 @@ impl Application for ZCinema {
         let zcinema = match Self::new2() {
             Ok(zcinema) => zcinema,
             Err(error) => Self {
-                error_dialog: Some(error.into()),
+                error_dialog: Od::new(error.into()),
                 ..Default::default()
             },
         };
@@ -173,7 +171,7 @@ impl Application for ZCinema {
     }
 
     fn view(&self) -> Element<Message> {
-        if let Some(error_dialog) = &self.error_dialog {
+        if let Some(error_dialog) = &self.error_dialog.get() {
             error_dialog.view().map(Message::ErrorScreen)
         } else {
             self.dialog.view()
@@ -182,5 +180,11 @@ impl Application for ZCinema {
 
     fn theme(&self) -> Theme {
         Theme::Dark
+    }
+}
+
+impl Default for Od<ErrorScreen> {
+    fn default() -> Self {
+        Od::closed()
     }
 }

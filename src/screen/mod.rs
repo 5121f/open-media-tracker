@@ -44,3 +44,25 @@ impl Default for Dialog {
         Dialog::MainWindow(MainScreen::default())
     }
 }
+
+// Optional Dialog
+#[derive(Default)]
+pub struct Od<T>(Option<T>);
+
+impl<T> Od<T> {
+    pub fn new(dialog: T) -> Self {
+        Self(Some(dialog))
+    }
+
+    pub fn closed() -> Self {
+        Self(None)
+    }
+
+    pub fn close(&mut self) {
+        self.0 = None;
+    }
+
+    pub fn get(&self) -> Option<&T> {
+        self.0.as_ref()
+    }
+}
