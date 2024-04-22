@@ -8,7 +8,6 @@ pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
 pub use serial_edit::{Message as SerialEditScreenMessage, SerialEditScreen};
 
-// Optional Dialog
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
