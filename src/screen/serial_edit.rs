@@ -13,12 +13,11 @@ use iced::{
 
 use crate::{
     error::{Error, ErrorKind},
+    screen::{ConfirmScreen, ConfirmScreenMessage},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };
-
-use super::confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 
 #[derive(Debug, Clone)]
 pub enum Message {
