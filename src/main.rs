@@ -9,13 +9,12 @@ use std::{cell::RefCell, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
+use screen::{MainScreen, SerialEditScreen};
 
 use crate::{
     config::Config,
     error::Error,
-    screen::{
-        Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, Od, SerialEditScreenMessage,
-    },
+    screen::{Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
     serial::Serial,
 };
 
@@ -33,24 +32,24 @@ enum Message {
 #[derive(Default)]
 struct ZCinema {
     media: Vec<Rc<RefCell<Serial>>>,
-    dialog: Dialog,
-    error_dialog: Od<ErrorScreen>,
+    screen: Screens,
+    error_dialog: Dialog<ErrorScreen>,
     config: Rc<Config>,
 }
 
 impl ZCinema {
     fn change_serial_screen(&mut self, id: usize) {
         let serial = Rc::clone(&self.media[id]);
-        self.dialog = Dialog::change_serial(serial, id)
+        self.screen = Screens::change_serial(serial, id)
     }
 
     fn main_screen(&mut self) {
         let media: Vec<_> = self.media.iter().map(Rc::clone).collect();
-        self.dialog = Dialog::main(&media);
+        self.screen = Screens::main(&media);
     }
 
     fn error_screen(&mut self, error: Error) {
-        self.error_dialog = Od::new(error.into());
+        self.error_dialog = Dialog::new(error.into());
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
@@ -102,7 +101,7 @@ impl ZCinema {
                         utils::watch(path, seria)?;
                     }
                     _ => {
-                        if let Dialog::SerialChange(dialog) = &mut self.dialog {
+                        if let Screens::SerialChange(dialog) = &mut self.screen {
                             dialog.update(message)?;
                         };
                     }
@@ -128,11 +127,11 @@ impl ZCinema {
             .map(RefCell::new)
             .map(Rc::new)
             .collect();
-        let main_window = Dialog::main(&media);
+        let main_window = Screens::main(&media);
         Ok(Self {
             media,
-            dialog: main_window,
-            error_dialog: Od::closed(),
+            screen: main_window,
+            error_dialog: Dialog::closed(),
             config,
         })
     }
@@ -148,7 +147,7 @@ impl Application for ZCinema {
         let zcinema = match Self::new2() {
             Ok(zcinema) => zcinema,
             Err(error) => Self {
-                error_dialog: Od::new(error.into()),
+                error_dialog: Dialog::new(error.into()),
                 ..Default::default()
             },
         };
@@ -174,7 +173,7 @@ impl Application for ZCinema {
         if let Some(error_dialog) = &self.error_dialog.get() {
             error_dialog.view().map(Message::ErrorScreen)
         } else {
-            self.dialog.view()
+            self.screen.view()
         }
     }
 
@@ -183,8 +182,39 @@ impl Application for ZCinema {
     }
 }
 
-impl Default for Od<ErrorScreen> {
+impl Default for Dialog<ErrorScreen> {
     fn default() -> Self {
-        Od::closed()
+        Dialog::closed()
+    }
+}
+
+pub enum Screens {
+    MainWindow(MainScreen),
+    SerialChange(SerialEditScreen),
+}
+
+impl Screens {
+    fn view(&self) -> Element<Message> {
+        match self {
+            Screens::MainWindow(dialog) => dialog.view().map(Message::MainScreen),
+            Screens::SerialChange(dialog) => dialog.view().map(Message::SerialEditScreen),
+        }
+    }
+
+    fn main(media: &[Rc<RefCell<Serial>>]) -> Self {
+        let media = media.into_iter().map(Rc::clone).collect();
+        let dialog = MainScreen::new(media);
+        Self::MainWindow(dialog)
+    }
+
+    fn change_serial(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
+        let dialog = SerialEditScreen::new(serial, id);
+        Self::SerialChange(dialog)
+    }
+}
+
+impl Default for Screens {
+    fn default() -> Self {
+        Screens::MainWindow(MainScreen::default())
     }
 }

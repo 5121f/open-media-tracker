@@ -13,7 +13,7 @@ use iced::{
 
 use crate::{
     error::{Error, ErrorKind},
-    screen::{ConfirmScreen, ConfirmScreenMessage, Od},
+    screen::{ConfirmScreen, ConfirmScreenMessage, Dialog},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
@@ -43,7 +43,7 @@ enum ConfirmKind {
 
 pub struct SerialEditScreen {
     serial: Rc<RefCell<Serial>>,
-    confirm_screen: Od<ConfirmScreen<ConfirmKind>>,
+    confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     seies_on_disk: Option<usize>,
     id: usize,
 }
@@ -51,7 +51,7 @@ pub struct SerialEditScreen {
 impl SerialEditScreen {
     pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
         let dialog = Self {
-            confirm_screen: Od::closed(),
+            confirm_screen: Dialog::closed(),
             seies_on_disk: None,
             serial,
             id,
@@ -239,7 +239,7 @@ impl SerialEditScreen {
 
     fn confirm(&mut self, kind: ConfirmKind, message: String) {
         let confirm = ConfirmScreen::new(kind, message);
-        self.confirm_screen = Od::new(confirm);
+        self.confirm_screen = Dialog::new(confirm);
     }
 }
 
