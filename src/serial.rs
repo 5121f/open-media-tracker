@@ -25,13 +25,15 @@ pub struct Serial {
 impl Serial {
     pub fn new(config: Rc<Config>) -> Result<Self, ErrorKind> {
         let one = NonZeroU8::MIN;
-        Ok(Self {
+        let serial = Self {
             name: find_availible_new_name(&config.data_dir)?,
             season: one,
             seria: one,
             season_path: Default::default(),
             config,
-        })
+        };
+        serial.save()?;
+        Ok(serial)
     }
 
     pub fn read_from_file(path: impl AsRef<Path>, config: Rc<Config>) -> Result<Self, ErrorKind> {
