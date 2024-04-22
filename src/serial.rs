@@ -8,7 +8,9 @@ use std::{
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{config::Config, error::ErrorKind};
+use crate::{config::Config, error::ErrorKind, utils};
+
+const DEFAULT_SERIAL_NAME: &str = "New serial";
 
 #[derive(Serialize, Deserialize)]
 pub struct Serial {
@@ -21,15 +23,15 @@ pub struct Serial {
 }
 
 impl Serial {
-    pub fn new(config: Rc<Config>) -> Self {
+    pub fn new(config: Rc<Config>) -> Result<Self, ErrorKind> {
         let one = NonZeroU8::MIN;
-        Self {
-            name: Default::default(),
+        Ok(Self {
+            name: find_availible_new_name(&config.data_dir)?,
             season: one,
             seria: one,
             season_path: Default::default(),
             config,
-        }
+        })
     }
 
     pub fn read_from_file(path: impl AsRef<Path>, config: Rc<Config>) -> Result<Self, ErrorKind> {
@@ -118,4 +120,36 @@ impl Serial {
 
 pub fn file_name(name: &str) -> String {
     format!("{}.ron", name)
+}
+
+fn default_serial_file_name() -> String {
+    file_name(DEFAULT_SERIAL_NAME)
+}
+
+fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
+    let dir_entrys = utils::read_dir(path)?;
+    let file_names: Vec<_> = dir_entrys
+        .iter()
+        .flat_map(|e| e.file_name())
+        .map(|n| n.to_string_lossy())
+        .collect();
+    let default_serial_name_availible =
+        !file_names.iter().any(|n| n == &default_serial_file_name());
+    dbg!(&file_names);
+    println!("{}", default_serial_name_availible);
+    if default_serial_name_availible {
+        return Ok(DEFAULT_SERIAL_NAME.to_string());
+    }
+    let mut i = 1;
+    loop {
+        let potential_name = format!("{} {}", DEFAULT_SERIAL_NAME, i);
+        let potential_file_name = file_name(&potential_name);
+        let potential_name_availible = !file_names
+            .iter()
+            .any(|n: &std::borrow::Cow<'_, str>| n == &potential_file_name);
+        if potential_name_availible {
+            return Ok(potential_name);
+        }
+        i += 1;
+    }
 }

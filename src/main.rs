@@ -82,7 +82,8 @@ impl ZCinema {
             Message::MainScreen(message) => {
                 match message {
                     MainScreenMessage::AddSerial => {
-                        let serial = Rc::new(RefCell::new(Serial::new(Rc::clone(&self.config))));
+                        let serial = Serial::new(Rc::clone(&self.config))?;
+                        let serial = Rc::new(RefCell::new(serial));
                         self.media.push(serial);
                         self.change_serial_screen(self.media.len() - 1);
                     }
