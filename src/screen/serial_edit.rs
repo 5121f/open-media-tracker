@@ -265,7 +265,7 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
         .parent()
         .ok_or(ErrorKind::parent_dir(&dir_name))?
         .to_owned();
-    let paths = utils::read_dir(parent)?;
+    let paths = utils::read_dir_sort(parent)?;
     let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
     let mut season_dir_index = None;
     for (i, dir) in dirs.iter().enumerate() {

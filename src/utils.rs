@@ -32,6 +32,11 @@ pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
         let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
         files.push(entry.path());
     }
-    files.sort();
     Ok(files)
+}
+
+pub fn read_dir_sort(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
+    let mut read_dir = read_dir(path)?;
+    read_dir.sort();
+    Ok(read_dir)
 }
