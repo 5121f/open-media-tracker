@@ -135,8 +135,6 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
         .collect();
     let default_serial_name_availible =
         !file_names.iter().any(|n| n == &default_serial_file_name());
-    dbg!(&file_names);
-    println!("{}", default_serial_name_availible);
     if default_serial_name_availible {
         return Ok(DEFAULT_SERIAL_NAME.to_string());
     }
