@@ -10,13 +10,14 @@ pub enum Message {
     Cancel,
 }
 
-pub struct ConfirmScreen {
+pub struct ConfirmScreen<T> {
+    kind: T,
     question: String,
 }
 
-impl ConfirmScreen {
-    pub fn new(question: String) -> Self {
-        Self { question }
+impl<T> ConfirmScreen<T> {
+    pub fn new(kind: T, question: String) -> Self {
+        Self { kind, question }
     }
 
     pub fn view(&self) -> Element<Message> {
@@ -39,5 +40,9 @@ impl ConfirmScreen {
             Space::with_width(100)
         ]
         .into()
+    }
+
+    pub fn kind(&self) -> &T {
+        &self.kind
     }
 }

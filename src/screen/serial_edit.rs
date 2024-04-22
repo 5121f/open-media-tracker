@@ -42,14 +42,9 @@ enum ConfirmKind {
     SeriaOverflow,
 }
 
-struct Confirm {
-    screen: ConfirmScreen,
-    kind: ConfirmKind,
-}
-
 pub struct SerialEditScreen {
     serial: Rc<RefCell<Serial>>,
-    confirm_screen: Option<Confirm>,
+    confirm_screen: Option<ConfirmScreen<ConfirmKind>>,
     seies_on_disk: Option<usize>,
     id: usize,
 }
@@ -67,7 +62,7 @@ impl SerialEditScreen {
 
     pub fn view(&self) -> Element<Message> {
         if let Some(confirm_screen) = &self.confirm_screen {
-            return confirm_screen.screen.view().map(Message::ConfirmScreen);
+            return confirm_screen.view().map(Message::ConfirmScreen);
         }
         let serial = self.serial.borrow();
         let season_path = serial.season_path().display().to_string();
@@ -157,7 +152,7 @@ impl SerialEditScreen {
                     let Some(confirm) = &self.confirm_screen else {
                         return Ok(());
                     };
-                    match &confirm.kind {
+                    match &confirm.kind() {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
                             self.serial
                                 .borrow_mut()
@@ -209,10 +204,13 @@ impl SerialEditScreen {
             }
         };
         if seies_on_disk < value.get() as usize {
-            self.confirm(format!(
-                "It's seems like {} serias is a last of it season. Switch to the next season?",
-                seies_on_disk
-            ));
+            self.confirm(
+                ConfirmKind::SeriaOverflow,
+                format!(
+                    "It's seems like {} serias is a last of it season. Switch to the next season?",
+                    seies_on_disk
+                ),
+            );
         } else {
             let mut serial = self.serial.borrow_mut();
             serial.set_seria(value)?;
@@ -234,11 +232,8 @@ impl SerialEditScreen {
         } else {
             let season_path = next_dir(&self.serial.borrow().season_path())?
                 .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-            let confirm = Confirm {
-                screen: ConfirmScreen::new(format!("Proposed path: {}", season_path.display())),
-                kind: ConfirmKind::TrySwitchToNewSeason { season_path },
-            };
-            self.confirm_screen = Some(confirm);
+            let message = format!("Proposed path: {}", season_path.display());
+            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path }, message);
         }
         Ok(())
     }
@@ -247,11 +242,8 @@ impl SerialEditScreen {
         self.confirm_screen = None;
     }
 
-    fn confirm(&mut self, message: String) {
-        let confirm = Confirm {
-            screen: ConfirmScreen::new(message),
-            kind: ConfirmKind::SeriaOverflow,
-        };
+    fn confirm(&mut self, kind: ConfirmKind, message: String) {
+        let confirm = ConfirmScreen::new(kind, message);
         self.confirm_screen = Some(confirm);
     }
 }
