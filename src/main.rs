@@ -9,7 +9,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
-use screen::{MainScreen, SerialEditScreen};
+use screen::{ConfirmScreen, ConfirmScreenMessage, MainScreen, SerialEditScreen};
 
 use crate::{
     config::Config,
@@ -26,6 +26,7 @@ fn main() -> iced::Result {
 enum Message {
     MainScreen(MainScreenMessage),
     SerialEditScreen(SerialEditScreenMessage),
+    ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
 }
 
@@ -33,6 +34,7 @@ enum Message {
 struct ZCinema {
     media: Vec<Rc<RefCell<Serial>>>,
     screen: Screens,
+    confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen>,
     config: Rc<Config>,
 }
@@ -50,6 +52,11 @@ impl ZCinema {
 
     fn error_screen(&mut self, error: Error) {
         self.error_dialog = Dialog::new(error.into());
+    }
+
+    fn confirm_dialog(&mut self, kind: ConfirmKind, message: String) {
+        let screen = ConfirmScreen::new(kind, message);
+        self.confirm_dialog = Dialog::new(screen);
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
@@ -91,8 +98,11 @@ impl ZCinema {
             Message::SerialEditScreen(message) => {
                 match message {
                     SerialEditScreenMessage::Delete(id) => {
-                        self.remove_serial(id)?;
-                        self.main_screen();
+                        let message = {
+                            let serial = self.media[id].borrow();
+                            format!("You actually wont to dele serial - \"{}\"?", serial.name())
+                        };
+                        self.confirm_dialog(ConfirmKind::DeleteSerial { id }, message);
                     }
                     SerialEditScreenMessage::Back => {
                         self.main_screen();
@@ -115,6 +125,24 @@ impl ZCinema {
                 self.error_dialog.close();
                 Ok(Command::none())
             }
+            Message::ConfirmScreen(message) => {
+                match message {
+                    ConfirmScreenMessage::Confirm => {
+                        let Some(dialog) = self.confirm_dialog.get() else {
+                            return Ok(Command::none());
+                        };
+                        match dialog.kind() {
+                            ConfirmKind::DeleteSerial { id } => {
+                                self.remove_serial(*id)?;
+                                self.confirm_dialog.close();
+                                self.main_screen();
+                            }
+                        }
+                    }
+                    ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
+                }
+                Ok(Command::none())
+            }
         }
     }
 
@@ -131,6 +159,7 @@ impl ZCinema {
         Ok(Self {
             media,
             screen: main_window,
+            confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             config,
         })
@@ -171,10 +200,12 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         if let Some(error_dialog) = &self.error_dialog.get() {
-            error_dialog.view().map(Message::ErrorScreen)
-        } else {
-            self.screen.view()
+            return error_dialog.view().map(Message::ErrorScreen);
         }
+        if let Some(confirm_dialog) = &self.confirm_dialog.get() {
+            return confirm_dialog.view().map(Message::ConfirmScreen);
+        }
+        self.screen.view()
     }
 
     fn theme(&self) -> Theme {
@@ -211,4 +242,8 @@ impl Default for Screens {
     fn default() -> Self {
         Screens::MainWindow(MainScreen::default())
     }
+}
+
+enum ConfirmKind {
+    DeleteSerial { id: usize },
 }
