@@ -3,6 +3,7 @@ use iced::{
     widget::{button, column, horizontal_space, row, text, vertical_space},
     Element,
 };
+use iced_aw::card;
 
 use crate::error::Error;
 
@@ -27,13 +28,18 @@ impl ErrorScreen {
             horizontal_space(),
             column![
                 vertical_space(),
-                text(format!("Error: {}", &self.message)),
-                row![
-                    horizontal_space(),
-                    button("Ok").style(ok_button_style).on_press(Message::Ok {
-                        critical: self.critical
-                    })
-                ],
+                card(
+                    "Error dialog",
+                    column![
+                        text(&self.message),
+                        row![
+                            horizontal_space(),
+                            button("Ok").style(ok_button_style).on_press(Message::Ok {
+                                critical: self.critical
+                            })
+                        ],
+                    ]
+                ),
                 vertical_space()
             ],
             horizontal_space()

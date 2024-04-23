@@ -9,6 +9,7 @@ use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
+use iced_aw::modal;
 use screen::{ConfirmScreen, ConfirmScreenMessage, MainScreen, SerialEditScreen};
 
 use crate::{
@@ -199,13 +200,16 @@ impl Application for ZCinema {
     }
 
     fn view(&self) -> Element<Message> {
-        if let Some(error_dialog) = &self.error_dialog.get() {
-            return error_dialog.view().map(Message::ErrorScreen);
-        }
-        if let Some(confirm_dialog) = &self.confirm_dialog.get() {
-            return confirm_dialog.view().map(Message::ConfirmScreen);
-        }
-        self.screen.view()
+        let dialog = {
+            if let Some(error_dialog) = &self.error_dialog.get() {
+                Some(error_dialog.view().map(Message::ErrorScreen))
+            } else if let Some(confirm_dialog) = &self.confirm_dialog.get() {
+                Some(confirm_dialog.view().map(Message::ConfirmScreen))
+            } else {
+                None
+            }
+        };
+        modal(self.screen.view(), dialog).into()
     }
 
     fn theme(&self) -> Theme {
