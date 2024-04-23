@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, text, vertical_space, Space},
@@ -12,12 +14,11 @@ pub enum Message {
 
 pub struct ConfirmScreen<T> {
     kind: T,
-    question: String,
 }
 
-impl<T> ConfirmScreen<T> {
-    pub fn new(kind: T, question: String) -> Self {
-        Self { kind, question }
+impl<T: Display> ConfirmScreen<T> {
+    pub fn new(kind: T) -> Self {
+        Self { kind }
     }
 
     pub fn view(&self) -> Element<Message> {
@@ -25,7 +26,7 @@ impl<T> ConfirmScreen<T> {
             Space::with_width(100),
             column![
                 vertical_space(),
-                text(&self.question),
+                text(&self.kind),
                 row![
                     button("Cancel")
                         .style(theme::Button::Destructive)

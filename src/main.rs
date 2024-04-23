@@ -5,7 +5,7 @@ mod serial;
 mod utils;
 mod view_utils;
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
@@ -54,8 +54,8 @@ impl ZCinema {
         self.error_dialog = Dialog::new(error.into());
     }
 
-    fn confirm_dialog(&mut self, kind: ConfirmKind, message: String) {
-        let screen = ConfirmScreen::new(kind, message);
+    fn confirm_dialog(&mut self, kind: ConfirmKind) {
+        let screen = ConfirmScreen::new(kind);
         self.confirm_dialog = Dialog::new(screen);
     }
 
@@ -98,11 +98,11 @@ impl ZCinema {
             Message::SerialEditScreen(message) => {
                 match message {
                     SerialEditScreenMessage::Delete(id) => {
-                        let message = {
+                        let name = {
                             let serial = self.media[id].borrow();
-                            format!("You actually wont to dele serial - \"{}\"?", serial.name())
+                            serial.name().to_string()
                         };
-                        self.confirm_dialog(ConfirmKind::DeleteSerial { id }, message);
+                        self.confirm_dialog(ConfirmKind::DeleteSerial { id, name });
                     }
                     SerialEditScreenMessage::Back => {
                         self.main_screen();
@@ -132,7 +132,7 @@ impl ZCinema {
                             return Ok(Command::none());
                         };
                         match dialog.kind() {
-                            ConfirmKind::DeleteSerial { id } => {
+                            ConfirmKind::DeleteSerial { id, .. } => {
                                 self.remove_serial(*id)?;
                                 self.confirm_dialog.close();
                                 self.main_screen();
@@ -245,5 +245,15 @@ impl Default for Screens {
 }
 
 enum ConfirmKind {
-    DeleteSerial { id: usize },
+    DeleteSerial { name: String, id: usize },
+}
+
+impl Display for ConfirmKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConfirmKind::DeleteSerial { name, .. } => {
+                write!(f, "You actually wont to dele serial - \"{}\"?", name)
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    fmt::Display,
     num::NonZeroU8,
     path::{Path, PathBuf},
     rc::Rc,
@@ -34,11 +35,6 @@ pub enum Message {
     SeriaInc,
     SeriaDec,
     ConfirmScreen(ConfirmScreenMessage),
-}
-
-enum ConfirmKind {
-    TrySwitchToNewSeason { season_path: PathBuf },
-    SeriaOverflow,
 }
 
 pub struct SerialEditScreen {
@@ -158,7 +154,7 @@ impl SerialEditScreen {
                                 .set_season_path(season_path.clone())?;
                             self.confirm_screen.close();
                         }
-                        ConfirmKind::SeriaOverflow => self.increase_season()?,
+                        ConfirmKind::SeriaOverflow { .. } => self.increase_season()?,
                     }
                 }
                 ConfirmScreenMessage::Cancel => {
@@ -203,13 +199,7 @@ impl SerialEditScreen {
             }
         };
         if seies_on_disk < value.get() as usize {
-            self.confirm(
-                ConfirmKind::SeriaOverflow,
-                format!(
-                    "It's seems like {} serias is a last of it season. Switch to the next season?",
-                    seies_on_disk
-                ),
-            );
+            self.confirm(ConfirmKind::SeriaOverflow { seies_on_disk });
         } else {
             let mut serial = self.serial.borrow_mut();
             serial.set_seria(value)?;
@@ -231,14 +221,13 @@ impl SerialEditScreen {
         } else {
             let season_path = next_dir(&self.serial.borrow().season_path())?
                 .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-            let message = format!("Proposed path: {}", season_path.display());
-            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path }, message);
+            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path });
         }
         Ok(())
     }
 
-    fn confirm(&mut self, kind: ConfirmKind, message: String) {
-        let confirm = ConfirmScreen::new(kind, message);
+    fn confirm(&mut self, kind: ConfirmKind) {
+        let confirm = ConfirmScreen::new(kind);
         self.confirm_screen = Dialog::new(confirm);
     }
 }
@@ -273,4 +262,24 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
         return Ok(None);
     }
     Ok(Some(dirs[next_season_index].to_path_buf()))
+}
+
+enum ConfirmKind {
+    TrySwitchToNewSeason { season_path: PathBuf },
+    SeriaOverflow { seies_on_disk: usize },
+}
+
+impl Display for ConfirmKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConfirmKind::TrySwitchToNewSeason { season_path } => {
+                write!(f, "Proposed path: {}", season_path.display())
+            }
+            ConfirmKind::SeriaOverflow { seies_on_disk } => write!(
+                f,
+                "It's seems like {} serias is a last of it season. Switch to the next season?",
+                seies_on_disk
+            ),
+        }
+    }
 }
