@@ -181,9 +181,7 @@ impl SerialEditScreen {
                         ConfirmKind::SeriaOverflow { .. } => self.increase_season()?,
                     }
                 }
-                ConfirmScreenMessage::Cancel => {
-                    self.confirm_screen.close();
-                }
+                ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
             },
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
