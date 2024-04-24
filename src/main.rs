@@ -11,6 +11,7 @@ use error::ErrorKind;
 use iced::{executor, window, Application, Command, Element, Settings, Theme};
 use iced_aw::modal;
 use screen::{ConfirmScreen, ConfirmScreenMessage, MainScreen, SerialEditScreen};
+use utils::arr_rc_clone;
 
 use crate::{
     config::Config,
@@ -47,8 +48,8 @@ impl ZCinema {
     }
 
     fn main_screen(&mut self) {
-        let media: Vec<_> = self.media.iter().map(Rc::clone).collect();
-        self.screen = Screens::main(&media);
+        let media = arr_rc_clone(&self.media);
+        self.screen = Screens::main(media);
     }
 
     fn error_screen(&mut self, error: Error) {
@@ -166,7 +167,7 @@ impl ZCinema {
             .map(RefCell::new)
             .map(Rc::new)
             .collect();
-        let main_window = Screens::main(&media);
+        let main_window = Screens::main(arr_rc_clone(&media));
         Ok(Self {
             media,
             screen: main_window,
@@ -252,8 +253,7 @@ impl Screens {
         }
     }
 
-    fn main(media: &[Rc<RefCell<Serial>>]) -> Self {
-        let media = media.into_iter().map(Rc::clone).collect();
+    fn main(media: Vec<Rc<RefCell<Serial>>>) -> Self {
         let dialog = MainScreen::new(media);
         Self::MainWindow(dialog)
     }
