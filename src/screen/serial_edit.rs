@@ -172,10 +172,10 @@ impl SerialEditScreen {
                 .set_season_path(PathBuf::from(value))?,
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
-                    let Some(confirm) = &self.confirm_screen.get() else {
+                    let Some(confirm) = self.confirm_screen.get() else {
                         return Ok(());
                     };
-                    match &confirm.kind() {
+                    match confirm.kind() {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
                             self.editable_serial()
                                 .borrow_mut()
