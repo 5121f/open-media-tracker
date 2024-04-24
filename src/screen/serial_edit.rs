@@ -129,13 +129,13 @@ impl SerialEditScreen {
                 let name_used = self.serials.iter().any(|s| s.borrow().name() == &value);
                 if name_used {
                     self.warning(WarningKind::NameUsed);
-                } else {
-                    if let Some(WarningKind::NameUsed) = self.warning.get() {
-                        self.warning.close();
-                    }
-                    let serial = self.editable_serial();
-                    serial.borrow_mut().rename(value)?;
+                    return Ok(());
                 }
+                if let Some(WarningKind::NameUsed) = self.warning.get() {
+                    self.warning.close();
+                }
+                let serial = self.editable_serial();
+                serial.borrow_mut().rename(value)?;
             }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
@@ -152,10 +152,9 @@ impl SerialEditScreen {
                 let serial = self.editable_serial();
                 let new_value = serial.borrow().season().get() - 1;
                 let new_value = NonZeroU8::new(new_value);
-                if let Some(number) = new_value {
-                    serial.borrow_mut().set_season(number)?;
-                } else {
-                    self.warning(WarningKind::SeasonCanNotBeZero);
+                match new_value {
+                    Some(number) => serial.borrow_mut().set_season(number)?,
+                    None => self.warning(WarningKind::SeasonCanNotBeZero),
                 }
             }
             Message::SeriaInc => self.increase_seria()?,
@@ -164,10 +163,9 @@ impl SerialEditScreen {
                     let serial = self.editable_serial().borrow();
                     NonZeroU8::new(serial.seria().get() - 1)
                 };
-                if let Some(number) = new_value {
-                    self.editable_serial().borrow_mut().set_seria(number)?;
-                } else {
-                    self.warning(WarningKind::SeriaCanNotBeZero)
+                match new_value {
+                    Some(number) => self.editable_serial().borrow_mut().set_seria(number)?,
+                    None => self.warning(WarningKind::SeriaCanNotBeZero),
                 }
             }
             Message::SeasonPathChanged(value) => self
@@ -248,10 +246,10 @@ impl SerialEditScreen {
         };
         if seies_on_disk < value.get() as usize {
             self.confirm(ConfirmKind::SeriaOverflow { seies_on_disk });
-        } else {
-            let serial = self.editable_serial();
-            serial.borrow_mut().set_seria(value)?;
+            return Ok(());
         }
+        let serial = self.editable_serial();
+        serial.borrow_mut().set_seria(value)?;
         Ok(())
     }
 
