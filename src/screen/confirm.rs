@@ -41,7 +41,9 @@ impl<T: Display> ConfirmScreen<T> {
                                 .on_press(Message::Confirm)
                         ]
                     ]
-                ),
+                )
+                .close_size(25.)
+                .on_close(Message::Cancel),
                 vertical_space()
             ],
             Space::with_width(100)
