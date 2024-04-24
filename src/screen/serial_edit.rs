@@ -246,15 +246,15 @@ impl SerialEditScreen {
     }
 
     fn increase_season(&mut self) -> Result<(), ErrorKind> {
-        if !self.serial.borrow().season_path_is_present() {
+        if self.serial.borrow().season_path_is_present() {
+            let season_path = next_dir(&self.serial.borrow().season_path())?
+                .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path });
+        } else {
             self.set_seria_to_one()?;
             let next_seria = self.serial.borrow().season().saturating_add(1);
             let mut serial = self.serial.borrow_mut();
             serial.set_season(next_seria)?;
-        } else {
-            let season_path = next_dir(&self.serial.borrow().season_path())?
-                .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path });
         }
         Ok(())
     }
