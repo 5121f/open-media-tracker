@@ -58,4 +58,8 @@ impl<T: Display> ConfirmScreen<T> {
     pub fn kind(&self) -> &T {
         &self.kind
     }
+
+    pub fn take(self) -> T {
+        self.kind
+    }
 }

@@ -26,6 +26,10 @@ impl<T> Dialog<T> {
     pub fn get(&self) -> Option<&T> {
         self.0.as_ref()
     }
+
+    pub fn take(&mut self) -> Option<T> {
+        self.0.take()
+    }
 }
 
 impl<T> Default for Dialog<T> {
