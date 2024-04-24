@@ -152,9 +152,14 @@ impl SerialEditScreen {
             }
             Message::SeriaInc => self.increase_seria()?,
             Message::SeriaDec => {
-                let mut serial = self.serial.borrow_mut();
-                if let Some(number) = NonZeroU8::new(serial.seria().get() - 1) {
-                    serial.set_seria(number)?;
+                let new_value = {
+                    let serial = self.serial.borrow();
+                    NonZeroU8::new(serial.seria().get() - 1)
+                };
+                if let Some(number) = new_value {
+                    self.serial.borrow_mut().set_seria(number)?;
+                } else {
+                    self.warning(WarningKind::SeriaCanNotBeZero)
                 }
             }
             Message::SeasonPathChanged(value) => self
@@ -314,6 +319,7 @@ impl Display for ConfirmKind {
 
 enum WarningKind {
     SeasonCanNotBeZero,
+    SeriaCanNotBeZero,
 }
 
 impl WarningKind {
@@ -330,6 +336,7 @@ impl Display for WarningKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
+            WarningKind::SeriaCanNotBeZero => write!(f, "Seria can not be zero"),
         }
     }
 }
