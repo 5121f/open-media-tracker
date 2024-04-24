@@ -291,7 +291,7 @@ impl Display for ConfirmKind {
             ConfirmKind::DeleteSerial { name, .. } => {
                 write!(
                     f,
-                    "You actually wont to dele serial \"{}\" from the list?",
+                    "You actually wont to delete serial \"{}\" from the list?",
                     name
                 )
             }
