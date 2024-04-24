@@ -104,14 +104,14 @@ impl SerialEditScreen {
         ]
         .spacing(DEFAULT_INDENT);
         let space = Space::with_height(Length::Fixed(15.0));
-        let layout = Column::new()
+        let mut layout = Column::new()
             .padding(DEFAULT_INDENT)
             .spacing(DEFAULT_INDENT);
 
-        let layout = layout.push(top);
-        let layout = layout.push(space);
-        let layout = layout.push_maybe(self.warning.get().map(|w| w.view()));
-        let layout = layout.push(body);
+        layout = layout.push(top);
+        layout = layout.push(space);
+        layout = layout.push_maybe(self.warning.get().map(|w| w.view()));
+        layout = layout.push(body);
 
         layout.into()
     }
