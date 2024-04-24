@@ -8,9 +8,10 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, Space},
+    widget::{button, column, horizontal_space, row, text, Column, Space},
     Element, Length,
 };
+use iced_aw::card;
 
 use crate::{
     error::{Error, ErrorKind},
@@ -35,6 +36,7 @@ pub enum Message {
     SeriaInc,
     SeriaDec,
     ConfirmScreen(ConfirmScreenMessage),
+    WarningClose,
 }
 
 pub struct SerialEditScreen {
@@ -42,6 +44,7 @@ pub struct SerialEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     seies_on_disk: Option<usize>,
     id: usize,
+    warning: Dialog<WarningKind>,
 }
 
 impl SerialEditScreen {
@@ -51,6 +54,7 @@ impl SerialEditScreen {
             seies_on_disk: None,
             serial,
             id,
+            warning: Dialog::closed(),
         };
         dialog
     }
@@ -61,50 +65,59 @@ impl SerialEditScreen {
         }
         let serial = self.serial.borrow();
         let season_path = serial.season_path().display().to_string();
-        column![
+        let top = row![
+            link("< Back").on_press(Message::Back),
+            horizontal_space(),
+            text(serial.name()),
+            horizontal_space(),
+            button("Delete")
+                .style(theme::Button::Destructive)
+                .on_press(Message::Delete(self.id)),
+        ];
+        let body = column![
+            signed_text_imput("Name", serial.name(), Message::NameChanged),
             row![
-                link("< Back").on_press(Message::Back),
-                horizontal_space(),
-                text(serial.name()),
-                horizontal_space(),
-                button("Delete")
-                    .style(theme::Button::Destructive)
-                    .on_press(Message::Delete(self.id)),
-            ],
-            Space::with_height(Length::Fixed(15.0)),
-            column![
-                signed_text_imput("Name", serial.name(), Message::NameChanged),
-                row![
-                    signed_text_imput(
-                        "Season",
-                        &serial.season().to_string(),
-                        Message::SeasonChanged
-                    ),
-                    square_button("-").on_press(Message::SeasonDec),
-                    square_button("+").on_press(Message::SeasonInc)
-                ]
-                .spacing(DEFAULT_INDENT),
-                row![
-                    signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
-                    square_button("-").on_press(Message::SeriaDec),
-                    square_button("+").on_press(Message::SeriaInc)
-                ]
-                .spacing(DEFAULT_INDENT),
-                row![
-                    signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
-                    square_button("...").on_press(Message::SeasonPathSelect),
-                    square_button(">").on_press(Message::Watch {
-                        path: season_path,
-                        seria: serial.seria().get() as usize
-                    })
-                ]
-                .spacing(DEFAULT_INDENT)
+                signed_text_imput(
+                    "Season",
+                    &serial.season().to_string(),
+                    Message::SeasonChanged
+                ),
+                square_button("-").on_press(Message::SeasonDec),
+                square_button("+").on_press(Message::SeasonInc)
+            ]
+            .spacing(DEFAULT_INDENT),
+            row![
+                signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
+                square_button("-").on_press(Message::SeriaDec),
+                square_button("+").on_press(Message::SeriaInc)
+            ]
+            .spacing(DEFAULT_INDENT),
+            row![
+                signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
+                square_button("...").on_press(Message::SeasonPathSelect),
+                square_button(">").on_press(Message::Watch {
+                    path: season_path,
+                    seria: serial.seria().get() as usize
+                })
             ]
             .spacing(DEFAULT_INDENT)
         ]
-        .padding(DEFAULT_INDENT)
-        .spacing(DEFAULT_INDENT)
-        .into()
+        .spacing(DEFAULT_INDENT);
+        let space = Space::with_height(Length::Fixed(15.0));
+        let layout = Column::new()
+            .padding(DEFAULT_INDENT)
+            .spacing(DEFAULT_INDENT);
+
+        let layout = layout.push(top);
+        let layout = layout.push(space);
+        let layout = if let Some(warnind) = self.warning.get() {
+            layout.push(warnind.view())
+        } else {
+            layout
+        };
+        let layout = layout.push(body);
+
+        layout.into()
     }
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
@@ -126,9 +139,15 @@ impl SerialEditScreen {
             }
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
-                let mut serial = self.serial.borrow_mut();
-                if let Some(number) = NonZeroU8::new(serial.season().get() - 1) {
+                let new_value = {
+                    let serial = self.serial.borrow();
+                    NonZeroU8::new(serial.season().get() - 1)
+                };
+                if let Some(number) = new_value {
+                    let mut serial = self.serial.borrow_mut();
                     serial.set_season(number)?;
+                } else {
+                    self.warning(WarningKind::SeasonCanNotBeZero);
                 }
             }
             Message::SeriaInc => self.increase_seria()?,
@@ -166,12 +185,17 @@ impl SerialEditScreen {
                     self.serial.borrow_mut().set_season_path(folder)?;
                 }
             }
+            Message::WarningClose => self.warning.close(),
         }
         Ok(())
     }
 
     pub fn title(&self) -> String {
         self.serial.borrow().name().to_string()
+    }
+
+    fn warning(&mut self, kind: WarningKind) {
+        self.warning = Dialog::new(kind);
     }
 
     fn set_series_on_disk(&mut self, series: usize) {
@@ -284,6 +308,27 @@ impl Display for ConfirmKind {
                 "It's seems like {} serias is a last of it season. Switch to the next season?",
                 seies_on_disk
             ),
+        }
+    }
+}
+
+enum WarningKind {
+    SeasonCanNotBeZero,
+}
+
+impl WarningKind {
+    fn view(&self) -> Element<Message> {
+        card("Warning", text(self.to_string()))
+            .on_close(Message::WarningClose)
+            .style(iced_aw::style::CardStyles::Warning)
+            .into()
+    }
+}
+
+impl Display for WarningKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
         }
     }
 }
