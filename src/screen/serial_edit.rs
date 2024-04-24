@@ -319,8 +319,9 @@ enum WarningKind {
 impl WarningKind {
     fn view(&self) -> Element<Message> {
         card("Warning", text(self.to_string()))
-            .on_close(Message::WarningClose)
+            .close_size(25.)
             .style(iced_aw::style::CardStyles::Warning)
+            .on_close(Message::WarningClose)
             .into()
     }
 }
