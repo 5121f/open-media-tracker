@@ -137,16 +137,14 @@ impl SerialEditScreen {
                 let serial = self.editable_serial();
                 serial.borrow_mut().rename(value)?;
             }
-            Message::SeasonChanged(value) => {
-                if let Ok(number) = value.parse() {
-                    self.editable_serial().borrow_mut().set_season(number)?;
-                }
-            }
-            Message::SeriaChanged(value) => {
-                if let Ok(number) = value.parse() {
-                    self.set_seria(number)?;
-                }
-            }
+            Message::SeasonChanged(value) => match value.parse() {
+                Ok(number) => self.editable_serial().borrow_mut().set_season(number)?,
+                Err(_) => self.warning(WarningKind::ParseNum),
+            },
+            Message::SeriaChanged(value) => match value.parse() {
+                Ok(number) => self.set_seria(number)?,
+                Err(_) => self.warning(WarningKind::ParseNum),
+            },
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
                 let serial = self.editable_serial();
@@ -335,6 +333,7 @@ enum WarningKind {
     SeasonCanNotBeZero,
     SeriaCanNotBeZero,
     NameUsed,
+    ParseNum,
 }
 
 impl WarningKind {
@@ -353,6 +352,7 @@ impl Display for WarningKind {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
             WarningKind::SeriaCanNotBeZero => write!(f, "Seria can not be zero"),
             WarningKind::NameUsed => write!(f, "Name must be unic"),
+            WarningKind::ParseNum => write!(f, "Failed to parse number. Maybe number is too big."),
         }
     }
 }
