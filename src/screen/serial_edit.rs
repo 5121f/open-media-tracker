@@ -110,11 +110,7 @@ impl SerialEditScreen {
 
         let layout = layout.push(top);
         let layout = layout.push(space);
-        let layout = if let Some(warnind) = self.warning.get() {
-            layout.push(warnind.view())
-        } else {
-            layout
-        };
+        let layout = layout.push_maybe(self.warning.get().map(|w| w.view()));
         let layout = layout.push(body);
 
         layout.into()
