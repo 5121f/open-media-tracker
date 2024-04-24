@@ -306,11 +306,11 @@ impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ConfirmKind::TrySwitchToNewSeason { season_path } => {
-                write!(f, "Proposed path: {}", season_path.display())
+                write!(f, "Proposed path to next season: {}", season_path.display())
             }
             ConfirmKind::SeriaOverflow { seies_on_disk } => write!(
                 f,
-                "It's seems like {} serias is a last of it season. Switch to the next season?",
+                "Seems like {} serias is a last of it season. Switch to the next season?",
                 seies_on_disk
             ),
         }
