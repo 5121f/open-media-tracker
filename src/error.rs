@@ -60,6 +60,8 @@ pub enum ErrorKind {
     FaliedToGetParentDir { path: PathBuf },
     #[error("Failed to find next season path")]
     FailedToFindNextSeasonPath,
+    #[error("Filed to load font")]
+    FontLoad,
 }
 
 impl ErrorKind {

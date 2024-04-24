@@ -8,7 +8,7 @@ mod view_utils;
 use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use error::ErrorKind;
-use iced::{executor, window, Application, Command, Element, Settings, Theme};
+use iced::{executor, font, window, Application, Command, Element, Settings, Theme};
 use iced_aw::modal;
 use screen::{ConfirmScreen, ConfirmScreenMessage, MainScreen, SerialEditScreen};
 use utils::arr_rc_clone;
@@ -30,6 +30,7 @@ enum Message {
     SerialEditScreen(SerialEditScreenMessage),
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
+    FontLoaded(Result<(), font::Error>),
 }
 
 #[derive(Default)]
@@ -155,6 +156,12 @@ impl ZCinema {
                 }
                 Ok(Command::none())
             }
+            Message::FontLoaded(res) => {
+                if matches!(res, Err(_)) {
+                    self.error_screen(ErrorKind::FontLoad.into());
+                }
+                Ok(Command::none())
+            }
         }
     }
 
@@ -185,15 +192,19 @@ impl Application for ZCinema {
     type Message = Message;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
-        let zcinema = match Self::new2() {
-            Ok(zcinema) => zcinema,
-            Err(error) => Self {
-                error_dialog: Dialog::new(error.into()),
-                ..Default::default()
-            },
-        };
-
-        (zcinema, Command::none())
+        match Self::new2() {
+            Ok(zcinema) => (
+                zcinema,
+                font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded),
+            ),
+            Err(error) => (
+                Self {
+                    error_dialog: Dialog::new(error.into()),
+                    ..Default::default()
+                },
+                Command::none(),
+            ),
+        }
     }
 
     fn title(&self) -> String {
