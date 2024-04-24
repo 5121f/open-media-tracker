@@ -133,8 +133,8 @@ impl SerialEditScreen {
                     if let Some(WarningKind::NameUsed) = self.warning.get() {
                         self.warning.close();
                     }
-                    let mut serial = self.editable_serial().borrow_mut();
-                    serial.rename(value)?;
+                    let serial = self.editable_serial();
+                    serial.borrow_mut().rename(value)?;
                 }
             }
             Message::SeasonChanged(value) => {
@@ -149,13 +149,11 @@ impl SerialEditScreen {
             }
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
-                let new_value = {
-                    let serial = self.editable_serial().borrow();
-                    NonZeroU8::new(serial.season().get() - 1)
-                };
+                let serial = self.editable_serial();
+                let new_value = serial.borrow().season().get() - 1;
+                let new_value = NonZeroU8::new(new_value);
                 if let Some(number) = new_value {
-                    let mut serial = self.editable_serial().borrow_mut();
-                    serial.set_season(number)?;
+                    serial.borrow_mut().set_season(number)?;
                 } else {
                     self.warning(WarningKind::SeasonCanNotBeZero);
                 }
@@ -222,7 +220,10 @@ impl SerialEditScreen {
     }
 
     fn increase_seria(&mut self) -> Result<(), Error> {
-        let next_seria = self.editable_serial().borrow().seria().saturating_add(1);
+        let next_seria = {
+            let serial = self.editable_serial().borrow();
+            serial.seria().saturating_add(1)
+        };
         self.set_seria(next_seria)
     }
 
@@ -248,27 +249,28 @@ impl SerialEditScreen {
         if seies_on_disk < value.get() as usize {
             self.confirm(ConfirmKind::SeriaOverflow { seies_on_disk });
         } else {
-            let mut serial = self.editable_serial().borrow_mut();
-            serial.set_seria(value)?;
+            let serial = self.editable_serial();
+            serial.borrow_mut().set_seria(value)?;
         }
         Ok(())
     }
 
     fn set_seria_to_one(&mut self) -> Result<(), ErrorKind> {
-        let mut serial = self.editable_serial().borrow_mut();
-        serial.set_seria(NonZeroU8::MIN)
+        let serial = self.editable_serial();
+        serial.borrow_mut().set_seria(NonZeroU8::MIN)
     }
 
     fn increase_season(&mut self) -> Result<(), ErrorKind> {
-        if self.editable_serial().borrow().season_path_is_present() {
-            let season_path = next_dir(&self.editable_serial().borrow().season_path())?
+        let serial = self.editable_serial();
+        if serial.borrow().season_path_is_present() {
+            let season_path = next_dir(&serial.borrow().season_path())?
                 .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
             self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path });
         } else {
             self.set_seria_to_one()?;
-            let next_seria = self.editable_serial().borrow().season().saturating_add(1);
-            let mut serial = self.editable_serial().borrow_mut();
-            serial.set_season(next_seria)?;
+            let serial = self.editable_serial();
+            let next_season = serial.borrow().season().saturating_add(1);
+            serial.borrow_mut().set_season(next_season)?;
         }
         Ok(())
     }
