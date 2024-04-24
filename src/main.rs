@@ -85,10 +85,10 @@ impl ZCinema {
     }
 
     fn sub_title(&self) -> Option<String> {
-        if let Some(dialog) = self.error_dialog.get() {
+        if let Some(dialog) = self.error_dialog.as_ref() {
             return Some(dialog.title());
         }
-        if let Some(dialog) = self.confirm_dialog.get() {
+        if let Some(dialog) = self.confirm_dialog.as_ref() {
             return Some(dialog.title());
         }
         self.screen.title()
@@ -141,7 +141,7 @@ impl ZCinema {
             Message::ConfirmScreen(message) => {
                 match message {
                     ConfirmScreenMessage::Confirm => {
-                        let Some(dialog) = self.confirm_dialog.get() else {
+                        let Some(dialog) = self.confirm_dialog.as_ref() else {
                             return Ok(Command::none());
                         };
                         match dialog.kind() {
@@ -228,9 +228,9 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         let dialog = {
-            if let Some(error_dialog) = &self.error_dialog.get() {
+            if let Some(error_dialog) = self.error_dialog.as_ref() {
                 Some(error_dialog.view().map(Message::ErrorScreen))
-            } else if let Some(confirm_dialog) = &self.confirm_dialog.get() {
+            } else if let Some(confirm_dialog) = self.confirm_dialog.as_ref() {
                 Some(confirm_dialog.view().map(Message::ConfirmScreen))
             } else {
                 None

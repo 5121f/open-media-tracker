@@ -3,6 +3,8 @@ pub mod error;
 pub mod main;
 pub mod serial_edit;
 
+use std::ops::{Deref, DerefMut};
+
 pub use confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
@@ -22,13 +24,19 @@ impl<T> Dialog<T> {
     pub fn close(&mut self) {
         self.0 = None;
     }
+}
 
-    pub fn get(&self) -> Option<&T> {
-        self.0.as_ref()
+impl<T> Deref for Dialog<T> {
+    type Target = Option<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
+}
 
-    pub fn take(&mut self) -> Option<T> {
-        self.0.take()
+impl<T> DerefMut for Dialog<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 

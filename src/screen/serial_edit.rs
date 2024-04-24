@@ -65,7 +65,7 @@ impl SerialEditScreen {
     }
 
     pub fn view(&self) -> Element<Message> {
-        if let Some(confirm_screen) = &self.confirm_screen.get() {
+        if let Some(confirm_screen) = self.confirm_screen.as_ref() {
             return confirm_screen.view().map(Message::ConfirmScreen);
         }
         let serial = self.editable_serial().borrow();
@@ -115,7 +115,7 @@ impl SerialEditScreen {
 
         layout = layout.push(top);
         layout = layout.push(space);
-        layout = layout.push_maybe(self.warning.get().map(|w| w.view()));
+        layout = layout.push_maybe(self.warning.as_ref().map(|w| w.view()));
         layout = layout.push(body);
 
         layout.into()
@@ -131,7 +131,7 @@ impl SerialEditScreen {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
-                if let Some(WarningKind::NameUsed) = self.warning.get() {
+                if let Some(WarningKind::NameUsed) = self.warning.as_ref() {
                     self.warning.close();
                 }
                 let serial = self.editable_serial();
