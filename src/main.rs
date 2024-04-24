@@ -44,8 +44,8 @@ struct ZCinema {
 
 impl ZCinema {
     fn change_serial_screen(&mut self, id: usize) {
-        let serial = Rc::clone(&self.media[id]);
-        self.screen = Screens::change_serial(serial, id)
+        let serials = arr_rc_clone(&self.media);
+        self.screen = Screens::change_serial(serials, id)
     }
 
     fn main_screen(&mut self) {
@@ -269,8 +269,8 @@ impl Screens {
         Self::MainWindow(dialog)
     }
 
-    fn change_serial(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
-        let dialog = SerialEditScreen::new(serial, id);
+    fn change_serial(serials: Vec<Rc<RefCell<Serial>>>, id: usize) -> Self {
+        let dialog = SerialEditScreen::new(serials, id);
         Self::SerialChange(dialog)
     }
 }
