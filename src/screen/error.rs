@@ -29,7 +29,7 @@ impl ErrorScreen {
             column![
                 vertical_space(),
                 card(
-                    "Error dialog",
+                    text(self.title()),
                     column![
                         text(&self.message),
                         row![
@@ -45,6 +45,10 @@ impl ErrorScreen {
             horizontal_space()
         ]
         .into()
+    }
+
+    pub fn title(&self) -> String {
+        String::from("Error dialog")
     }
 }
 

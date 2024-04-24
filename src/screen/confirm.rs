@@ -28,7 +28,7 @@ impl<T: Display> ConfirmScreen<T> {
             column![
                 vertical_space(),
                 card(
-                    "Confirm dialog",
+                    text(self.title()),
                     column![
                         row![horizontal_space(), text(&self.kind), horizontal_space()],
                         row![
@@ -47,6 +47,10 @@ impl<T: Display> ConfirmScreen<T> {
             Space::with_width(100)
         ]
         .into()
+    }
+
+    pub fn title(&self) -> String {
+        String::from("Confirm dialog")
     }
 
     pub fn kind(&self) -> &T {

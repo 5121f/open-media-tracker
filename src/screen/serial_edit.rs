@@ -170,6 +170,10 @@ impl SerialEditScreen {
         Ok(())
     }
 
+    pub fn title(&self) -> String {
+        self.serial.borrow().name().to_string()
+    }
+
     fn set_series_on_disk(&mut self, series: usize) {
         self.seies_on_disk = Some(series);
     }

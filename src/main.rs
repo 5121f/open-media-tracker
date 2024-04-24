@@ -82,6 +82,16 @@ impl ZCinema {
         window::close(window::Id::MAIN)
     }
 
+    fn sub_title(&self) -> Option<String> {
+        if let Some(dialog) = self.error_dialog.get() {
+            return Some(dialog.title());
+        }
+        if let Some(dialog) = self.confirm_dialog.get() {
+            return Some(dialog.title());
+        }
+        self.screen.title()
+    }
+
     fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
         match message {
             Message::MainScreen(message) => {
@@ -186,7 +196,12 @@ impl Application for ZCinema {
     }
 
     fn title(&self) -> String {
-        String::from("ZCinema")
+        let program_name = "ZCinema";
+        if let Some(sub_title) = self.sub_title() {
+            format!("{} - {}", program_name, sub_title)
+        } else {
+            String::from(program_name)
+        }
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
@@ -227,6 +242,13 @@ impl Screens {
         match self {
             Screens::MainWindow(dialog) => dialog.view().map(Message::MainScreen),
             Screens::SerialChange(dialog) => dialog.view().map(Message::SerialEditScreen),
+        }
+    }
+
+    fn title(&self) -> Option<String> {
+        match self {
+            Screens::MainWindow(_) => None,
+            Screens::SerialChange(dialog) => Some(dialog.title()),
         }
     }
 
