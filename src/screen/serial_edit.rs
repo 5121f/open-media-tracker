@@ -49,14 +49,13 @@ pub struct SerialEditScreen {
 
 impl SerialEditScreen {
     pub fn new(serial: Rc<RefCell<Serial>>, id: usize) -> Self {
-        let dialog = Self {
+        Self {
             confirm_screen: Dialog::closed(),
             seies_on_disk: None,
             serial,
             id,
             warning: Dialog::closed(),
-        };
-        dialog
+        }
     }
 
     pub fn view(&self) -> Element<Message> {
