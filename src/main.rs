@@ -289,7 +289,11 @@ impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ConfirmKind::DeleteSerial { name, .. } => {
-                write!(f, "You actually wont to dele serial - \"{}\"?", name)
+                write!(
+                    f,
+                    "You actually wont to dele serial \"{}\" from the list?",
+                    name
+                )
             }
         }
     }
