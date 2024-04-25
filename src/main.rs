@@ -11,15 +11,17 @@ use std::{cell::RefCell, fmt::Display, rc::Rc};
 use error::ErrorKind;
 use iced::{executor, font, window, Application, Command, Element, Settings, Theme};
 use iced_aw::modal;
-use screen::{ConfirmScreen, ConfirmScreenMessage, MainScreen, SerialEditScreen};
-use utils::arr_rc_clone;
 
 use crate::{
     config::Config,
     dialog::Dialog,
     error::Error,
-    screen::{ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
+    screen::{
+        ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, MainScreen,
+        MainScreenMessage, SerialEditScreen, SerialEditScreenMessage,
+    },
     serial::Serial,
+    utils::arr_rc_clone,
 };
 
 fn main() -> iced::Result {
