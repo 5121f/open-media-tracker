@@ -67,10 +67,8 @@ impl ZCinema {
     }
 
     fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
-        {
-            let serial = self.media[id].borrow();
-            serial.remove_file(&self.config.data_dir)?;
-        }
+        let serial = &self.media[id];
+        serial.borrow().remove_file(&self.config.data_dir)?;
         self.media.remove(id);
         Ok(())
     }
@@ -115,10 +113,8 @@ impl ZCinema {
             Message::SerialEditScreen(message) => {
                 match message {
                     SerialEditScreenMessage::Delete(id) => {
-                        let name = {
-                            let serial = self.media[id].borrow();
-                            serial.name().to_string()
-                        };
+                        let serial = &self.media[id];
+                        let name = serial.borrow().name().to_string();
                         self.confirm_dialog(ConfirmKind::DeleteSerial { id, name });
                     }
                     SerialEditScreenMessage::Back => {
