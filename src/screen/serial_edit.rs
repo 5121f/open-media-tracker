@@ -158,10 +158,9 @@ impl SerialEditScreen {
             }
             Message::SeriaInc => self.increase_seria()?,
             Message::SeriaDec => {
-                let new_value = {
-                    let serial = self.editable_serial().borrow();
-                    NonZeroU8::new(serial.seria().get() - 1)
-                };
+                let serial = self.editable_serial();
+                let new_value = serial.borrow().seria().get() - 1;
+                let new_value = NonZeroU8::new(new_value);
                 match new_value {
                     Some(number) => self.editable_serial().borrow_mut().set_seria(number)?,
                     None => self.warning(WarningKind::SeriaCanNotBeZero),
@@ -217,10 +216,8 @@ impl SerialEditScreen {
     }
 
     fn increase_seria(&mut self) -> Result<(), Error> {
-        let next_seria = {
-            let serial = self.editable_serial().borrow();
-            serial.seria().saturating_add(1)
-        };
+        let serial = self.editable_serial();
+        let next_seria = serial.borrow().seria().saturating_add(1);
         self.set_seria(next_seria)
     }
 
@@ -235,10 +232,8 @@ impl SerialEditScreen {
         let seies_on_disk = match self.seies_on_disk {
             Some(seies_on_disk) => seies_on_disk,
             None => {
-                let series_on_disk = {
-                    let serial = self.editable_serial().borrow();
-                    read_dir(&serial.season_path())?.len()
-                };
+                let serial = self.editable_serial();
+                let series_on_disk = read_dir(&serial.borrow().season_path())?.len();
                 self.set_series_on_disk(series_on_disk);
                 series_on_disk
             }
