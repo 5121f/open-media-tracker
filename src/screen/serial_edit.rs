@@ -245,9 +245,18 @@ impl SerialEditScreen {
         self.read_series_on_disk()
     }
 
-    fn read_series_on_disk(&mut self) -> Result<usize, ErrorKind> {
+    fn season_path(&self) -> Result<PathBuf, ErrorKind> {
         let serial = self.editable_serial();
-        let series_on_disk = read_dir(&serial.borrow().season_path())?.len();
+        let season_path = serial.borrow().season_path().to_path_buf();
+        if !season_path.exists() {
+            return Err(ErrorKind::SeasonPathDidNotExists { season_path });
+        }
+        Ok(season_path)
+    }
+
+    fn read_series_on_disk(&mut self) -> Result<usize, ErrorKind> {
+        let season_path = self.season_path()?;
+        let series_on_disk = read_dir(season_path)?.len();
         self.set_series_on_disk(series_on_disk);
         Ok(series_on_disk)
     }
@@ -262,11 +271,15 @@ impl SerialEditScreen {
         let serial = self.editable_serial();
         let next_season = serial.borrow().season().saturating_add(1);
         serial.borrow_mut().set_season(next_season)?;
-        if serial.borrow().season_path_is_present() {
-            let season_path = next_dir(&serial.borrow().season_path())?
-                .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-            self.confirm(ConfirmKind::TrySwitchToNewSeason { season_path });
+        if !serial.borrow().season_path_is_present() {
+            return Ok(());
         }
+        let season_path = self.season_path()?;
+        let next_season_path =
+            next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+        self.confirm(ConfirmKind::TrySwitchToNewSeason {
+            season_path: next_season_path,
+        });
         Ok(())
     }
 
