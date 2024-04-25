@@ -240,8 +240,8 @@ pub enum Screens {
 impl Screens {
     fn view(&self) -> Element<Message> {
         match self {
-            Screens::MainWindow(dialog) => dialog.view().map(Message::MainScreen),
-            Screens::SerialChange(dialog) => dialog.view().map(Message::SerialEditScreen),
+            Screens::MainWindow(dialog) => dialog.view().map(Into::into),
+            Screens::SerialChange(dialog) => dialog.view().map(Into::into),
         }
     }
 
@@ -296,5 +296,17 @@ impl From<ConfirmScreenMessage> for Message {
 impl From<ErrorScreenMessage> for Message {
     fn from(value: ErrorScreenMessage) -> Self {
         Self::ErrorScreen(value)
+    }
+}
+
+impl From<SerialEditScreenMessage> for Message {
+    fn from(value: SerialEditScreenMessage) -> Self {
+        Self::SerialEditScreen(value)
+    }
+}
+
+impl From<MainScreenMessage> for Message {
+    fn from(value: MainScreenMessage) -> Self {
+        Self::MainScreen(value)
     }
 }
