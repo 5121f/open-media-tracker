@@ -228,17 +228,23 @@ impl SerialEditScreen {
             serial.borrow_mut().set_seria(value)?;
             return Ok(());
         }
-        let seies_on_disk = match self.seies_on_disk {
-            Some(seies_on_disk) => seies_on_disk,
-            None => self.read_series_on_disk()?,
-        };
-        if seies_on_disk < value.get() as usize {
-            self.confirm(ConfirmKind::SeriaOverflow { seies_on_disk });
+        let series_on_disk = self.series_on_disk()?;
+        if series_on_disk < value.get() as usize {
+            self.confirm(ConfirmKind::SeriaOverflow {
+                seies_on_disk: series_on_disk,
+            });
             return Ok(());
         }
         let serial = self.editable_serial();
         serial.borrow_mut().set_seria(value)?;
         Ok(())
+    }
+
+    fn series_on_disk(&mut self) -> Result<usize, ErrorKind> {
+        if let Some(series_on_disk) = self.seies_on_disk {
+            return Ok(series_on_disk);
+        }
+        self.read_series_on_disk()
     }
 
     fn read_series_on_disk(&mut self) -> Result<usize, ErrorKind> {
