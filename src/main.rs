@@ -168,10 +168,10 @@ impl ZCinema {
             .map(RefCell::new)
             .map(Rc::new)
             .collect();
-        let main_window = Screens::main(arr_rc_clone(&media));
+        let main_screen = Screens::main(arr_rc_clone(&media));
         Ok(Self {
             media,
-            screen: main_window,
+            screen: main_screen,
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             config,
@@ -229,28 +229,28 @@ impl Application for ZCinema {
 }
 
 pub enum Screens {
-    MainWindow(MainScreen),
+    Main(MainScreen),
     SerialChange(SerialEditScreen),
 }
 
 impl Screens {
     fn view(&self) -> Element<Message> {
         match self {
-            Screens::MainWindow(dialog) => dialog.view().map(Into::into),
+            Screens::Main(dialog) => dialog.view().map(Into::into),
             Screens::SerialChange(dialog) => dialog.view().map(Into::into),
         }
     }
 
     fn title(&self) -> Option<String> {
         match self {
-            Screens::MainWindow(_) => None,
+            Screens::Main(_) => None,
             Screens::SerialChange(dialog) => Some(dialog.title()),
         }
     }
 
     fn main(media: Vec<Rc<RefCell<Serial>>>) -> Self {
         let dialog = MainScreen::new(media);
-        Self::MainWindow(dialog)
+        Self::Main(dialog)
     }
 
     fn change_serial(serials: Vec<Rc<RefCell<Serial>>>, id: usize) -> Self {
@@ -261,7 +261,7 @@ impl Screens {
 
 impl Default for Screens {
     fn default() -> Self {
-        Screens::MainWindow(MainScreen::default())
+        Screens::Main(MainScreen::default())
     }
 }
 
