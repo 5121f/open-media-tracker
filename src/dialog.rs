@@ -1,7 +1,12 @@
 use std::ops::{Deref, DerefMut};
 
+use iced::Element;
+
 pub trait IDialig {
+    type Message;
+
     fn title(&self) -> String;
+    fn view(&self) -> Element<Self::Message>;
 }
 
 pub struct Dialog<T>(Option<T>);
@@ -23,6 +28,17 @@ impl<T> Dialog<T> {
 impl<T: IDialig> Dialog<T> {
     pub fn title(&self) -> Option<String> {
         Some(self.0.as_ref()?.title())
+    }
+
+    pub fn view(&self) -> Option<Element<T::Message>> {
+        Some(self.0.as_ref()?.view())
+    }
+
+    pub fn view_map<'a, B: 'a>(
+        &'a self,
+        f: impl Fn(T::Message) -> B + 'a,
+    ) -> Option<Element<'a, B>> {
+        Some(self.view()?.map(f))
     }
 }
 

@@ -87,15 +87,11 @@ impl ZCinema {
     }
 
     fn confirm_screen_view(&self) -> Option<Element<Message>> {
-        self.confirm_dialog
-            .as_ref()
-            .map(|d| d.view().map(Message::ConfirmScreen))
+        self.confirm_dialog.view_map(Message::ConfirmScreen)
     }
 
     fn error_screen_view(&self) -> Option<Element<Message>> {
-        self.error_dialog
-            .as_ref()
-            .map(|d| d.view().map(Message::ErrorScreen))
+        self.error_dialog.view_map(Message::ErrorScreen)
     }
 
     fn sub_title(&self) -> Option<String> {

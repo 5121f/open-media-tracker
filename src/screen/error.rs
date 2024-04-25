@@ -17,8 +17,14 @@ pub struct ErrorScreen {
     critical: bool,
 }
 
-impl ErrorScreen {
-    pub fn view(&self) -> Element<Message> {
+impl IDialig for ErrorScreen {
+    type Message = Message;
+
+    fn title(&self) -> String {
+        String::from("Error dialog")
+    }
+
+    fn view(&self) -> Element<Message> {
         let ok_button_style = if self.critical {
             theme::Button::Destructive
         } else {
@@ -45,12 +51,6 @@ impl ErrorScreen {
             horizontal_space()
         ]
         .into()
-    }
-}
-
-impl IDialig for ErrorScreen {
-    fn title(&self) -> String {
-        String::from("Error dialog")
     }
 }
 

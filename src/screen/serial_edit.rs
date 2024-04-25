@@ -66,8 +66,9 @@ impl SerialEditScreen {
     }
 
     pub fn view(&self) -> Element<Message> {
-        if let Some(confirm_screen) = self.confirm_screen.as_ref() {
-            return confirm_screen.view().map(Message::ConfirmScreen);
+        let confirm_screen = self.confirm_screen.view_map(Message::ConfirmScreen);
+        if let Some(confirm_screen) = confirm_screen {
+            return confirm_screen;
         }
         let serial = self.editable_serial().borrow();
         let season_path = serial.season_path().display().to_string();

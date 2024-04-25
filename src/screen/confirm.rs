@@ -24,7 +24,23 @@ impl<T: Display> ConfirmScreen<T> {
         Self { kind }
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn kind(&self) -> &T {
+        &self.kind
+    }
+
+    pub fn take(self) -> T {
+        self.kind
+    }
+}
+
+impl<T: Display> IDialig for ConfirmScreen<T> {
+    type Message = Message;
+
+    fn title(&self) -> String {
+        String::from("Confirm dialog")
+    }
+
+    fn view(&self) -> Element<Message> {
         row![
             Space::with_width(100),
             column![
@@ -51,19 +67,5 @@ impl<T: Display> ConfirmScreen<T> {
             Space::with_width(100)
         ]
         .into()
-    }
-
-    pub fn kind(&self) -> &T {
-        &self.kind
-    }
-
-    pub fn take(self) -> T {
-        self.kind
-    }
-}
-
-impl<T> IDialig for ConfirmScreen<T> {
-    fn title(&self) -> String {
-        String::from("Confirm dialog")
     }
 }
