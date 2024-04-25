@@ -226,9 +226,9 @@ impl SerialEditScreen {
 
     fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
         {
-            let mut serial = self.editable_serial().borrow_mut();
-            if !serial.season_path_is_present() {
-                serial.set_seria(value)?;
+            let serial = self.editable_serial();
+            if !serial.borrow().season_path_is_present() || serial.borrow().seria() <= value {
+                serial.borrow_mut().set_seria(value)?;
                 return Ok(());
             }
         }
