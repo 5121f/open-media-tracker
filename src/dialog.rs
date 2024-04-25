@@ -41,11 +41,11 @@ impl<T: IDialig> Dialog<T> {
         Some(self.view()?.map(f))
     }
 
-    pub fn view_into<'a, M: 'a>(&'a self) -> Option<Element<'a, M>>
+    pub fn view_into<'a, M>(&'a self) -> Option<Element<'a, M>>
     where
-        M: From<T::Message>,
+        M: From<T::Message> + 'a,
     {
-        Some(self.view()?.map(Into::into))
+        Some(self.view_map(Into::into)?)
     }
 }
 
