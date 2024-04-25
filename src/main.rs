@@ -203,11 +203,9 @@ impl Application for ZCinema {
 
     fn title(&self) -> String {
         let program_name = "ZCinema";
-        if let Some(sub_title) = self.sub_title() {
-            format!("{} - {}", program_name, sub_title)
-        } else {
-            String::from(program_name)
-        }
+        self.sub_title()
+            .map(|sub_title| format!("{} - {}", program_name, sub_title))
+            .unwrap_or_else(|| String::from(program_name))
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
