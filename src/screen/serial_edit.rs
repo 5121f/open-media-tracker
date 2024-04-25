@@ -14,8 +14,9 @@ use iced::{
 use iced_aw::card;
 
 use crate::{
+    dialog::Dialog,
     error::{Error, ErrorKind},
-    screen::{ConfirmScreen, ConfirmScreenMessage, Dialog},
+    screen::{ConfirmScreen, ConfirmScreenMessage},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},

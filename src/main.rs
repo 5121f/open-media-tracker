@@ -1,4 +1,5 @@
 mod config;
+mod dialog;
 mod error;
 mod screen;
 mod serial;
@@ -15,8 +16,9 @@ use utils::arr_rc_clone;
 
 use crate::{
     config::Config,
+    dialog::Dialog,
     error::Error,
-    screen::{Dialog, ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
+    screen::{ErrorScreen, ErrorScreenMessage, MainScreenMessage, SerialEditScreenMessage},
     serial::Serial,
 };
 
