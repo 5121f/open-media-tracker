@@ -99,13 +99,11 @@ impl ZCinema {
     }
 
     fn sub_title(&self) -> Option<String> {
-        if let Some(dialog) = self.error_dialog.as_ref() {
-            return Some(dialog.title());
-        }
-        if let Some(dialog) = self.confirm_dialog.as_ref() {
-            return Some(dialog.title());
-        }
-        self.screen.title()
+        self.error_dialog
+            .as_ref()
+            .map(|d| d.title())
+            .or_else(|| self.confirm_dialog.as_ref().map(|d| d.title()))
+            .or_else(|| self.screen.title())
     }
 
     fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
