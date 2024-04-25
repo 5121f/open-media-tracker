@@ -305,7 +305,8 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
     if next_season_index >= dirs.len() {
         return Ok(None);
     }
-    Ok(Some(dirs[next_season_index].to_path_buf()))
+    let next_dir = dirs[next_season_index].to_path_buf();
+    Ok(Some(next_dir))
 }
 
 enum ConfirmKind {
