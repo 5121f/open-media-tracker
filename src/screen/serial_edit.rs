@@ -11,12 +11,11 @@ use iced::{
     widget::{button, column, horizontal_space, row, text, Column, Space},
     Element, Length,
 };
-use iced_aw::card;
 
 use crate::{
     dialog::Dialog,
     error::{Error, ErrorKind},
-    screen::{ConfirmScreen, ConfirmScreenMessage},
+    screen::{ConfirmScreen, ConfirmScreenMessage, WarningMessage, WarningPopUp},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
@@ -37,13 +36,13 @@ pub enum Message {
     SeriaInc,
     SeriaDec,
     ConfirmScreen(ConfirmScreenMessage),
-    WarningClose,
+    Warning(WarningMessage),
 }
 
 pub struct SerialEditScreen {
     serials: Vec<Rc<RefCell<Serial>>>,
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
-    warning: Dialog<WarningKind>,
+    warning: Dialog<WarningPopUp<WarningKind>>,
     seies_on_disk: Option<usize>,
     editable_serial_id: usize,
     buffer_name: String,
@@ -117,7 +116,7 @@ impl SerialEditScreen {
 
         layout = layout.push(top);
         layout = layout.push(space);
-        layout = layout.push_maybe(self.warning.as_ref().map(|w| w.view()));
+        layout = layout.push_maybe(self.warning.view_into());
         layout = layout.push(body);
 
         layout.into()
@@ -133,7 +132,7 @@ impl SerialEditScreen {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
-                if let Some(WarningKind::NameUsed) = self.warning.as_ref() {
+                if let Some(WarningKind::NameUsed) = self.warning.as_ref().map(|w| w.kind()) {
                     self.warning.close();
                 }
                 let serial = self.editable_serial();
@@ -197,7 +196,9 @@ impl SerialEditScreen {
                         .set_season_path(folder)?;
                 }
             }
-            Message::WarningClose => self.warning.close(),
+            Message::Warning(message) => match message {
+                WarningMessage::Close => self.warning.close(),
+            },
         }
         Ok(())
     }
@@ -211,7 +212,8 @@ impl SerialEditScreen {
     }
 
     fn warning(&mut self, kind: WarningKind) {
-        self.warning = Dialog::new(kind);
+        let pop_up = WarningPopUp::new(kind);
+        self.warning = Dialog::new(pop_up);
     }
 
     fn set_series_on_disk(&mut self, series: usize) {
@@ -350,16 +352,6 @@ enum WarningKind {
     NameUsed,
 }
 
-impl WarningKind {
-    fn view(&self) -> Element<Message> {
-        card("Warning", text(self.to_string()))
-            .close_size(25.)
-            .style(iced_aw::style::CardStyles::Warning)
-            .on_close(Message::WarningClose)
-            .into()
-    }
-}
-
 impl Display for WarningKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -373,5 +365,11 @@ impl Display for WarningKind {
 impl From<ConfirmScreenMessage> for Message {
     fn from(value: ConfirmScreenMessage) -> Self {
         Self::ConfirmScreen(value)
+    }
+}
+
+impl From<WarningMessage> for Message {
+    fn from(value: WarningMessage) -> Self {
+        Self::Warning(value)
     }
 }
