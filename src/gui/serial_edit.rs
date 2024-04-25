@@ -13,9 +13,8 @@ use iced::{
 };
 
 use crate::{
-    dialog::Dialog,
     error::{Error, ErrorKind},
-    screen::{ConfirmScreen, ConfirmScreenMessage, WarningMessage, WarningPopUp},
+    gui::{ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp},
     serial::Serial,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},

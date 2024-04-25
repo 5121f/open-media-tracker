@@ -3,7 +3,7 @@ use std::fmt::Display;
 use iced::{widget::text, Element};
 use iced_aw::card;
 
-use crate::dialog::IDialig;
+use crate::gui::IDialig;
 
 #[derive(Debug, Clone)]
 pub enum Message {

@@ -1,7 +1,6 @@
 mod config;
-mod dialog;
 mod error;
-mod screen;
+mod gui;
 mod serial;
 mod utils;
 mod view_utils;
@@ -14,10 +13,9 @@ use iced_aw::modal;
 
 use crate::{
     config::Config,
-    dialog::Dialog,
     error::Error,
-    screen::{
-        ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, MainScreen,
+    gui::{
+        ConfirmScreen, ConfirmScreenMessage, Dialog, ErrorScreen, ErrorScreenMessage, MainScreen,
         MainScreenMessage, SerialEditScreen, SerialEditScreenMessage,
     },
     serial::Serial,

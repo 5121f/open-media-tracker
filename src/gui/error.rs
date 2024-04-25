@@ -5,7 +5,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::{dialog::IDialig, error::Error};
+use crate::{error::Error, gui::IDialig};
 
 #[derive(Debug, Clone)]
 pub enum Message {
