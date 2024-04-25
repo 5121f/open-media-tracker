@@ -40,6 +40,13 @@ impl<T: IDialig> Dialog<T> {
     ) -> Option<Element<'a, B>> {
         Some(self.view()?.map(f))
     }
+
+    pub fn view_into<'a, M: 'a>(&'a self) -> Option<Element<'a, M>>
+    where
+        M: From<T::Message>,
+    {
+        Some(self.view()?.map(Into::into))
+    }
 }
 
 impl<T> Deref for Dialog<T> {

@@ -86,14 +86,6 @@ impl ZCinema {
         window::close(window::Id::MAIN)
     }
 
-    fn confirm_screen_view(&self) -> Option<Element<Message>> {
-        self.confirm_dialog.view_map(Message::ConfirmScreen)
-    }
-
-    fn error_screen_view(&self) -> Option<Element<Message>> {
-        self.error_dialog.view_map(Message::ErrorScreen)
-    }
-
     fn sub_title(&self) -> Option<String> {
         self.error_dialog
             .title()
@@ -229,8 +221,9 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         let dialog = self
-            .error_screen_view()
-            .or_else(|| self.confirm_screen_view());
+            .error_dialog
+            .view_into()
+            .or_else(|| self.confirm_dialog.view_into());
         modal(self.screen.view(), dialog).into()
     }
 
@@ -291,5 +284,17 @@ impl Display for ConfirmKind {
                 )
             }
         }
+    }
+}
+
+impl From<ConfirmScreenMessage> for Message {
+    fn from(value: ConfirmScreenMessage) -> Self {
+        Self::ConfirmScreen(value)
+    }
+}
+
+impl From<ErrorScreenMessage> for Message {
+    fn from(value: ErrorScreenMessage) -> Self {
+        Self::ErrorScreen(value)
     }
 }

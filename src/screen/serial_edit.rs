@@ -66,7 +66,7 @@ impl SerialEditScreen {
     }
 
     pub fn view(&self) -> Element<Message> {
-        let confirm_screen = self.confirm_screen.view_map(Message::ConfirmScreen);
+        let confirm_screen = self.confirm_screen.view_into();
         if let Some(confirm_screen) = confirm_screen {
             return confirm_screen;
         }
@@ -349,5 +349,11 @@ impl Display for WarningKind {
             WarningKind::NameUsed => write!(f, "Name must be unic"),
             WarningKind::ParseNum => write!(f, "Failed to parse number. Maybe number is too big."),
         }
+    }
+}
+
+impl From<ConfirmScreenMessage> for Message {
+    fn from(value: ConfirmScreenMessage) -> Self {
+        Self::ConfirmScreen(value)
     }
 }
