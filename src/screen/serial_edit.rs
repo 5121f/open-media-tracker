@@ -230,9 +230,7 @@ impl SerialEditScreen {
         }
         let series_on_disk = self.series_on_disk()?;
         if series_on_disk < value.get() as usize {
-            self.confirm(ConfirmKind::SeriaOverflow {
-                seies_on_disk: series_on_disk,
-            });
+            self.confirm(ConfirmKind::SeriaOverflow { series_on_disk });
             return Ok(());
         }
         let serial = self.editable_serial();
@@ -312,7 +310,7 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
 
 enum ConfirmKind {
     TrySwitchToNewSeason { season_path: PathBuf },
-    SeriaOverflow { seies_on_disk: usize },
+    SeriaOverflow { series_on_disk: usize },
 }
 
 impl Display for ConfirmKind {
@@ -321,10 +319,10 @@ impl Display for ConfirmKind {
             ConfirmKind::TrySwitchToNewSeason { season_path } => {
                 write!(f, "Proposed path to next season: {}", season_path.display())
             }
-            ConfirmKind::SeriaOverflow { seies_on_disk } => write!(
+            ConfirmKind::SeriaOverflow { series_on_disk } => write!(
                 f,
                 "Seems like {} serias is a last of it season. Switch to the next season?",
-                seies_on_disk
+                series_on_disk
             ),
         }
     }
