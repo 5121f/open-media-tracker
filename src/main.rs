@@ -117,16 +117,12 @@ impl ZCinema {
                         let name = serial.borrow().name().to_string();
                         self.confirm_dialog(ConfirmKind::DeleteSerial { id, name });
                     }
-                    SerialEditScreenMessage::Back => {
-                        self.main_screen();
-                    }
-                    SerialEditScreenMessage::Watch { path, seria } => {
-                        utils::watch(path, seria)?;
-                    }
+                    SerialEditScreenMessage::Back => self.main_screen(),
+                    SerialEditScreenMessage::Watch { path, seria } => utils::watch(path, seria)?,
                     _ => {
                         if let Screens::SerialChange(dialog) = &mut self.screen {
                             dialog.update(message)?;
-                        };
+                        }
                     }
                 }
                 Ok(Command::none())
