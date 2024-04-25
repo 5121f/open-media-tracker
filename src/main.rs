@@ -100,9 +100,8 @@ impl ZCinema {
 
     fn sub_title(&self) -> Option<String> {
         self.error_dialog
-            .as_ref()
-            .map(|d| d.title())
-            .or_else(|| self.confirm_dialog.as_ref().map(|d| d.title()))
+            .title()
+            .or_else(|| self.confirm_dialog.title())
             .or_else(|| self.screen.title())
     }
 

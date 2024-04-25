@@ -5,7 +5,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::error::Error;
+use crate::{dialog::IDialig, error::Error};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -46,8 +46,10 @@ impl ErrorScreen {
         ]
         .into()
     }
+}
 
-    pub fn title(&self) -> String {
+impl IDialig for ErrorScreen {
+    fn title(&self) -> String {
         String::from("Error dialog")
     }
 }

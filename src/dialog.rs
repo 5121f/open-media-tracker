@@ -1,5 +1,9 @@
 use std::ops::{Deref, DerefMut};
 
+pub trait IDialig {
+    fn title(&self) -> String;
+}
+
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
@@ -13,6 +17,12 @@ impl<T> Dialog<T> {
 
     pub fn close(&mut self) {
         self.0 = None;
+    }
+}
+
+impl<T: IDialig> Dialog<T> {
+    pub fn title(&self) -> Option<String> {
+        Some(self.0.as_ref()?.title())
     }
 }
 

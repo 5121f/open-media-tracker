@@ -7,6 +7,8 @@ use iced::{
 };
 use iced_aw::card;
 
+use crate::dialog::IDialig;
+
 #[derive(Debug, Clone)]
 pub enum Message {
     Confirm,
@@ -51,15 +53,17 @@ impl<T: Display> ConfirmScreen<T> {
         .into()
     }
 
-    pub fn title(&self) -> String {
-        String::from("Confirm dialog")
-    }
-
     pub fn kind(&self) -> &T {
         &self.kind
     }
 
     pub fn take(self) -> T {
         self.kind
+    }
+}
+
+impl<T> IDialig for ConfirmScreen<T> {
+    fn title(&self) -> String {
+        String::from("Confirm dialog")
     }
 }
