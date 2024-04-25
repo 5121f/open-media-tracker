@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"] // Do not open console window on windows
+
 mod config;
 mod error;
 mod gui;
