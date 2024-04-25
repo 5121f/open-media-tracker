@@ -86,6 +86,18 @@ impl ZCinema {
         window::close(window::Id::MAIN)
     }
 
+    fn confirm_screen_view(&self) -> Option<Element<Message>> {
+        self.confirm_dialog
+            .as_ref()
+            .map(|d| d.view().map(Message::ConfirmScreen))
+    }
+
+    fn error_screen_view(&self) -> Option<Element<Message>> {
+        self.error_dialog
+            .as_ref()
+            .map(|d| d.view().map(Message::ErrorScreen))
+    }
+
     fn sub_title(&self) -> Option<String> {
         if let Some(dialog) = self.error_dialog.as_ref() {
             return Some(dialog.title());
@@ -223,15 +235,9 @@ impl Application for ZCinema {
     }
 
     fn view(&self) -> Element<Message> {
-        let dialog = {
-            if let Some(error_dialog) = self.error_dialog.as_ref() {
-                Some(error_dialog.view().map(Message::ErrorScreen))
-            } else if let Some(confirm_dialog) = self.confirm_dialog.as_ref() {
-                Some(confirm_dialog.view().map(Message::ConfirmScreen))
-            } else {
-                None
-            }
-        };
+        let dialog = self
+            .error_screen_view()
+            .or_else(|| self.confirm_screen_view());
         modal(self.screen.view(), dialog).into()
     }
 
