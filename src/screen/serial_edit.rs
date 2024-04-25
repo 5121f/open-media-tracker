@@ -104,7 +104,7 @@ impl SerialEditScreen {
                 square_button("...").on_press(Message::SeasonPathSelect),
                 square_button(">").on_press(Message::Watch {
                     path: season_path,
-                    seria: serial.seria().get() as usize
+                    seria: serial.seria().get() as usize - 1
                 })
             ]
             .spacing(DEFAULT_INDENT)
