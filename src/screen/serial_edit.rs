@@ -223,12 +223,10 @@ impl SerialEditScreen {
     }
 
     fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
-        {
-            let serial = self.editable_serial();
-            if !serial.borrow().season_path_is_present() || value <= serial.borrow().seria() {
-                serial.borrow_mut().set_seria(value)?;
-                return Ok(());
-            }
+        let serial = self.editable_serial();
+        if !serial.borrow().season_path_is_present() || value <= serial.borrow().seria() {
+            serial.borrow_mut().set_seria(value)?;
+            return Ok(());
         }
         let seies_on_disk = match self.seies_on_disk {
             Some(seies_on_disk) => seies_on_disk,
