@@ -209,13 +209,10 @@ impl Application for ZCinema {
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
-        match self.update2(message) {
-            Ok(cmd) => cmd,
-            Err(error) => {
-                self.error_screen(error);
-                Command::none()
-            }
-        }
+        self.update2(message).unwrap_or_else(|error| {
+            self.error_screen(error);
+            Command::none()
+        })
     }
 
     fn view(&self) -> Element<Message> {
