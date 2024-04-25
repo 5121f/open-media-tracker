@@ -11,6 +11,7 @@ use iced::{
     widget::{button, column, horizontal_space, row, text, Column, Space},
     Element, Length,
 };
+use iced_aw::modal;
 
 use crate::{
     error::{Error, ErrorKind},
@@ -65,9 +66,6 @@ impl SerialEditScreen {
 
     pub fn view(&self) -> Element<Message> {
         let confirm_screen = self.confirm_screen.view_into();
-        if let Some(confirm_screen) = confirm_screen {
-            return confirm_screen;
-        }
         let serial = self.editable_serial().borrow();
         let season_path = serial.season_path().display().to_string();
         let top = row![
@@ -118,7 +116,7 @@ impl SerialEditScreen {
         layout = layout.push_maybe(self.warning.view_into());
         layout = layout.push(body);
 
-        layout.into()
+        modal(layout, confirm_screen).into()
     }
 
     pub fn update(&mut self, message: Message) -> Result<(), Error> {
