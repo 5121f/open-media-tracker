@@ -74,11 +74,12 @@ impl ZCinema {
     }
 
     fn read_media(config: Rc<Config>) -> Result<Vec<Serial>, ErrorKind> {
-        let media = if config.data_dir.exists() {
-            utils::read_media(config)?
-        } else {
-            Vec::new()
-        };
+        let media = config
+            .data_dir
+            .exists()
+            .then(|| utils::read_media(config))
+            .transpose()?
+            .unwrap_or_default();
         Ok(media)
     }
 
