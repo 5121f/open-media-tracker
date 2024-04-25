@@ -152,7 +152,7 @@ impl ZCinema {
             }
             Message::FontLoaded(res) => {
                 if matches!(res, Err(_)) {
-                    self.error_screen(ErrorKind::FontLoad.into());
+                    return Err(ErrorKind::FontLoad.into());
                 }
                 Ok(Command::none())
             }
