@@ -124,8 +124,8 @@ impl SerialEditScreen {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                let name_used = self.serials.iter().any(|s| s.borrow().name() == &value);
-                if name_used {
+                let name_is_used = self.serials.iter().any(|s| s.borrow().name() == &value);
+                if name_is_used {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
