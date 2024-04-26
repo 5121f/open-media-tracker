@@ -1,4 +1,5 @@
 use std::{
+    fmt::Display,
     io,
     path::{Path, PathBuf},
 };
@@ -26,9 +27,9 @@ impl Error {
     }
 }
 
-impl ToString for Error {
-    fn to_string(&self) -> String {
-        self.kind.to_string()
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.kind.fmt(f)
     }
 }
 

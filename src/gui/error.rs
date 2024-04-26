@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, text, vertical_space},
@@ -12,12 +14,12 @@ pub enum Message {
     Ok { critical: bool },
 }
 
-pub struct ErrorScreen {
-    message: String,
+pub struct ErrorScreen<T> {
+    kind: T,
     critical: bool,
 }
 
-impl IDialig for ErrorScreen {
+impl<T: Display> IDialig for ErrorScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {
@@ -37,7 +39,7 @@ impl IDialig for ErrorScreen {
                 card(
                     text(self.title()),
                     column![
-                        text(&self.message),
+                        text(&self.kind),
                         row![
                             horizontal_space(),
                             button("Ok").style(ok_button_style).on_press(Message::Ok {
@@ -55,11 +57,12 @@ impl IDialig for ErrorScreen {
     }
 }
 
-impl From<Error> for ErrorScreen {
+impl From<Error> for ErrorScreen<Error> {
     fn from(value: Error) -> Self {
+        let critical = value.critical;
         Self {
-            message: value.to_string(),
-            critical: value.critical,
+            kind: value,
+            critical,
         }
     }
 }

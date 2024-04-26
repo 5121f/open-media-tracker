@@ -42,7 +42,7 @@ struct ZCinema {
     media: Vec<Rc<RefCell<Serial>>>,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
-    error_dialog: Dialog<ErrorScreen>,
+    error_dialog: Dialog<ErrorScreen<Error>>,
     config: Rc<Config>,
 }
 
