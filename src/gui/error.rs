@@ -45,7 +45,8 @@ impl IDialig for ErrorScreen {
                             })
                         ],
                     ]
-                ),
+                )
+                .style(iced_aw::style::card::CardStyles::Danger),
                 vertical_space()
             ],
             horizontal_space()
