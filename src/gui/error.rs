@@ -21,7 +21,7 @@ impl IDialig for ErrorScreen {
     type Message = Message;
 
     fn title(&self) -> String {
-        String::from("Error dialog")
+        String::from("Error")
     }
 
     fn view(&self) -> Element<Message> {
