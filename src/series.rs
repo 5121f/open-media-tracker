@@ -10,40 +10,40 @@ use serde::{Deserialize, Serialize};
 
 use crate::{config::Config, error::ErrorKind, utils};
 
-const DEFAULT_SERIAL_NAME: &str = "New serial";
+const DEFAULT_SERIES_NAME: &str = "New series";
 
 #[derive(Serialize, Deserialize)]
-pub struct Serial {
+pub struct Series {
     name: String,
     season: NonZeroU8,
-    seria: NonZeroU8,
+    episode: NonZeroU8,
     season_path: PathBuf,
     #[serde(skip)]
     config: Rc<Config>,
 }
 
-impl Serial {
+impl Series {
     pub fn new(config: Rc<Config>) -> Result<Self, ErrorKind> {
         let one = NonZeroU8::MIN;
-        let serial = Self {
+        let series = Self {
             name: find_availible_new_name(&config.data_dir)?,
             season: one,
-            seria: one,
+            episode: one,
             season_path: Default::default(),
             config,
         };
-        serial.save()?;
-        Ok(serial)
+        series.save()?;
+        Ok(series)
     }
 
     pub fn read_from_file(path: impl AsRef<Path>, config: Rc<Config>) -> Result<Self, ErrorKind> {
         let path = path.as_ref();
         let file_content =
             fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
-        let mut serail: Serial =
+        let mut series: Series =
             ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
-        serail.config = config;
-        Ok(serail)
+        series.config = config;
+        Ok(series)
     }
 
     pub fn file_name(&self) -> String {
@@ -66,7 +66,7 @@ impl Serial {
     pub fn save(&self) -> Result<(), ErrorKind> {
         let dir = &self.config.data_dir;
         let content = ron::ser::to_string_pretty(&self, PrettyConfig::new())
-            .map_err(|source| ErrorKind::serial_serialize(self.name.clone(), source))?;
+            .map_err(|source| ErrorKind::serialize_series(self.name.clone(), source))?;
         if !dir.exists() {
             fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir, source))?;
         }
@@ -89,8 +89,8 @@ impl Serial {
         self.save()
     }
 
-    pub fn set_seria(&mut self, value: NonZeroU8) -> Result<(), ErrorKind> {
-        self.seria = value;
+    pub fn set_episode(&mut self, value: NonZeroU8) -> Result<(), ErrorKind> {
+        self.episode = value;
         self.save()
     }
 
@@ -103,8 +103,8 @@ impl Serial {
         self.season
     }
 
-    pub fn seria(&self) -> NonZeroU8 {
-        self.seria
+    pub fn episode(&self) -> NonZeroU8 {
+        self.episode
     }
 
     pub fn season_path(&self) -> &Path {
@@ -124,8 +124,8 @@ pub fn file_name(name: &str) -> String {
     format!("{}.ron", name)
 }
 
-fn default_serial_file_name() -> String {
-    file_name(DEFAULT_SERIAL_NAME)
+fn default_series_file_name() -> String {
+    file_name(DEFAULT_SERIES_NAME)
 }
 
 fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
@@ -135,14 +135,14 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
         .flat_map(|e| e.file_name())
         .map(|n| n.to_string_lossy())
         .collect();
-    let default_serial_name_availible =
-        !file_names.iter().any(|n| n == &default_serial_file_name());
-    if default_serial_name_availible {
-        return Ok(DEFAULT_SERIAL_NAME.to_string());
+    let default_series_name_availible =
+        !file_names.iter().any(|n| n == &default_series_file_name());
+    if default_series_name_availible {
+        return Ok(DEFAULT_SERIES_NAME.to_string());
     }
     let mut i = 1;
     loop {
-        let potential_name = format!("{} {}", DEFAULT_SERIAL_NAME, i);
+        let potential_name = format!("{} {}", DEFAULT_SERIES_NAME, i);
         let potential_file_name = file_name(&potential_name);
         let potential_name_availible = !file_names
             .iter()

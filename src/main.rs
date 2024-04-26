@@ -3,7 +3,7 @@
 mod config;
 mod error;
 mod gui;
-mod serial;
+mod series;
 mod utils;
 mod view_utils;
 
@@ -18,9 +18,9 @@ use crate::{
     error::Error,
     gui::{
         ConfirmScreen, ConfirmScreenMessage, Dialog, ErrorScreen, ErrorScreenMessage, MainScreen,
-        MainScreenMessage, SerialEditScreen, SerialEditScreenMessage,
+        MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
     },
-    serial::Serial,
+    series::Series,
     utils::arr_rc_clone,
 };
 
@@ -31,7 +31,7 @@ fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     MainScreen(MainScreenMessage),
-    SerialEditScreen(SerialEditScreenMessage),
+    SeriesEditScreen(SeriesEditScreenMessage),
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
@@ -39,7 +39,7 @@ enum Message {
 
 #[derive(Default)]
 struct ZCinema {
-    media: Vec<Rc<RefCell<Serial>>>,
+    media: Vec<Rc<RefCell<Series>>>,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen<Error>>,
@@ -47,9 +47,9 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn change_serial_screen(&mut self, id: usize) {
-        let serials = arr_rc_clone(&self.media);
-        self.screen = Screens::change_serial(serials, id)
+    fn change_series_screen(&mut self, id: usize) {
+        let media = arr_rc_clone(&self.media);
+        self.screen = Screens::change_series(media, id)
     }
 
     fn main_screen(&mut self) {
@@ -66,14 +66,14 @@ impl ZCinema {
         self.confirm_dialog = Dialog::new(screen);
     }
 
-    fn remove_serial(&mut self, id: usize) -> Result<(), Error> {
-        let serial = &self.media[id];
-        serial.borrow().remove_file(&self.config.data_dir)?;
+    fn remove_series(&mut self, id: usize) -> Result<(), Error> {
+        let series = &self.media[id];
+        series.borrow().remove_file(&self.config.data_dir)?;
         self.media.remove(id);
         Ok(())
     }
 
-    fn read_media(config: Rc<Config>) -> Result<Vec<Serial>, ErrorKind> {
+    fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
         let media = config
             .data_dir
             .exists()
@@ -98,27 +98,29 @@ impl ZCinema {
         match message {
             Message::MainScreen(message) => {
                 match message {
-                    MainScreenMessage::AddSerial => {
-                        let serial = Serial::new(Rc::clone(&self.config))?;
-                        let serial = Rc::new(RefCell::new(serial));
-                        self.media.push(serial);
-                        self.change_serial_screen(self.media.len() - 1);
+                    MainScreenMessage::AddSeries => {
+                        let series = Series::new(Rc::clone(&self.config))?;
+                        let series = Rc::new(RefCell::new(series));
+                        self.media.push(series);
+                        self.change_series_screen(self.media.len() - 1);
                     }
-                    MainScreenMessage::ChangeSerial(id) => self.change_serial_screen(id),
+                    MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id),
                 }
                 Ok(Command::none())
             }
-            Message::SerialEditScreen(message) => {
+            Message::SeriesEditScreen(message) => {
                 match message {
-                    SerialEditScreenMessage::Delete(id) => {
-                        let serial = &self.media[id];
-                        let name = serial.borrow().name().to_string();
-                        self.confirm_dialog(ConfirmKind::DeleteSerial { id, name });
+                    SeriesEditScreenMessage::Delete(id) => {
+                        let series = &self.media[id];
+                        let name = series.borrow().name().to_string();
+                        self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
                     }
-                    SerialEditScreenMessage::Back => self.main_screen(),
-                    SerialEditScreenMessage::Watch { path, seria } => utils::watch(path, seria)?,
+                    SeriesEditScreenMessage::Back => self.main_screen(),
+                    SeriesEditScreenMessage::Watch { path, episode } => {
+                        utils::watch(path, episode)?
+                    }
                     _ => {
-                        if let Screens::SerialChange(dialog) = &mut self.screen {
+                        if let Screens::SeriesChange(dialog) = &mut self.screen {
                             dialog.update(message)?;
                         }
                     }
@@ -139,8 +141,8 @@ impl ZCinema {
                             return Ok(Command::none());
                         };
                         match dialog.kind() {
-                            ConfirmKind::DeleteSerial { id, .. } => {
-                                self.remove_serial(*id)?;
+                            ConfirmKind::DeleteSeries { id, .. } => {
+                                self.remove_series(*id)?;
                                 self.confirm_dialog.close();
                                 self.main_screen();
                             }
@@ -230,32 +232,32 @@ impl Application for ZCinema {
 
 pub enum Screens {
     Main(MainScreen),
-    SerialChange(SerialEditScreen),
+    SeriesChange(SeriesEditScreen),
 }
 
 impl Screens {
     fn view(&self) -> Element<Message> {
         match self {
             Screens::Main(dialog) => dialog.view().map(Into::into),
-            Screens::SerialChange(dialog) => dialog.view().map(Into::into),
+            Screens::SeriesChange(dialog) => dialog.view().map(Into::into),
         }
     }
 
     fn title(&self) -> Option<String> {
         match self {
             Screens::Main(_) => None,
-            Screens::SerialChange(dialog) => Some(dialog.title()),
+            Screens::SeriesChange(dialog) => Some(dialog.title()),
         }
     }
 
-    fn main(media: Vec<Rc<RefCell<Serial>>>) -> Self {
+    fn main(media: Vec<Rc<RefCell<Series>>>) -> Self {
         let dialog = MainScreen::new(media);
         Self::Main(dialog)
     }
 
-    fn change_serial(serials: Vec<Rc<RefCell<Serial>>>, id: usize) -> Self {
-        let dialog = SerialEditScreen::new(serials, id);
-        Self::SerialChange(dialog)
+    fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Self {
+        let dialog = SeriesEditScreen::new(media, id);
+        Self::SeriesChange(dialog)
     }
 }
 
@@ -266,16 +268,16 @@ impl Default for Screens {
 }
 
 enum ConfirmKind {
-    DeleteSerial { name: String, id: usize },
+    DeleteSeries { name: String, id: usize },
 }
 
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConfirmKind::DeleteSerial { name, .. } => {
+            ConfirmKind::DeleteSeries { name, .. } => {
                 write!(
                     f,
-                    "You actually wont to delete serial \"{}\" from the list?",
+                    "You actually wont to delete series \"{}\" from the list?",
                     name
                 )
             }
@@ -295,9 +297,9 @@ impl From<ErrorScreenMessage> for Message {
     }
 }
 
-impl From<SerialEditScreenMessage> for Message {
-    fn from(value: SerialEditScreenMessage) -> Self {
-        Self::SerialEditScreen(value)
+impl From<SeriesEditScreenMessage> for Message {
+    fn from(value: SeriesEditScreenMessage) -> Self {
+        Self::SeriesEditScreen(value)
     }
 }
 

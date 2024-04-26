@@ -45,9 +45,9 @@ pub enum ErrorKind {
     FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     Parce { path: PathBuf, source: SpannedError },
-    #[error("{serial_name}: Serialize error: ")]
-    SerialSerialize {
-        serial_name: String,
+    #[error("{series_name}: Serialize error: ")]
+    SerializeSeries {
+        series_name: String,
         source: ron::Error,
     },
     #[error("Failed to found user's data directory")]
@@ -82,9 +82,9 @@ impl ErrorKind {
         }
     }
 
-    pub fn serial_serialize(name: String, source: ron::Error) -> Self {
-        Self::SerialSerialize {
-            serial_name: name,
+    pub fn serialize_series(name: String, source: ron::Error) -> Self {
+        Self::SerializeSeries {
+            series_name: name,
             source,
         }
     }

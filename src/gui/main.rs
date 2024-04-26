@@ -7,23 +7,23 @@ use iced::{
 };
 
 use crate::{
-    serial::Serial,
+    series::Series,
     view_utils::{square_button, DEFAULT_INDENT},
 };
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    AddSerial,
-    ChangeSerial(usize),
+    AddSeries,
+    ChangeSeries(usize),
 }
 
 #[derive(Default)]
 pub struct MainScreen {
-    media: Vec<Rc<RefCell<Serial>>>,
+    media: Vec<Rc<RefCell<Series>>>,
 }
 
 impl MainScreen {
-    pub fn new(media: Vec<Rc<RefCell<Serial>>>) -> Self {
+    pub fn new(media: Vec<Rc<RefCell<Series>>>) -> Self {
         Self { media }
     }
 
@@ -31,9 +31,9 @@ impl MainScreen {
         column![
             row![
                 horizontal_space(),
-                button("Add serial")
+                button("Add series")
                     .style(theme::Button::Positive)
-                    .on_press(Message::AddSerial),
+                    .on_press(Message::AddSeries),
                 horizontal_space(),
             ],
             scrollable(
@@ -44,7 +44,7 @@ impl MainScreen {
                         .map(|(id, m)| row![
                             text(&m.borrow().name()),
                             horizontal_space(),
-                            square_button("...").on_press(Message::ChangeSerial(id))
+                            square_button("...").on_press(Message::ChangeSeries(id))
                         ]
                         .align_items(Alignment::Center))
                         .map(Into::into)

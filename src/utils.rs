@@ -7,21 +7,21 @@ use std::{
 use crate::{
     config::Config,
     error::{Error, ErrorKind},
-    serial::Serial,
+    series::Series,
 };
 
-pub fn read_media(config: Rc<Config>) -> Result<Vec<Serial>, ErrorKind> {
+pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
     let media = read_dir(&config.data_dir)?
         .into_iter()
-        .map(|m| Serial::read_from_file(m, config.clone()))
+        .map(|m| Series::read_from_file(m, config.clone()))
         .collect::<Result<_, _>>()?;
     Ok(media)
 }
 
-pub fn watch(path: impl AsRef<Path>, seria_number: usize) -> Result<(), Error> {
+pub fn watch(path: impl AsRef<Path>, episode_number: usize) -> Result<(), Error> {
     let files = read_dir(path)?;
-    let seria = &files[seria_number];
-    open::that(seria).map_err(|source| ErrorKind::open_vido(&seria, source.kind()))?;
+    let episode = &files[episode_number];
+    open::that(episode).map_err(|source| ErrorKind::open_vido(&episode, source.kind()))?;
     Ok(())
 }
 

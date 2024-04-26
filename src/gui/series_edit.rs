@@ -16,7 +16,7 @@ use iced_aw::modal;
 use crate::{
     error::{Error, ErrorKind},
     gui::{ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp},
-    serial::Serial,
+    series::Series,
     utils::{self, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };
@@ -25,64 +25,64 @@ use crate::{
 pub enum Message {
     Back,
     Delete(usize),
-    Watch { path: String, seria: usize },
+    Watch { path: String, episode: usize },
     NameChanged(String),
     SeasonChanged(String),
-    SeriaChanged(String),
+    EpisodeChanged(String),
     SeasonPathChanged(String),
     SeasonPathSelect,
     SeasonInc,
     SeasonDec,
-    SeriaInc,
-    SeriaDec,
+    EpisodeInc,
+    EpisodeDec,
     ConfirmScreen(ConfirmScreenMessage),
     Warning(WarningMessage),
 }
 
-pub struct SerialEditScreen {
-    serials: Vec<Rc<RefCell<Serial>>>,
+pub struct SeriesEditScreen {
+    media: Vec<Rc<RefCell<Series>>>,
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningPopUp<WarningKind>>,
-    seies_on_disk: Option<usize>,
-    editable_serial_id: usize,
+    episodes_on_disk: Option<usize>,
+    editable_series_id: usize,
     buffer_name: String,
 }
 
-impl SerialEditScreen {
-    pub fn new(serials: Vec<Rc<RefCell<Serial>>>, editable_serial_id: usize) -> Self {
-        let editable_serial_name = {
-            let editable_serial = serials[editable_serial_id].borrow();
-            editable_serial.name().to_string()
+impl SeriesEditScreen {
+    pub fn new(series: Vec<Rc<RefCell<Series>>>, editable_series_id: usize) -> Self {
+        let editable_series_name = {
+            let editable_series = series[editable_series_id].borrow();
+            editable_series.name().to_string()
         };
         Self {
             confirm_screen: Dialog::closed(),
-            seies_on_disk: None,
-            serials,
-            editable_serial_id,
+            episodes_on_disk: None,
+            media: series,
+            editable_series_id,
             warning: Dialog::closed(),
-            buffer_name: editable_serial_name,
+            buffer_name: editable_series_name,
         }
     }
 
     pub fn view(&self) -> Element<Message> {
         let confirm_screen = self.confirm_screen.view_into();
-        let serial = self.editable_serial().borrow();
-        let season_path = serial.season_path().display().to_string();
+        let series = self.editable_series().borrow();
+        let season_path = series.season_path().display().to_string();
         let top = row![
             link("< Back").on_press(Message::Back),
             horizontal_space(),
-            text(serial.name()),
+            text(series.name()),
             horizontal_space(),
             button("Delete")
                 .style(theme::Button::Destructive)
-                .on_press(Message::Delete(self.editable_serial_id)),
+                .on_press(Message::Delete(self.editable_series_id)),
         ];
         let body = column![
             signed_text_imput("Name", &self.buffer_name, Message::NameChanged),
             row![
                 signed_text_imput(
                     "Season",
-                    &serial.season().to_string(),
+                    &series.season().to_string(),
                     Message::SeasonChanged
                 ),
                 square_button("-").on_press(Message::SeasonDec),
@@ -90,9 +90,13 @@ impl SerialEditScreen {
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput("Seria", &serial.seria().to_string(), Message::SeriaChanged),
-                square_button("-").on_press(Message::SeriaDec),
-                square_button("+").on_press(Message::SeriaInc)
+                signed_text_imput(
+                    "Episode",
+                    &series.episode().to_string(),
+                    Message::EpisodeChanged
+                ),
+                square_button("-").on_press(Message::EpisodeDec),
+                square_button("+").on_press(Message::EpisodeInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
@@ -100,7 +104,7 @@ impl SerialEditScreen {
                 square_button("...").on_press(Message::SeasonPathSelect),
                 square_button(">").on_press(Message::Watch {
                     path: season_path,
-                    seria: serial.seria().get() as usize - 1
+                    episode: series.episode().get() as usize - 1
                 })
             ]
             .spacing(DEFAULT_INDENT)
@@ -124,7 +128,7 @@ impl SerialEditScreen {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                let name_is_used = self.serials.iter().any(|s| s.borrow().name() == &value);
+                let name_is_used = self.media.iter().any(|s| s.borrow().name() == &value);
                 if name_is_used {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
@@ -132,41 +136,41 @@ impl SerialEditScreen {
                 if let Some(WarningKind::NameUsed) = self.warning.as_ref().map(|w| w.kind()) {
                     self.warning.close();
                 }
-                let serial = self.editable_serial();
-                serial.borrow_mut().rename(value)?;
+                let episode = self.editable_series();
+                episode.borrow_mut().rename(value)?;
             }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
-                    self.editable_serial().borrow_mut().set_season(number)?;
+                    self.editable_series().borrow_mut().set_season(number)?;
                 }
             }
-            Message::SeriaChanged(value) => {
+            Message::EpisodeChanged(value) => {
                 if let Ok(number) = value.parse() {
-                    self.set_seria(number)?;
+                    self.set_episode(number)?;
                 }
             }
             Message::SeasonInc => self.increase_season()?,
             Message::SeasonDec => {
-                let serial = self.editable_serial();
-                let new_value = serial.borrow().season().get() - 1;
+                let series = self.editable_series();
+                let new_value = series.borrow().season().get() - 1;
                 let new_value = NonZeroU8::new(new_value);
                 match new_value {
-                    Some(number) => serial.borrow_mut().set_season(number)?,
+                    Some(number) => series.borrow_mut().set_season(number)?,
                     None => self.warning(WarningKind::SeasonCanNotBeZero),
                 }
             }
-            Message::SeriaInc => self.increase_seria()?,
-            Message::SeriaDec => {
-                let serial = self.editable_serial();
-                let new_value = serial.borrow().seria().get() - 1;
+            Message::EpisodeInc => self.increase_episode()?,
+            Message::EpisodeDec => {
+                let series = self.editable_series();
+                let new_value = series.borrow().episode().get() - 1;
                 let new_value = NonZeroU8::new(new_value);
                 match new_value {
-                    Some(number) => self.editable_serial().borrow_mut().set_seria(number)?,
-                    None => self.warning(WarningKind::SeriaCanNotBeZero),
+                    Some(number) => self.editable_series().borrow_mut().set_episode(number)?,
+                    None => self.warning(WarningKind::EpisodeCanNotBeZero),
                 }
             }
             Message::SeasonPathChanged(value) => self
-                .editable_serial()
+                .editable_series()
                 .borrow_mut()
                 .set_season_path(PathBuf::from(value))?,
             Message::ConfirmScreen(message) => match message {
@@ -176,19 +180,19 @@ impl SerialEditScreen {
                     };
                     match confirm.take() {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
-                            self.editable_serial()
+                            self.editable_series()
                                 .borrow_mut()
                                 .set_season_path(season_path)?;
                             self.confirm_screen.close();
                         }
-                        ConfirmKind::SeriaOverflow { .. } => self.increase_season()?,
+                        ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
                     }
                 }
                 ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
             },
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.editable_serial()
+                    self.editable_series()
                         .borrow_mut()
                         .set_season_path(folder)?;
                 }
@@ -201,11 +205,11 @@ impl SerialEditScreen {
     }
 
     pub fn title(&self) -> String {
-        self.editable_serial().borrow().name().to_string()
+        self.editable_series().borrow().name().to_string()
     }
 
-    fn editable_serial(&self) -> &Rc<RefCell<Serial>> {
-        &self.serials[self.editable_serial_id]
+    fn editable_series(&self) -> &Rc<RefCell<Series>> {
+        &self.media[self.editable_series_id]
     }
 
     fn warning(&mut self, kind: WarningKind) {
@@ -214,41 +218,41 @@ impl SerialEditScreen {
     }
 
     fn set_series_on_disk(&mut self, series: usize) {
-        self.seies_on_disk = Some(series);
+        self.episodes_on_disk = Some(series);
     }
 
-    fn increase_seria(&mut self) -> Result<(), Error> {
-        let serial = self.editable_serial();
-        let next_seria = serial.borrow().seria().saturating_add(1);
-        self.set_seria(next_seria)
+    fn increase_episode(&mut self) -> Result<(), Error> {
+        let series = self.editable_series();
+        let next_episode = series.borrow().episode().saturating_add(1);
+        self.set_episode(next_episode)
     }
 
-    fn set_seria(&mut self, value: NonZeroU8) -> Result<(), Error> {
-        let serial = self.editable_serial();
-        if !serial.borrow().season_path_is_present() || value <= serial.borrow().seria() {
-            serial.borrow_mut().set_seria(value)?;
+    fn set_episode(&mut self, value: NonZeroU8) -> Result<(), Error> {
+        let series = self.editable_series();
+        if !series.borrow().season_path_is_present() || value <= series.borrow().episode() {
+            series.borrow_mut().set_episode(value)?;
             return Ok(());
         }
         let series_on_disk = self.series_on_disk()?;
         if series_on_disk < value.get() as usize {
-            self.confirm(ConfirmKind::SeriaOverflow { series_on_disk });
+            self.confirm(ConfirmKind::EpisodesOverflow { series_on_disk });
             return Ok(());
         }
-        let serial = self.editable_serial();
-        serial.borrow_mut().set_seria(value)?;
+        let series = self.editable_series();
+        series.borrow_mut().set_episode(value)?;
         Ok(())
     }
 
     fn series_on_disk(&mut self) -> Result<usize, ErrorKind> {
-        if let Some(series_on_disk) = self.seies_on_disk {
+        if let Some(series_on_disk) = self.episodes_on_disk {
             return Ok(series_on_disk);
         }
         self.read_series_on_disk()
     }
 
     fn season_path(&self) -> Result<PathBuf, ErrorKind> {
-        let serial = self.editable_serial();
-        let season_path = serial.borrow().season_path().to_path_buf();
+        let series = self.editable_series();
+        let season_path = series.borrow().season_path().to_path_buf();
         if !season_path.exists() {
             return Err(ErrorKind::SeasonPathDidNotExists { season_path });
         }
@@ -262,17 +266,17 @@ impl SerialEditScreen {
         Ok(series_on_disk)
     }
 
-    fn set_seria_to_one(&mut self) -> Result<(), ErrorKind> {
-        let serial = self.editable_serial();
-        serial.borrow_mut().set_seria(NonZeroU8::MIN)
+    fn set_episode_to_one(&mut self) -> Result<(), ErrorKind> {
+        let series = self.editable_series();
+        series.borrow_mut().set_episode(NonZeroU8::MIN)
     }
 
     fn increase_season(&mut self) -> Result<(), ErrorKind> {
-        self.set_seria_to_one()?;
-        let serial = self.editable_serial();
-        let next_season = serial.borrow().season().saturating_add(1);
-        serial.borrow_mut().set_season(next_season)?;
-        if !serial.borrow().season_path_is_present() {
+        self.set_episode_to_one()?;
+        let series = self.editable_series();
+        let next_season = series.borrow().season().saturating_add(1);
+        series.borrow_mut().set_season(next_season)?;
+        if !series.borrow().season_path_is_present() {
             return Ok(());
         }
         let season_path = self.season_path()?;
@@ -325,7 +329,7 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
 
 enum ConfirmKind {
     TrySwitchToNewSeason { season_path: PathBuf },
-    SeriaOverflow { series_on_disk: usize },
+    EpisodesOverflow { series_on_disk: usize },
 }
 
 impl Display for ConfirmKind {
@@ -334,9 +338,9 @@ impl Display for ConfirmKind {
             ConfirmKind::TrySwitchToNewSeason { season_path } => {
                 write!(f, "Proposed path to next season: {}", season_path.display())
             }
-            ConfirmKind::SeriaOverflow { series_on_disk } => write!(
+            ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
                 f,
-                "Seems like {} serias is a last of it season. Switch to the next season?",
+                "Seems like {} series is a last of it season. Switch to the next season?",
                 series_on_disk
             ),
         }
@@ -345,7 +349,7 @@ impl Display for ConfirmKind {
 
 enum WarningKind {
     SeasonCanNotBeZero,
-    SeriaCanNotBeZero,
+    EpisodeCanNotBeZero,
     NameUsed,
 }
 
@@ -353,7 +357,7 @@ impl Display for WarningKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
-            WarningKind::SeriaCanNotBeZero => write!(f, "Seria can not be zero"),
+            WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
             WarningKind::NameUsed => write!(f, "Name must be unic"),
         }
     }
