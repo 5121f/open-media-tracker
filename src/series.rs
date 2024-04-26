@@ -40,9 +40,9 @@ impl Series {
         let path = path.as_ref();
         let file_content =
             fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
-        let mut series: Series =
+        let series =
             ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
-        series.config = config;
+        let series = Series { config, ..series };
         Ok(series)
     }
 
