@@ -9,7 +9,7 @@ use std::{
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, text, Column, Space},
-    Element, Length,
+    Color, Element, Length,
 };
 use iced_aw::modal;
 
@@ -25,7 +25,7 @@ use crate::{
 pub enum Message {
     Back,
     Delete(usize),
-    Watch { path: String, episode: usize },
+    Watch { path: PathBuf },
     NameChanged(String),
     SeasonChanged(String),
     EpisodeChanged(String),
@@ -45,23 +45,39 @@ pub struct SeriesEditScreen {
     warning: Dialog<WarningPopUp<WarningKind>>,
     episodes_on_disk: Option<usize>,
     editable_series_id: usize,
+    episode_name: Option<String>,
     buffer_name: String,
 }
 
 impl SeriesEditScreen {
-    pub fn new(series: Vec<Rc<RefCell<Series>>>, editable_series_id: usize) -> Self {
-        let editable_series_name = {
-            let editable_series = series[editable_series_id].borrow();
-            editable_series.name().to_string()
-        };
-        Self {
+    pub fn new(
+        series: Vec<Rc<RefCell<Series>>>,
+        editable_series_id: usize,
+    ) -> Result<Self, ErrorKind> {
+        let editable_series = &series[editable_series_id];
+        let editable_series_name = editable_series.borrow().name().to_string();
+        let mut episode_name = None;
+        if editable_series.borrow().season_path_is_present() {
+            let mut season_path_content = read_dir(editable_series.borrow().season_path())?;
+            let episode_id = editable_series.borrow().episode().get() as usize;
+            season_path_content.sort();
+            let epsiode_name = season_path_content[episode_id]
+                .file_name()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default()
+                .to_string();
+            episode_name = Some(epsiode_name);
+        }
+        Ok(Self {
             confirm_screen: Dialog::closed(),
             episodes_on_disk: None,
             media: series,
             editable_series_id,
             warning: Dialog::closed(),
+            episode_name: episode_name,
             buffer_name: editable_series_name,
-        }
+        })
     }
 
     pub fn view(&self) -> Element<Message> {
@@ -81,10 +97,27 @@ impl SeriesEditScreen {
             horizontal_space(),
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press(Message::Watch {
-                    path: season_path.clone(),
-                    episode: series.episode().get() as usize - 1
-                }),
+                .on_press_maybe(self.episode_name.as_ref().map(|episode_name| {
+                    Message::Watch {
+                        path: self
+                            .editable_series()
+                            .borrow()
+                            .season_path()
+                            .join(&episode_name),
+                    }
+                })),
+            horizontal_space()
+        ];
+        let watch_sign = if let Some(episode_name) = self.episode_name.as_ref() {
+            episode_name.as_str()
+        } else {
+            "Select correct season path to watch episode"
+        };
+        let watch_sign = row![
+            horizontal_space(),
+            text(watch_sign)
+                .size(13)
+                .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
             horizontal_space()
         ];
         let body = column![
@@ -123,6 +156,7 @@ impl SeriesEditScreen {
 
         layout = layout.push(top);
         layout = layout.push(watch);
+        layout = layout.push(watch_sign);
         layout = layout.push(space);
         layout = layout.push_maybe(self.warning.view_into());
         layout = layout.push(body);
@@ -176,10 +210,7 @@ impl SeriesEditScreen {
                     None => self.warning(WarningKind::EpisodeCanNotBeZero),
                 }
             }
-            Message::SeasonPathChanged(value) => self
-                .editable_series()
-                .borrow_mut()
-                .set_season_path(PathBuf::from(value))?,
+            Message::SeasonPathChanged(value) => self.set_season_path(PathBuf::from(value))?,
             Message::ConfirmScreen(message) => match message {
                 ConfirmScreenMessage::Confirm => {
                     let Some(confirm) = self.confirm_screen.take() else {
@@ -187,10 +218,7 @@ impl SeriesEditScreen {
                     };
                     match confirm.take() {
                         ConfirmKind::TrySwitchToNewSeason { season_path } => {
-                            self.editable_series()
-                                .borrow_mut()
-                                .set_season_path(season_path)?;
-                            self.confirm_screen.close();
+                            self.set_season_path(season_path)?;
                         }
                         ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
                     }
@@ -217,6 +245,33 @@ impl SeriesEditScreen {
 
     fn editable_series(&self) -> &Rc<RefCell<Series>> {
         &self.media[self.editable_series_id]
+    }
+
+    fn set_season_path(&mut self, season_path: PathBuf) -> Result<(), ErrorKind> {
+        self.editable_series()
+            .borrow_mut()
+            .set_season_path(season_path)?;
+        self.update_episode_name()?;
+        Ok(())
+    }
+
+    fn update_episode_name(&mut self) -> Result<(), ErrorKind> {
+        let editable_series = self.editable_series();
+        if !editable_series.borrow().season_path().exists() {
+            self.episode_name = None;
+            return Ok(());
+        }
+        let mut season_path_content = read_dir(editable_series.borrow().season_path())?;
+        let episode_id = editable_series.borrow().episode().get() as usize;
+        season_path_content.sort();
+        let epsiode_name = season_path_content[episode_id]
+            .file_name()
+            .unwrap_or_default()
+            .to_str()
+            .unwrap_or_default()
+            .to_string();
+        self.episode_name = Some(epsiode_name);
+        Ok(())
     }
 
     fn warning(&mut self, kind: WarningKind) {

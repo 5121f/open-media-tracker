@@ -47,9 +47,10 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn change_series_screen(&mut self, id: usize) {
+    fn change_series_screen(&mut self, id: usize) -> Result<(), ErrorKind> {
         let media = arr_rc_clone(&self.media);
-        self.screen = Screens::change_series(media, id)
+        self.screen = Screens::change_series(media, id)?;
+        Ok(())
     }
 
     fn main_screen(&mut self) {
@@ -102,9 +103,9 @@ impl ZCinema {
                         let series = Series::new(Rc::clone(&self.config))?;
                         let series = Rc::new(RefCell::new(series));
                         self.media.push(series);
-                        self.change_series_screen(self.media.len() - 1);
+                        self.change_series_screen(self.media.len() - 1)?;
                     }
-                    MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id),
+                    MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id)?,
                 }
                 Ok(Command::none())
             }
@@ -116,9 +117,7 @@ impl ZCinema {
                         self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
                     }
                     SeriesEditScreenMessage::Back => self.main_screen(),
-                    SeriesEditScreenMessage::Watch { path, episode } => {
-                        utils::watch(path, episode)?
-                    }
+                    SeriesEditScreenMessage::Watch { path } => utils::watch(path)?,
                     _ => {
                         if let Screens::SeriesChange(dialog) = &mut self.screen {
                             dialog.update(message)?;
@@ -255,9 +254,9 @@ impl Screens {
         Self::Main(dialog)
     }
 
-    fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Self {
-        let dialog = SeriesEditScreen::new(media, id);
-        Self::SeriesChange(dialog)
+    fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Result<Self, ErrorKind> {
+        let dialog = SeriesEditScreen::new(media, id)?;
+        Ok(Self::SeriesChange(dialog))
     }
 }
 

@@ -18,10 +18,9 @@ pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
     Ok(media)
 }
 
-pub fn watch(path: impl AsRef<Path>, episode_number: usize) -> Result<(), Error> {
-    let files = read_dir(path)?;
-    let episode = &files[episode_number];
-    open::that(episode).map_err(|source| ErrorKind::open_vido(&episode, source.kind()))?;
+pub fn watch(path: impl AsRef<Path>) -> Result<(), Error> {
+    let path = path.as_ref();
+    open::that(path).map_err(|source| ErrorKind::open_vido(&path, source.kind()))?;
     Ok(())
 }
 
