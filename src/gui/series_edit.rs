@@ -55,12 +55,15 @@ impl SeriesEditScreen {
     ) -> Result<Self, ErrorKind> {
         let editable_series = &series[editable_series_id];
         let editable_series_name = editable_series.borrow().name().to_string();
-        let episode_paths = editable_series
+        let mut episode_paths = editable_series
             .borrow()
             .season_path()
             .exists()
             .then(|| read_dir(editable_series.borrow().season_path()))
             .transpose()?;
+        if let Some(episode_paths) = &mut episode_paths {
+            episode_paths.sort();
+        }
         Ok(Self {
             confirm_screen: Dialog::closed(),
             media: series,
