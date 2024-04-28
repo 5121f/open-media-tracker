@@ -203,7 +203,7 @@ impl Application for ZCinema {
     }
 
     fn title(&self) -> String {
-        let program_name = "ZCinema";
+        let program_name = "zCinema";
         self.sub_title()
             .map(|sub_title| format!("{} - {}", program_name, sub_title))
             .unwrap_or_else(|| String::from(program_name))
