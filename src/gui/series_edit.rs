@@ -55,15 +55,7 @@ impl SeriesEditScreen {
     ) -> Result<Self, ErrorKind> {
         let editable_series = &series[editable_series_id];
         let editable_series_name = editable_series.borrow().name().to_string();
-        let mut episode_paths = editable_series
-            .borrow()
-            .season_path()
-            .exists()
-            .then(|| read_dir(editable_series.borrow().season_path()))
-            .transpose()?;
-        if let Some(episode_paths) = &mut episode_paths {
-            episode_paths.sort();
-        }
+        let episode_paths = episode_paths(editable_series.borrow().season_path())?;
         Ok(Self {
             confirm_screen: Dialog::closed(),
             media: series,
@@ -265,6 +257,17 @@ impl SeriesEditScreen {
         self.editable_series()
             .borrow_mut()
             .set_season_path(season_path)?;
+        self.update_edpisode_paths()?;
+        Ok(())
+    }
+
+    fn update_edpisode_paths(&mut self) -> Result<(), ErrorKind> {
+        let episode_paths = {
+            let editable_series = self.editable_series().borrow();
+            let series_path = editable_series.season_path();
+            episode_paths(series_path)?
+        };
+        self.episode_paths = episode_paths;
         Ok(())
     }
 
@@ -338,6 +341,18 @@ impl SeriesEditScreen {
         let confirm = ConfirmScreen::new(kind);
         self.confirm_screen = Dialog::new(confirm);
     }
+}
+
+fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, ErrorKind> {
+    let mut episode_paths = series_path
+        .as_ref()
+        .exists()
+        .then(|| read_dir(series_path))
+        .transpose()?;
+    if let Some(episode_paths) = &mut episode_paths {
+        episode_paths.sort();
+    }
+    Ok(episode_paths)
 }
 
 fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
