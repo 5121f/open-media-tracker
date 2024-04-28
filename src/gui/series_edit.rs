@@ -244,7 +244,11 @@ impl SeriesEditScreen {
     fn episode_path(&self) -> Option<PathBuf> {
         self.episode_paths
             .as_ref()
-            .map(|ep| ep[self.editable_series_id].clone())
+            .map(|ep| ep[self.episode_id()].clone())
+    }
+
+    fn episode_id(&self) -> usize {
+        self.editable_series().borrow().episode().get() as usize - 1
     }
 
     fn episode_name(&self) -> Option<String> {
