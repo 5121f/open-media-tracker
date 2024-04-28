@@ -43,9 +43,8 @@ pub struct SeriesEditScreen {
     media: Vec<Rc<RefCell<Series>>>,
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningPopUp<WarningKind>>,
-    episodes_on_disk: Option<usize>,
     editable_series_id: usize,
-    episode_name: Option<String>,
+    episode_paths: Option<Vec<PathBuf>>,
     buffer_name: String,
 }
 
@@ -56,14 +55,18 @@ impl SeriesEditScreen {
     ) -> Result<Self, ErrorKind> {
         let editable_series = &series[editable_series_id];
         let editable_series_name = editable_series.borrow().name().to_string();
-        let episode_name = episode_name(&editable_series.borrow())?;
+        let episode_paths = editable_series
+            .borrow()
+            .season_path()
+            .exists()
+            .then(|| read_dir(editable_series.borrow().season_path()))
+            .transpose()?;
         Ok(Self {
             confirm_screen: Dialog::closed(),
-            episodes_on_disk: None,
             media: series,
             editable_series_id,
             warning: Dialog::closed(),
-            episode_name: episode_name,
+            episode_paths,
             buffer_name: editable_series_name,
         })
     }
@@ -85,7 +88,7 @@ impl SeriesEditScreen {
             horizontal_space(),
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(self.episode_name.as_ref().map(|episode_name| {
+                .on_press_maybe(self.episode_name().as_ref().map(|episode_name| {
                     Message::Watch {
                         path: self
                             .editable_series()
@@ -96,8 +99,8 @@ impl SeriesEditScreen {
                 })),
             horizontal_space()
         ];
-        let watch_sign = self
-            .episode_name
+        let episode_name = self.episode_name();
+        let watch_sign = episode_name
             .as_ref()
             .map(AsRef::as_ref)
             .unwrap_or("Select correct season path to watch episode");
@@ -235,28 +238,32 @@ impl SeriesEditScreen {
         &self.media[self.editable_series_id]
     }
 
+    fn episode_path(&self) -> Option<PathBuf> {
+        self.episode_paths
+            .as_ref()
+            .map(|ep| ep[self.editable_series_id].clone())
+    }
+
+    fn episode_name(&self) -> Option<String> {
+        self.episode_path().map(|p| {
+            p.file_name()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default()
+                .to_string()
+        })
+    }
+
     fn set_season_path(&mut self, season_path: PathBuf) -> Result<(), ErrorKind> {
         self.editable_series()
             .borrow_mut()
             .set_season_path(season_path)?;
-        self.update_episode_name()?;
-        Ok(())
-    }
-
-    fn update_episode_name(&mut self) -> Result<(), ErrorKind> {
-        let editable_series = self.editable_series();
-        let episode_name = episode_name(&editable_series.borrow())?;
-        self.episode_name = episode_name;
         Ok(())
     }
 
     fn warning(&mut self, kind: WarningKind) {
         let pop_up = WarningPopUp::new(kind);
         self.warning = Dialog::new(pop_up);
-    }
-
-    fn set_series_on_disk(&mut self, series: usize) {
-        self.episodes_on_disk = Some(series);
     }
 
     fn increase_episode(&mut self) -> Result<(), Error> {
@@ -271,9 +278,13 @@ impl SeriesEditScreen {
             series.borrow_mut().set_episode(value)?;
             return Ok(());
         }
-        let series_on_disk = self.series_on_disk()?;
-        if series_on_disk < value.get() as usize {
-            self.confirm(ConfirmKind::EpisodesOverflow { series_on_disk });
+        let Some(episodes_count) = self.episodes_count() else {
+            return Ok(());
+        };
+        if episodes_count < value.get() as usize {
+            self.confirm(ConfirmKind::EpisodesOverflow {
+                series_on_disk: episodes_count,
+            });
             return Ok(());
         }
         let series = self.editable_series();
@@ -281,11 +292,8 @@ impl SeriesEditScreen {
         Ok(())
     }
 
-    fn series_on_disk(&mut self) -> Result<usize, ErrorKind> {
-        if let Some(series_on_disk) = self.episodes_on_disk {
-            return Ok(series_on_disk);
-        }
-        self.read_series_on_disk()
+    fn episodes_count(&self) -> Option<usize> {
+        self.episode_paths.as_ref().map(|p| p.len())
     }
 
     fn season_path(&self) -> Result<PathBuf, ErrorKind> {
@@ -295,13 +303,6 @@ impl SeriesEditScreen {
             return Err(ErrorKind::SeasonPathDidNotExists { season_path });
         }
         Ok(season_path)
-    }
-
-    fn read_series_on_disk(&mut self) -> Result<usize, ErrorKind> {
-        let season_path = self.season_path()?;
-        let series_on_disk = read_dir(season_path)?.len();
-        self.set_series_on_disk(series_on_disk);
-        Ok(series_on_disk)
     }
 
     fn set_episode_to_one(&mut self) -> Result<(), ErrorKind> {
@@ -363,22 +364,6 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
     }
     let next_dir = dirs[next_season_index].to_path_buf();
     Ok(Some(next_dir))
-}
-
-fn episode_name(series: &Series) -> Result<Option<String>, ErrorKind> {
-    if !series.season_path().exists() {
-        return Ok(None);
-    }
-    let mut season_path_content = read_dir(series.season_path())?;
-    let episode_id = series.episode().get() as usize;
-    season_path_content.sort();
-    let epsiode_name = season_path_content[episode_id]
-        .file_name()
-        .unwrap_or_default()
-        .to_str()
-        .unwrap_or_default()
-        .to_string();
-    Ok(Some(epsiode_name))
 }
 
 enum ConfirmKind {
