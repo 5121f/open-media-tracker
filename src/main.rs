@@ -10,7 +10,7 @@ mod view_utils;
 use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use error::ErrorKind;
-use iced::{executor, font, window, Application, Command, Element, Settings, Theme};
+use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
 use crate::{
@@ -25,7 +25,13 @@ use crate::{
 };
 
 fn main() -> iced::Result {
-    ZCinema::run(Settings::default())
+    ZCinema::run(Settings {
+        window: window::Settings {
+            size: Size::new(700., 500.),
+            ..window::Settings::default()
+        },
+        ..Settings::default()
+    })
 }
 
 #[derive(Debug, Clone)]
