@@ -96,11 +96,11 @@ impl SeriesEditScreen {
                 })),
             horizontal_space()
         ];
-        let watch_sign = if let Some(episode_name) = self.episode_name.as_ref() {
-            episode_name.as_str()
-        } else {
-            "Select correct season path to watch episode"
-        };
+        let watch_sign = self
+            .episode_name
+            .as_ref()
+            .map(AsRef::as_ref)
+            .unwrap_or("Select correct season path to watch episode");
         let watch_sign = row![
             horizontal_space(),
             text(watch_sign)
