@@ -56,19 +56,7 @@ impl SeriesEditScreen {
     ) -> Result<Self, ErrorKind> {
         let editable_series = &series[editable_series_id];
         let editable_series_name = editable_series.borrow().name().to_string();
-        let mut episode_name = None;
-        if editable_series.borrow().season_path_is_present() {
-            let mut season_path_content = read_dir(editable_series.borrow().season_path())?;
-            let episode_id = editable_series.borrow().episode().get() as usize;
-            season_path_content.sort();
-            let epsiode_name = season_path_content[episode_id]
-                .file_name()
-                .unwrap_or_default()
-                .to_str()
-                .unwrap_or_default()
-                .to_string();
-            episode_name = Some(epsiode_name);
-        }
+        let episode_name = episode_name(&editable_series.borrow())?;
         Ok(Self {
             confirm_screen: Dialog::closed(),
             episodes_on_disk: None,
@@ -257,20 +245,8 @@ impl SeriesEditScreen {
 
     fn update_episode_name(&mut self) -> Result<(), ErrorKind> {
         let editable_series = self.editable_series();
-        if !editable_series.borrow().season_path().exists() {
-            self.episode_name = None;
-            return Ok(());
-        }
-        let mut season_path_content = read_dir(editable_series.borrow().season_path())?;
-        let episode_id = editable_series.borrow().episode().get() as usize;
-        season_path_content.sort();
-        let epsiode_name = season_path_content[episode_id]
-            .file_name()
-            .unwrap_or_default()
-            .to_str()
-            .unwrap_or_default()
-            .to_string();
-        self.episode_name = Some(epsiode_name);
+        let episode_name = episode_name(&editable_series.borrow())?;
+        self.episode_name = episode_name;
         Ok(())
     }
 
@@ -387,6 +363,22 @@ fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
     }
     let next_dir = dirs[next_season_index].to_path_buf();
     Ok(Some(next_dir))
+}
+
+fn episode_name(series: &Series) -> Result<Option<String>, ErrorKind> {
+    if !series.season_path().exists() {
+        return Ok(None);
+    }
+    let mut season_path_content = read_dir(series.season_path())?;
+    let episode_id = series.episode().get() as usize;
+    season_path_content.sort();
+    let epsiode_name = season_path_content[episode_id]
+        .file_name()
+        .unwrap_or_default()
+        .to_str()
+        .unwrap_or_default()
+        .to_string();
+    Ok(Some(epsiode_name))
 }
 
 enum ConfirmKind {
