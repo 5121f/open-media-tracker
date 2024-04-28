@@ -77,6 +77,16 @@ impl SeriesEditScreen {
                 .style(theme::Button::Destructive)
                 .on_press(Message::Delete(self.editable_series_id)),
         ];
+        let watch = row![
+            horizontal_space(),
+            button("Watch")
+                .style(theme::Button::Positive)
+                .on_press(Message::Watch {
+                    path: season_path.clone(),
+                    episode: series.episode().get() as usize - 1
+                }),
+            horizontal_space()
+        ];
         let body = column![
             signed_text_imput("Name", &self.buffer_name, Message::NameChanged),
             row![
@@ -102,10 +112,6 @@ impl SeriesEditScreen {
             row![
                 signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
                 square_button("...").on_press(Message::SeasonPathSelect),
-                square_button(">").on_press(Message::Watch {
-                    path: season_path,
-                    episode: series.episode().get() as usize - 1
-                })
             ]
             .spacing(DEFAULT_INDENT)
         ]
@@ -116,6 +122,7 @@ impl SeriesEditScreen {
             .spacing(DEFAULT_INDENT);
 
         layout = layout.push(top);
+        layout = layout.push(watch);
         layout = layout.push(space);
         layout = layout.push_maybe(self.warning.view_into());
         layout = layout.push(body);
