@@ -262,12 +262,11 @@ impl SeriesEditScreen {
     }
 
     fn update_edpisode_paths(&mut self) -> Result<(), ErrorKind> {
-        let episode_paths = {
+        self.episode_paths = {
             let editable_series = self.editable_series().borrow();
             let series_path = editable_series.season_path();
             episode_paths(series_path)?
         };
-        self.episode_paths = episode_paths;
         Ok(())
     }
 
