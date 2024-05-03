@@ -45,7 +45,7 @@ pub struct SeriesEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningPopUp<WarningKind>>,
     editable_series_id: usize,
-    episode_paths: Option<Vec<PathBuf>>,
+    episode_paths: Result<Vec<PathBuf>, ErrorKind>,
     buffer_name: String,
 }
 
@@ -56,7 +56,7 @@ impl SeriesEditScreen {
     ) -> Result<Self, ErrorKind> {
         let editable_series = &media[editable_series_id];
         let editable_series_name = editable_series.borrow().name().to_string();
-        let episode_paths = episode_paths(editable_series.borrow().season_path())?;
+        let episode_paths = episode_paths(editable_series.borrow().season_path());
         Ok(Self {
             media,
             confirm_screen: Dialog::closed(),
@@ -236,7 +236,7 @@ impl SeriesEditScreen {
     }
 
     fn episode_path(&self) -> Result<Option<PathBuf>, Error> {
-        let Some(episode_paths) = self.episode_paths.as_ref() else {
+        let Ok(episode_paths) = self.episode_paths.as_ref() else {
             return Ok(None);
         };
         if episode_paths.is_empty() {
@@ -272,7 +272,7 @@ impl SeriesEditScreen {
         self.episode_paths = {
             let editable_series = self.editable_series().borrow();
             let series_path = editable_series.season_path();
-            episode_paths(series_path)?
+            episode_paths(series_path)
         };
         Ok(())
     }
@@ -309,7 +309,7 @@ impl SeriesEditScreen {
     }
 
     fn episodes_count(&self) -> Option<usize> {
-        self.episode_paths.as_ref().map(|p| p.len())
+        self.episode_paths.as_ref().ok().map(|p| p.len())
     }
 
     fn season_path(&self) -> Result<PathBuf, ErrorKind> {
@@ -349,11 +349,8 @@ impl SeriesEditScreen {
     }
 }
 
-fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, ErrorKind> {
+fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
     let series_path = series_path.as_ref();
-    if !series_path.exists() {
-        return Ok(None);
-    }
     let mut episode_paths = read_dir(series_path)?;
     episode_paths.retain(|p| {
         let mime = mime_guess::from_path(p);
@@ -364,7 +361,7 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, 
         mtype == mime::VIDEO || mtype == mime::AUDIO
     });
     episode_paths.sort();
-    Ok(Some(episode_paths))
+    Ok(episode_paths)
 }
 
 enum ConfirmKind {
