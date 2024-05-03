@@ -236,15 +236,14 @@ impl SeriesEditScreen {
     }
 
     fn episode_path(&self) -> Result<Option<PathBuf>, Error> {
-        match self.episode_paths.as_ref() {
-            Some(ep) => {
-                if ep.is_empty() {
-                    return Err(Error::EpisodesDidNotFound);
-                }
-                Ok(Some(ep[self.episode_id()].clone()))
-            }
-            None => Ok(None),
+        let Some(episode_paths) = self.episode_paths.as_ref() else {
+            return Ok(None);
+        };
+        if episode_paths.is_empty() {
+            return Err(Error::EpisodesDidNotFound);
         }
+        let episode_path = episode_paths[self.episode_id()].clone();
+        Ok(Some(episode_path))
     }
 
     fn episode_id(&self) -> usize {
