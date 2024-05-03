@@ -87,7 +87,7 @@ impl SeriesEditScreen {
             horizontal_space(),
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(episode_name.clone().ok().flatten().map(|episode_name| {
+                .on_press_maybe(episode_name.clone().ok().map(|episode_name| {
                     Message::Watch {
                         path: self
                             .editable_series()
@@ -99,8 +99,7 @@ impl SeriesEditScreen {
             horizontal_space()
         ];
         let watch_sign = match episode_name {
-            Ok(Some(name)) => name,
-            Ok(None) => "Select correct season path to watch".to_string(),
+            Ok(episde_name) => episde_name,
             Err(err) => err.to_string(),
         };
         let watch_sign = row![
@@ -235,29 +234,27 @@ impl SeriesEditScreen {
         &self.media[self.editable_series_id]
     }
 
-    fn episode_path(&self) -> Result<Option<PathBuf>, Error> {
-        let Ok(episode_paths) = self.episode_paths.as_ref() else {
-            return Ok(None);
-        };
+    fn episode_path(&self) -> Result<PathBuf, ErrorKind> {
+        let episode_paths = self.episode_paths.as_ref().map_err(Clone::clone)?;
         if episode_paths.is_empty() {
-            return Err(Error::EpisodesDidNotFound);
+            return Err(ErrorKind::EpisodesDidNotFound);
         }
         let episode_path = episode_paths[self.episode_id()].clone();
-        Ok(Some(episode_path))
+        Ok(episode_path)
     }
 
     fn episode_id(&self) -> usize {
         (self.editable_series().borrow().episode().get() - 1) as usize
     }
 
-    fn episode_name(&self) -> Result<Option<String>, Error> {
-        Ok(self.episode_path()?.map(|p| {
-            p.file_name()
-                .unwrap_or_default()
-                .to_str()
-                .unwrap_or_default()
-                .to_string()
-        }))
+    fn episode_name(&self) -> Result<String, ErrorKind> {
+        let path = self.episode_path()?;
+        Ok(path
+            .file_name()
+            .unwrap_or_default()
+            .to_str()
+            .unwrap_or_default()
+            .to_string())
     }
 
     fn set_season_path(&mut self, season_path: PathBuf) -> Result<(), ErrorKind> {
@@ -410,10 +407,4 @@ impl From<WarningMessage> for Message {
     fn from(value: WarningMessage) -> Self {
         Self::Warning(value)
     }
-}
-
-#[derive(Debug, Clone, thiserror::Error)]
-enum Error {
-    #[error("Episodes didn't found")]
-    EpisodesDidNotFound,
 }
