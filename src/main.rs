@@ -282,7 +282,7 @@ impl Display for ConfirmKind {
             ConfirmKind::DeleteSeries { name, .. } => {
                 write!(
                     f,
-                    "You actually wont to delete series \"{}\" from the list?",
+                    "You actually want to delete series \"{}\" from the list?",
                     name
                 )
             }
