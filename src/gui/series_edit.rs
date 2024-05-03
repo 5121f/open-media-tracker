@@ -351,25 +351,23 @@ impl SeriesEditScreen {
 }
 
 fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, ErrorKind> {
-    let mut episode_paths = series_path
-        .as_ref()
-        .exists()
-        .then(|| read_dir(series_path))
-        .transpose()?;
-    if let Some(episode_paths) = &mut episode_paths {
-        episode_paths.retain(|p| {
-            let mime = mime_guess::from_path(p);
-            match mime.first() {
-                Some(mime) => {
-                    let mtype = mime.type_();
-                    mtype == mime::VIDEO || mtype == mime::AUDIO
-                }
-                None => false,
-            }
-        });
-        episode_paths.sort();
+    let series_path = series_path.as_ref();
+    if !series_path.exists() {
+        return Ok(None);
     }
-    Ok(episode_paths)
+    let mut episode_paths = read_dir(series_path)?;
+    episode_paths.retain(|p| {
+        let mime = mime_guess::from_path(p);
+        match mime.first() {
+            Some(mime) => {
+                let mtype = mime.type_();
+                mtype == mime::VIDEO || mtype == mime::AUDIO
+            }
+            None => false,
+        }
+    });
+    episode_paths.sort();
+    Ok(Some(episode_paths))
 }
 
 fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
