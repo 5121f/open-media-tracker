@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 dirs = "5.0.1"
 iced = "0.12.1"
+mime_guess = "2.0.4"
 open = "5.1.2"
 ron = "0.8.1"
 serde = { version = "1.0.198", features = ["derive"] }

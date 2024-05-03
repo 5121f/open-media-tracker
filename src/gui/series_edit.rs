@@ -12,6 +12,7 @@ use iced::{
     Color, Element, Length,
 };
 use iced_aw::modal;
+use mime_guess::mime;
 
 use crate::{
     error::ErrorKind,
@@ -356,6 +357,16 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, 
         .then(|| read_dir(series_path))
         .transpose()?;
     if let Some(episode_paths) = &mut episode_paths {
+        episode_paths.retain(|p| {
+            let mime = mime_guess::from_path(p);
+            match mime.first() {
+                Some(mime) => {
+                    let mtype = mime.type_();
+                    mtype == mime::VIDEO || mtype == mime::AUDIO
+                }
+                None => false,
+            }
+        });
         episode_paths.sort();
     }
     Ok(episode_paths)
