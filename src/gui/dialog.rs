@@ -45,7 +45,7 @@ impl<T: IDialig> Dialog<T> {
     where
         M: From<T::Message> + 'a,
     {
-        Some(self.view_map(Into::into)?)
+        self.view_map(Into::into)
     }
 }
 
