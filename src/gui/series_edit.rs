@@ -99,7 +99,7 @@ impl SeriesEditScreen {
         ];
         let watch_sign = match episode_name {
             Ok(Some(name)) => name,
-            Ok(None) => "Select correct season path to watch episode".to_string(),
+            Ok(None) => "Select correct season path to watch".to_string(),
             Err(err) => err.to_string(),
         };
         let watch_sign = row![
