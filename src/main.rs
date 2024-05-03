@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"] // Do not open console window on windows
+#![windows_subsystem = "windows"] // Do not open console window on startup on Windows
 
 mod config;
 mod error;
