@@ -309,15 +309,6 @@ impl SeriesEditScreen {
         self.episode_paths.as_ref().ok().map(|p| p.len())
     }
 
-    fn season_path(&self) -> Result<PathBuf, ErrorKind> {
-        let series = self.editable_series();
-        let season_path = series.borrow().season_path().to_path_buf();
-        if !season_path.exists() {
-            return Err(ErrorKind::SeasonPathDidNotExists { season_path });
-        }
-        Ok(season_path)
-    }
-
     fn set_episode_to_one(&mut self) -> Result<(), ErrorKind> {
         let series = self.editable_series();
         series.borrow_mut().set_episode(NonZeroU8::MIN)
@@ -331,7 +322,7 @@ impl SeriesEditScreen {
         if !series.borrow().season_path_is_present() {
             return Ok(());
         }
-        let season_path = self.season_path()?;
+        let season_path = series.borrow().season_path().to_path_buf();
         let next_season_path =
             next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
         self.confirm(ConfirmKind::TrySwitchToNewSeason {
