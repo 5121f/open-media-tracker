@@ -8,7 +8,7 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, Column, Space},
+    widget::{button, column, container, horizontal_space, row, text, Column, Space},
     Color, Element, Length,
 };
 use iced_aw::modal;
@@ -71,13 +71,15 @@ impl SeriesEditScreen {
         let series = self.editable_series().borrow();
         let season_path = series.season_path().display().to_string();
         let top = row![
-            link("< Back").on_press(Message::Back),
-            horizontal_space(),
+            container(link("< Back").on_press(Message::Back)).width(Length::Fill),
             text(series.name()),
-            horizontal_space(),
-            button("Delete")
-                .style(theme::Button::Destructive)
-                .on_press(Message::Delete(self.editable_series_id)),
+            container(
+                button("Delete")
+                    .style(theme::Button::Destructive)
+                    .on_press(Message::Delete(self.editable_series_id))
+            )
+            .width(Length::Fill)
+            .align_x(iced::alignment::Horizontal::Right),
         ];
         let watch = row![
             horizontal_space(),
