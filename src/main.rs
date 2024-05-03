@@ -161,12 +161,9 @@ impl ZCinema {
                 }
                 Ok(Command::none())
             }
-            Message::FontLoaded(res) => {
-                if matches!(res, Err(_)) {
-                    return Err(ErrorKind::FontLoad.into());
-                }
-                Ok(Command::none())
-            }
+            Message::FontLoaded(res) => res
+                .map(|_| Command::none())
+                .map_err(|_| ErrorKind::FontLoad.into()),
         }
     }
 
