@@ -37,7 +37,7 @@ impl<T: Display> IDialig for ConfirmScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {
-        String::from("Confirm dialog")
+        String::from("Confirm")
     }
 
     fn view(&self) -> Element<Message> {
