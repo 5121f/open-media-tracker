@@ -27,11 +27,11 @@ impl<T> Dialog<T> {
 
 impl<T: IDialig> Dialog<T> {
     pub fn title(&self) -> Option<String> {
-        Some(self.0.as_ref()?.title())
+        self.0.as_ref().map(IDialig::title)
     }
 
     pub fn view(&self) -> Option<Element<T::Message>> {
-        Some(self.0.as_ref()?.view())
+        self.0.as_ref().map(IDialig::view)
     }
 
     pub fn view_map<'a, B: 'a>(
