@@ -248,7 +248,7 @@ impl SeriesEditScreen {
     }
 
     fn episode_id(&self) -> usize {
-        self.editable_series().borrow().episode().get() as usize - 1
+        (self.editable_series().borrow().episode().get() - 1) as usize
     }
 
     fn episode_name(&self) -> Result<Option<String>, Error> {
