@@ -357,13 +357,11 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, 
     let mut episode_paths = read_dir(series_path)?;
     episode_paths.retain(|p| {
         let mime = mime_guess::from_path(p);
-        match mime.first() {
-            Some(mime) => {
-                let mtype = mime.type_();
-                mtype == mime::VIDEO || mtype == mime::AUDIO
-            }
-            None => false,
-        }
+        let Some(mime) = mime.first() else {
+            return false;
+        };
+        let mtype = mime.type_();
+        mtype == mime::VIDEO || mtype == mime::AUDIO
     });
     episode_paths.sort();
     Ok(Some(episode_paths))
