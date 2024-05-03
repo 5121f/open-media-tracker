@@ -28,7 +28,7 @@ impl<T: Display> IDialig for WarningPopUp<T> {
     type Message = Message;
 
     fn view(&self) -> Element<Message> {
-        card("Warning", text(self.kind.to_string()))
+        card(text(self.title()), text(self.kind.to_string()))
             .close_size(25.)
             .style(iced_aw::style::CardStyles::Warning)
             .on_close(Message::Close)
@@ -36,6 +36,6 @@ impl<T: Display> IDialig for WarningPopUp<T> {
     }
 
     fn title(&self) -> String {
-        todo!()
+        String::from("Warning")
     }
 }
