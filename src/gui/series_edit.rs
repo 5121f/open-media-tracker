@@ -215,9 +215,7 @@ impl SeriesEditScreen {
             },
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.editable_series()
-                        .borrow_mut()
-                        .set_season_path(folder)?;
+                    self.set_season_path(folder)?;
                 }
             }
             Message::Warning(message) => match message {
