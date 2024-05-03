@@ -18,7 +18,7 @@ use crate::{
     error::ErrorKind,
     gui::{ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp},
     series::Series,
-    utils::{self, read_dir},
+    utils::{next_dir, read_dir},
     view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };
 
@@ -367,39 +367,6 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, 
     });
     episode_paths.sort();
     Ok(Some(episode_paths))
-}
-
-fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
-    let path = path.as_ref();
-    let dir_name = path
-        .file_name()
-        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-    let parent = path
-        .parent()
-        .ok_or(ErrorKind::parent_dir(&dir_name))?
-        .to_owned();
-    let paths = utils::read_dir_sort(parent)?;
-    let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
-    let mut season_dir_index = None;
-    for (i, dir) in dirs.iter().enumerate() {
-        let dir = dir
-            .file_name()
-            .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
-            .to_str()
-            .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        if dir_name == dir {
-            season_dir_index = Some(i);
-        }
-    }
-    let Some(season_dir_index) = season_dir_index else {
-        return Ok(None);
-    };
-    let next_season_index = season_dir_index + 1;
-    if next_season_index >= dirs.len() {
-        return Ok(None);
-    }
-    let next_dir = dirs[next_season_index].to_path_buf();
-    Ok(Some(next_dir))
 }
 
 enum ConfirmKind {
