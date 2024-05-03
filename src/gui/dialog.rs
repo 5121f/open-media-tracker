@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use iced::Element;
 
-pub trait IDialig {
+pub trait IDialog {
     type Message;
 
     fn title(&self) -> String;
@@ -25,13 +25,13 @@ impl<T> Dialog<T> {
     }
 }
 
-impl<T: IDialig> Dialog<T> {
+impl<T: IDialog> Dialog<T> {
     pub fn title(&self) -> Option<String> {
-        self.0.as_ref().map(IDialig::title)
+        self.0.as_ref().map(IDialog::title)
     }
 
     pub fn view(&self) -> Option<Element<T::Message>> {
-        self.0.as_ref().map(IDialig::view)
+        self.0.as_ref().map(IDialog::view)
     }
 
     pub fn view_map<'a, B: 'a>(

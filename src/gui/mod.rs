@@ -6,7 +6,7 @@ pub mod series_edit;
 pub mod warning;
 
 pub use confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
-pub use dialog::{Dialog, IDialig};
+pub use dialog::{Dialog, IDialog};
 pub use error::{ErrorScreen, Message as ErrorScreenMessage};
 pub use main::{MainScreen, Message as MainScreenMessage};
 pub use series_edit::{Message as SeriesEditScreenMessage, SeriesEditScreen};

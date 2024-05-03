@@ -7,7 +7,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::{error::Error, gui::IDialig};
+use crate::{error::Error, gui::IDialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -19,7 +19,7 @@ pub struct ErrorScreen<T> {
     critical: bool,
 }
 
-impl<T: Display> IDialig for ErrorScreen<T> {
+impl<T: Display> IDialog for ErrorScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {

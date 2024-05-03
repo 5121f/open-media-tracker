@@ -3,7 +3,7 @@ use std::fmt::Display;
 use iced::{widget::text, Element};
 use iced_aw::card;
 
-use crate::gui::IDialig;
+use crate::gui::IDialog;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -24,7 +24,7 @@ impl<T> WarningPopUp<T> {
     }
 }
 
-impl<T: Display> IDialig for WarningPopUp<T> {
+impl<T: Display> IDialog for WarningPopUp<T> {
     type Message = Message;
 
     fn view(&self) -> Element<Message> {

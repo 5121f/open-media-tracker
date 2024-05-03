@@ -7,7 +7,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::IDialig;
+use crate::gui::IDialog;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -33,7 +33,7 @@ impl<T: Display> ConfirmScreen<T> {
     }
 }
 
-impl<T: Display> IDialig for ConfirmScreen<T> {
+impl<T: Display> IDialog for ConfirmScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {
