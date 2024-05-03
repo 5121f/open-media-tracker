@@ -64,6 +64,7 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
             .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
         if dir_name == dir {
             current_dir_index = Some(i);
+            break;
         }
     }
     let Some(season_dir_index) = current_dir_index else {
