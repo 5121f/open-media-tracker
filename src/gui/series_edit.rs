@@ -167,8 +167,8 @@ impl SeriesEditScreen {
                 if let Some(WarningKind::NameUsed) = self.warning.as_ref().map(|w| w.kind()) {
                     self.warning.close();
                 }
-                let episode = self.editable_series();
-                episode.borrow_mut().rename(value)?;
+                let series = self.editable_series();
+                series.borrow_mut().rename(value)?;
             }
             Message::SeasonChanged(value) => {
                 if let Ok(number) = value.parse() {
