@@ -4,11 +4,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::{
-    config::Config,
-    error::{Error, ErrorKind},
-    series::Series,
-};
+use crate::{config::Config, error::ErrorKind, series::Series};
 
 pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
     let media = read_dir(&config.data_dir)?
@@ -18,7 +14,7 @@ pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
     Ok(media)
 }
 
-pub fn watch(path: impl AsRef<Path>) -> Result<(), Error> {
+pub fn watch(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();
     open::that(path).map_err(|source| ErrorKind::open_vido(&path, source.kind()))?;
     Ok(())

@@ -77,7 +77,7 @@ impl ZCinema {
         self.confirm_dialog = Dialog::new(screen);
     }
 
-    fn remove_series(&mut self, id: usize) -> Result<(), Error> {
+    fn remove_series(&mut self, id: usize) -> Result<(), ErrorKind> {
         let series = &self.media[id];
         series.borrow().remove_file(&self.config.data_dir)?;
         self.media.remove(id);
@@ -105,66 +105,77 @@ impl ZCinema {
             .or_else(|| self.screen.title())
     }
 
+    fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
+        match message {
+            ConfirmScreenMessage::Confirm => {
+                let Some(dialog) = self.confirm_dialog.as_ref() else {
+                    return Ok(());
+                };
+                match dialog.kind() {
+                    ConfirmKind::DeleteSeries { id, .. } => {
+                        self.remove_series(*id)?;
+                        self.confirm_dialog.close();
+                        self.main_screen();
+                    }
+                }
+            }
+            ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
+        }
+        Ok(())
+    }
+
+    fn series_edit_screen_update(
+        &mut self,
+        message: SeriesEditScreenMessage,
+    ) -> Result<(), ErrorKind> {
+        match message {
+            SeriesEditScreenMessage::Delete(id) => {
+                let series = &self.media[id];
+                let name = series.borrow().name().to_string();
+                self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
+            }
+            SeriesEditScreenMessage::Back => self.main_screen(),
+            SeriesEditScreenMessage::Watch { path } => utils::watch(path)?,
+            _ => {
+                if let Screens::SeriesChange(dialog) = &mut self.screen {
+                    dialog.update(message)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
+        match message {
+            MainScreenMessage::AddSeries => {
+                let series = Series::new(Rc::clone(&self.config))?;
+                let series = Rc::new(RefCell::new(series));
+                self.media.push(series);
+                self.change_series_screen(self.media.len() - 1)?;
+            }
+            MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id)?,
+        }
+        Ok(())
+    }
+
     fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
         match message {
-            Message::MainScreen(message) => {
-                match message {
-                    MainScreenMessage::AddSeries => {
-                        let series = Series::new(Rc::clone(&self.config))?;
-                        let series = Rc::new(RefCell::new(series));
-                        self.media.push(series);
-                        self.change_series_screen(self.media.len() - 1)?;
-                    }
-                    MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id)?,
-                }
-                Ok(Command::none())
-            }
-            Message::SeriesEditScreen(message) => {
-                match message {
-                    SeriesEditScreenMessage::Delete(id) => {
-                        let series = &self.media[id];
-                        let name = series.borrow().name().to_string();
-                        self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
-                    }
-                    SeriesEditScreenMessage::Back => self.main_screen(),
-                    SeriesEditScreenMessage::Watch { path } => utils::watch(path)?,
-                    _ => {
-                        if let Screens::SeriesChange(dialog) = &mut self.screen {
-                            dialog.update(message)?;
-                        }
-                    }
-                }
-                Ok(Command::none())
-            }
+            Message::MainScreen(message) => self.main_screen_update(message)?,
+            Message::SeriesEditScreen(message) => self.series_edit_screen_update(message)?,
             Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
                 if critical {
                     return Ok(self.close_app());
                 }
                 self.error_dialog.close();
-                Ok(Command::none())
             }
-            Message::ConfirmScreen(message) => {
-                match message {
-                    ConfirmScreenMessage::Confirm => {
-                        let Some(dialog) = self.confirm_dialog.as_ref() else {
-                            return Ok(Command::none());
-                        };
-                        match dialog.kind() {
-                            ConfirmKind::DeleteSeries { id, .. } => {
-                                self.remove_series(*id)?;
-                                self.confirm_dialog.close();
-                                self.main_screen();
-                            }
-                        }
-                    }
-                    ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
+            Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
+            Message::FontLoaded(res) => {
+                if res.is_err() {
+                    return Err(ErrorKind::FontLoad.into());
                 }
-                Ok(Command::none())
             }
-            Message::FontLoaded(res) => res
-                .map(|_| Command::none())
-                .map_err(|_| ErrorKind::FontLoad.into()),
         }
+        Ok(Command::none())
     }
 
     fn new2() -> Result<Self, Error> {
