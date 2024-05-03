@@ -9,8 +9,8 @@ iced = "0.12.1"
 mime_guess = "2.0.4"
 open = "5.1.2"
 ron = "0.8.1"
-serde = { version = "1.0.198", features = ["derive"] }
-thiserror = "1.0.58"
+serde = { version = "1.0.200", features = ["derive"] }
+thiserror = "1.0.59"
 
 [dependencies.iced_aw]
 version = "0.8.0"
