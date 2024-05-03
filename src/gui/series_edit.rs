@@ -14,7 +14,7 @@ use iced::{
 use iced_aw::modal;
 
 use crate::{
-    error::{Error, ErrorKind},
+    error::ErrorKind,
     gui::{ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp},
     series::Series,
     utils::{self, read_dir},
@@ -152,7 +152,7 @@ impl SeriesEditScreen {
         modal(layout, confirm_screen).into()
     }
 
-    pub fn update(&mut self, message: Message) -> Result<(), Error> {
+    pub fn update(&mut self, message: Message) -> Result<(), ErrorKind> {
         match message {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
@@ -277,13 +277,13 @@ impl SeriesEditScreen {
         self.warning = Dialog::new(pop_up);
     }
 
-    fn increase_episode(&mut self) -> Result<(), Error> {
+    fn increase_episode(&mut self) -> Result<(), ErrorKind> {
         let series = self.editable_series();
         let next_episode = series.borrow().episode().saturating_add(1);
         self.set_episode(next_episode)
     }
 
-    fn set_episode(&mut self, value: NonZeroU8) -> Result<(), Error> {
+    fn set_episode(&mut self, value: NonZeroU8) -> Result<(), ErrorKind> {
         let series = self.editable_series();
         if !series.borrow().season_path_is_present() || value <= series.borrow().episode() {
             series.borrow_mut().set_episode(value)?;
