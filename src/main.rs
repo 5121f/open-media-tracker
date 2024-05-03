@@ -7,7 +7,11 @@ mod series;
 mod utils;
 mod view_utils;
 
-use std::{cell::RefCell, fmt::Display, rc::Rc};
+use std::{
+    cell::RefCell,
+    fmt::{self, Display},
+    rc::Rc,
+};
 
 use error::ErrorKind;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
@@ -277,7 +281,7 @@ enum ConfirmKind {
 }
 
 impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ConfirmKind::DeleteSeries { name, .. } => {
                 write!(
