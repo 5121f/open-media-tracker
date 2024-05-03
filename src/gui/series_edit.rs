@@ -81,11 +81,12 @@ impl SeriesEditScreen {
             .width(Length::Fill)
             .align_x(iced::alignment::Horizontal::Right),
         ];
+        let episode_name = self.episode_name();
         let watch = row![
             horizontal_space(),
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(self.episode_name().as_ref().map(|episode_name| {
+                .on_press_maybe(episode_name.clone().ok().flatten().map(|episode_name| {
                     Message::Watch {
                         path: self
                             .editable_series()
@@ -96,11 +97,11 @@ impl SeriesEditScreen {
                 })),
             horizontal_space()
         ];
-        let episode_name = self.episode_name();
-        let watch_sign = episode_name
-            .as_ref()
-            .map(AsRef::as_ref)
-            .unwrap_or("Select correct season path to watch episode");
+        let watch_sign = match episode_name {
+            Ok(Some(name)) => name,
+            Ok(None) => "Select correct season path to watch episode".to_string(),
+            Err(err) => err.to_string(),
+        };
         let watch_sign = row![
             horizontal_space(),
             text(watch_sign)
@@ -233,24 +234,30 @@ impl SeriesEditScreen {
         &self.media[self.editable_series_id]
     }
 
-    fn episode_path(&self) -> Option<PathBuf> {
-        self.episode_paths
-            .as_ref()
-            .map(|ep| ep[self.episode_id()].clone())
+    fn episode_path(&self) -> Result<Option<PathBuf>, Error> {
+        match self.episode_paths.as_ref() {
+            Some(ep) => {
+                if ep.is_empty() {
+                    return Err(Error::EpisodesDidNotFound);
+                }
+                Ok(Some(ep[self.episode_id()].clone()))
+            }
+            None => Ok(None),
+        }
     }
 
     fn episode_id(&self) -> usize {
         self.editable_series().borrow().episode().get() as usize - 1
     }
 
-    fn episode_name(&self) -> Option<String> {
-        self.episode_path().map(|p| {
+    fn episode_name(&self) -> Result<Option<String>, Error> {
+        Ok(self.episode_path()?.map(|p| {
             p.file_name()
                 .unwrap_or_default()
                 .to_str()
                 .unwrap_or_default()
                 .to_string()
-        })
+        }))
     }
 
     fn set_season_path(&mut self, season_path: PathBuf) -> Result<(), ErrorKind> {
@@ -433,4 +440,10 @@ impl From<WarningMessage> for Message {
     fn from(value: WarningMessage) -> Self {
         Self::Warning(value)
     }
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+enum Error {
+    #[error("Episodes didn't found")]
+    EpisodesDidNotFound,
 }
