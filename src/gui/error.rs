@@ -2,12 +2,12 @@ use std::fmt::Display;
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, vertical_space},
+    widget::{button, column, horizontal_space, row, text, vertical_space, Space},
     Element,
 };
 use iced_aw::card;
 
-use crate::{error::Error, gui::IDialog};
+use crate::{error::Error, gui::IDialog, view_utils::DEFAULT_INDENT};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -33,7 +33,7 @@ impl<T: Display> IDialog for ErrorScreen<T> {
             theme::Button::Primary
         };
         row![
-            horizontal_space(),
+            Space::with_width(80),
             column![
                 vertical_space(),
                 card(
@@ -47,11 +47,12 @@ impl<T: Display> IDialog for ErrorScreen<T> {
                             })
                         ],
                     ]
+                    .spacing(DEFAULT_INDENT)
                 )
                 .style(iced_aw::style::card::CardStyles::Danger),
                 vertical_space()
             ],
-            horizontal_space()
+            Space::with_width(80)
         ]
         .into()
     }
