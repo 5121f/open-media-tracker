@@ -207,7 +207,7 @@ impl SeriesEditScreen {
                         return Ok(());
                     };
                     match confirm.take() {
-                        ConfirmKind::TrySwitchToNewSeason { season_path } => {
+                        ConfirmKind::TrySwitchToNextSeason { season_path } => {
                             self.set_season_path(season_path)?;
                         }
                         ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
@@ -326,7 +326,7 @@ impl SeriesEditScreen {
         let season_path = series.borrow().season_path().to_path_buf();
         let next_season_path =
             next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        self.confirm(ConfirmKind::TrySwitchToNewSeason {
+        self.confirm(ConfirmKind::TrySwitchToNextSeason {
             season_path: next_season_path,
         });
         Ok(())
@@ -354,14 +354,14 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKin
 }
 
 enum ConfirmKind {
-    TrySwitchToNewSeason { season_path: PathBuf },
+    TrySwitchToNextSeason { season_path: PathBuf },
     EpisodesOverflow { series_on_disk: usize },
 }
 
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConfirmKind::TrySwitchToNewSeason { season_path } => {
+            ConfirmKind::TrySwitchToNextSeason { season_path } => {
                 write!(f, "Proposed path to next season: {}", season_path.display())
             }
             ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
