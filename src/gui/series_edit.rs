@@ -296,9 +296,7 @@ impl SeriesEditScreen {
             return Ok(());
         };
         if episodes_count < value.get() as usize {
-            self.confirm(ConfirmKind::EpisodesOverflow {
-                series_on_disk: episodes_count,
-            });
+            self.confirm(ConfirmKind::episode_overflow(episodes_count));
             return Ok(());
         }
         let series = self.editable_series();
@@ -326,9 +324,7 @@ impl SeriesEditScreen {
         let season_path = series.borrow().season_path().to_path_buf();
         let next_season_path =
             next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        self.confirm(ConfirmKind::TrySwitchToNextSeason {
-            season_path: next_season_path,
-        });
+        self.confirm(ConfirmKind::try_switch_to_next_season(next_season_path));
         Ok(())
     }
 
@@ -356,6 +352,16 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKin
 enum ConfirmKind {
     TrySwitchToNextSeason { season_path: PathBuf },
     EpisodesOverflow { series_on_disk: usize },
+}
+
+impl ConfirmKind {
+    fn try_switch_to_next_season(season_path: PathBuf) -> Self {
+        Self::TrySwitchToNextSeason { season_path }
+    }
+
+    fn episode_overflow(series_on_disk: usize) -> Self {
+        Self::EpisodesOverflow { series_on_disk }
+    }
 }
 
 impl Display for ConfirmKind {
