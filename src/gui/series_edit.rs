@@ -296,7 +296,7 @@ impl SeriesEditScreen {
             return Ok(());
         };
         if episodes_count < value.get() as usize {
-            self.confirm(ConfirmKind::episode_overflow(episodes_count));
+            self.confirm_episode_overflow(episodes_count);
             return Ok(());
         }
         let series = self.editable_series();
@@ -324,13 +324,23 @@ impl SeriesEditScreen {
         let season_path = series.borrow().season_path().to_path_buf();
         let next_season_path =
             next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        self.confirm(ConfirmKind::try_switch_to_next_season(next_season_path));
+        self.confirm_switch_to_next_season(next_season_path);
         Ok(())
     }
 
     fn confirm(&mut self, kind: ConfirmKind) {
         let confirm = ConfirmScreen::new(kind);
         self.confirm_screen = Dialog::new(confirm);
+    }
+
+    fn confirm_switch_to_next_season(&mut self, next_season_path: PathBuf) {
+        let kind = ConfirmKind::try_switch_to_next_season(next_season_path);
+        self.confirm(kind);
+    }
+
+    fn confirm_episode_overflow(&mut self, episodes_count: usize) {
+        let kind = ConfirmKind::episode_overflow(episodes_count);
+        self.confirm(kind);
     }
 }
 
