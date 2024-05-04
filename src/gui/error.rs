@@ -35,10 +35,10 @@ impl<T: Display> IDialog for ErrorScreen<T> {
         } else {
             theme::Button::Primary
         };
-        row![
-            Space::with_width(Length::FillPortion(1)),
-            column![
-                vertical_space(),
+        column![
+            vertical_space(),
+            row![
+                Space::with_width(Length::FillPortion(1)),
                 card(
                     text(self.title()),
                     column![
@@ -52,11 +52,11 @@ impl<T: Display> IDialog for ErrorScreen<T> {
                     ]
                     .spacing(DEFAULT_INDENT)
                 )
-                .style(iced_aw::style::card::CardStyles::Danger),
-                vertical_space()
-            ]
-            .width(Length::FillPortion(15)),
-            Space::with_width(Length::FillPortion(1))
+                .style(iced_aw::style::card::CardStyles::Danger)
+                .width(Length::FillPortion(15)),
+                Space::with_width(Length::FillPortion(1))
+            ],
+            vertical_space()
         ]
         .into()
     }
