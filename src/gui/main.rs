@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, scrollable, text},
-    Alignment, Element,
+    Element,
 };
 
 use crate::{
@@ -45,8 +45,7 @@ impl MainScreen {
                             text(&m.borrow().name()),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSeries(id))
-                        ]
-                        .align_items(Alignment::Center))
+                        ])
                         .map(Into::into)
                         .collect::<Vec<_>>()
                 )
