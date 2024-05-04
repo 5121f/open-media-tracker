@@ -201,20 +201,7 @@ impl SeriesEditScreen {
                 }
             }
             Message::SeasonPathChanged(value) => self.set_season_path(PathBuf::from(value))?,
-            Message::ConfirmScreen(message) => match message {
-                ConfirmScreenMessage::Confirm => {
-                    let Some(confirm) = self.confirm_screen.take() else {
-                        return Ok(());
-                    };
-                    match confirm.take() {
-                        ConfirmKind::SwitchToNextSeason { next_season_path } => {
-                            self.set_season_path(next_season_path)?;
-                        }
-                        ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
-                    }
-                }
-                ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
-            },
+            Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::SeasonPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
                     self.set_season_path(folder)?;
@@ -229,6 +216,24 @@ impl SeriesEditScreen {
 
     pub fn title(&self) -> String {
         self.editable_series().borrow().name().to_string()
+    }
+
+    fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
+        match message {
+            ConfirmScreenMessage::Confirm => {
+                let Some(confirm) = self.confirm_screen.take() else {
+                    return Ok(());
+                };
+                match confirm.take() {
+                    ConfirmKind::SwitchToNextSeason { next_season_path } => {
+                        self.set_season_path(next_season_path)?;
+                    }
+                    ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
+                }
+            }
+            ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
+        }
+        Ok(())
     }
 
     fn editable_series(&self) -> &Rc<RefCell<Series>> {
