@@ -207,8 +207,8 @@ impl SeriesEditScreen {
                         return Ok(());
                     };
                     match confirm.take() {
-                        ConfirmKind::TrySwitchToNextSeason { season_path } => {
-                            self.set_season_path(season_path)?;
+                        ConfirmKind::SwitchToNextSeason { next_season_path } => {
+                            self.set_season_path(next_season_path)?;
                         }
                         ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
                     }
@@ -334,7 +334,7 @@ impl SeriesEditScreen {
     }
 
     fn confirm_switch_to_next_season(&mut self, next_season_path: PathBuf) {
-        let kind = ConfirmKind::try_switch_to_next_season(next_season_path);
+        let kind = ConfirmKind::switch_to_next_season(next_season_path);
         self.confirm(kind);
     }
 
@@ -360,13 +360,13 @@ fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKin
 }
 
 enum ConfirmKind {
-    TrySwitchToNextSeason { season_path: PathBuf },
+    SwitchToNextSeason { next_season_path: PathBuf },
     EpisodesOverflow { series_on_disk: usize },
 }
 
 impl ConfirmKind {
-    fn try_switch_to_next_season(season_path: PathBuf) -> Self {
-        Self::TrySwitchToNextSeason { season_path }
+    fn switch_to_next_season(next_season_path: PathBuf) -> Self {
+        Self::SwitchToNextSeason { next_season_path }
     }
 
     fn episode_overflow(series_on_disk: usize) -> Self {
@@ -377,8 +377,12 @@ impl ConfirmKind {
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConfirmKind::TrySwitchToNextSeason { season_path } => {
-                write!(f, "Proposed path to next season: {}", season_path.display())
+            ConfirmKind::SwitchToNextSeason { next_season_path } => {
+                write!(
+                    f,
+                    "Proposed path to next season: {}",
+                    next_season_path.display()
+                )
             }
             ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
                 f,
