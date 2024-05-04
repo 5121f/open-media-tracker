@@ -6,9 +6,9 @@ use iced::{
 
 pub const DEFAULT_INDENT: u16 = 5;
 
-pub fn square_button<M>(s: &str) -> Button<M> {
+pub fn square_button<M>(content: &str) -> Button<M> {
     button(
-        text(s)
+        text(content)
             .horizontal_alignment(alignment::Horizontal::Center)
             .line_height(1.0)
             .size(20),
@@ -22,12 +22,12 @@ pub fn link<M>(s: &str) -> Button<M> {
     button(text(s).style(theme::Text::Color(CYAN))).style(theme::Button::Text)
 }
 
-pub fn signed_text_imput<'a, M, F>(s: &str, value: &str, on_input: F) -> Row<'a, M>
+pub fn signed_text_imput<'a, M, F>(sign: &str, value: &str, on_input: F) -> Row<'a, M>
 where
     M: Clone + 'a,
     F: 'a + Fn(String) -> M,
 {
-    row![text(s), text_input(s, value).on_input(on_input)]
+    row![text(sign), text_input(sign, value).on_input(on_input)]
         .spacing(DEFAULT_INDENT)
         .align_items(Alignment::Center)
 }
