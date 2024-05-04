@@ -3,7 +3,7 @@ use std::fmt::Display;
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, text, vertical_space, Space},
-    Element,
+    Element, Length,
 };
 use iced_aw::card;
 
@@ -36,7 +36,7 @@ impl<T: Display> IDialog for ErrorScreen<T> {
             theme::Button::Primary
         };
         row![
-            Space::with_width(80),
+            Space::with_width(Length::FillPortion(1)),
             column![
                 vertical_space(),
                 card(
@@ -54,8 +54,9 @@ impl<T: Display> IDialog for ErrorScreen<T> {
                 )
                 .style(iced_aw::style::card::CardStyles::Danger),
                 vertical_space()
-            ],
-            Space::with_width(80)
+            ]
+            .width(Length::FillPortion(15)),
+            Space::with_width(Length::FillPortion(1))
         ]
         .into()
     }
