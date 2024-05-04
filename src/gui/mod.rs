@@ -3,6 +3,7 @@ pub mod dialog;
 pub mod error;
 pub mod main;
 pub mod series_edit;
+pub mod utils;
 pub mod warning;
 
 pub use confirm::{ConfirmScreen, Message as ConfirmScreenMessage};

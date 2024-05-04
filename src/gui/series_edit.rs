@@ -16,10 +16,12 @@ use mime_guess::mime;
 
 use crate::{
     error::ErrorKind,
-    gui::{ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp},
+    gui::{
+        utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
+        ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp,
+    },
     series::Series,
     utils::{next_dir, read_dir},
-    view_utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
 };
 
 #[derive(Debug, Clone)]

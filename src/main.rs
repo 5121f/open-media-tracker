@@ -5,7 +5,6 @@ mod error;
 mod gui;
 mod series;
 mod utils;
-mod view_utils;
 
 use std::{
     cell::RefCell,

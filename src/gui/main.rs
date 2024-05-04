@@ -7,8 +7,8 @@ use iced::{
 };
 
 use crate::{
+    gui::utils::{square_button, DEFAULT_INDENT},
     series::Series,
-    view_utils::{square_button, DEFAULT_INDENT},
 };
 
 #[derive(Debug, Clone)]
