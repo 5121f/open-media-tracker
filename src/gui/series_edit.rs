@@ -100,7 +100,8 @@ impl SeriesEditScreen {
         ];
         let watch_sign = match episode_name {
             Ok(episde_name) => episde_name,
-            Err(err) => err.to_string(),
+            Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {}", kind),
+            Err(err) => format!("Season path is incorrect: {}", err),
         };
         let watch_sign = row![
             horizontal_space(),
