@@ -384,7 +384,7 @@ impl Display for WarningKind {
         match self {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
             WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
-            WarningKind::NameUsed => write!(f, "Name must be unic"),
+            WarningKind::NameUsed => write!(f, "Name must be unique"),
         }
     }
 }
