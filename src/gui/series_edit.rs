@@ -366,7 +366,7 @@ impl Display for ConfirmKind {
             }
             ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
                 f,
-                "Seems like {} series is a last of it season. Switch to the next season?",
+                "Seems like {} episode is a last of it season. Switch to the next season?",
                 series_on_disk
             ),
         }
