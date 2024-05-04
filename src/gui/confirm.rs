@@ -42,7 +42,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
 
     fn view(&self) -> Element<Message> {
         row![
-            Space::with_width(100),
+            Space::with_width(80),
             column![
                 vertical_space(),
                 card(
@@ -64,7 +64,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
                 .on_close(Message::Cancel),
                 vertical_space()
             ],
-            Space::with_width(100)
+            Space::with_width(80)
         ]
         .into()
     }
