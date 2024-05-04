@@ -3,11 +3,13 @@ use std::fmt::Display;
 use iced::{
     theme,
     widget::{button, column, horizontal_space, row, text, vertical_space, Space},
-    Element,
+    Element, Length,
 };
 use iced_aw::card;
 
 use crate::gui::IDialog;
+
+use super::utils::DEFAULT_INDENT;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -42,13 +44,13 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
 
     fn view(&self) -> Element<Message> {
         row![
-            Space::with_width(80),
+            Space::with_width(Length::FillPortion(1)),
             column![
                 vertical_space(),
                 card(
                     text(self.title()),
                     column![
-                        row![horizontal_space(), text(&self.kind), horizontal_space()],
+                        text(&self.kind),
                         row![
                             button("Cancel")
                                 .style(theme::Button::Destructive)
@@ -59,12 +61,14 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
                                 .on_press(Message::Confirm)
                         ]
                     ]
+                    .spacing(DEFAULT_INDENT)
                 )
                 .close_size(25.)
                 .on_close(Message::Cancel),
                 vertical_space()
-            ],
-            Space::with_width(80)
+            ]
+            .width(Length::FillPortion(15)),
+            Space::with_width(Length::FillPortion(1))
         ]
         .into()
     }
