@@ -8,7 +8,7 @@ use std::{
 
 use iced::{
     theme,
-    widget::{button, column, container, horizontal_space, row, text, Column, Space},
+    widget::{button, column, container, row, text, Column, Space},
     Color, Element, Length,
 };
 use iced_aw::modal;
@@ -85,8 +85,7 @@ impl SeriesEditScreen {
             .align_x(iced::alignment::Horizontal::Right),
         ];
         let episode_name = self.episode_name();
-        let watch = row![
-            horizontal_space(),
+        let watch = container(
             button("Watch")
                 .style(theme::Button::Positive)
                 .on_press_maybe(episode_name.clone().ok().map(|episode_name| {
@@ -98,20 +97,21 @@ impl SeriesEditScreen {
                             .join(&episode_name),
                     }
                 })),
-            horizontal_space()
-        ];
+        )
+        .width(Length::Fill)
+        .center_x();
         let watch_sign = match episode_name {
             Ok(episde_name) => episde_name,
             Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {}", kind),
             Err(err) => format!("Season path is incorrect: {}", err),
         };
-        let watch_sign = row![
-            horizontal_space(),
+        let watch_sign = container(
             text(watch_sign)
                 .size(13)
                 .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
-            horizontal_space()
-        ];
+        )
+        .width(Length::Fill)
+        .center_x();
         let body = column![
             signed_text_imput("Name", &self.buffer_name, Message::NameChanged),
             row![

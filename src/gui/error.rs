@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, vertical_space, Space},
+    widget::{button, column, container, horizontal_space, row, text, Space},
     Element, Length,
 };
 use iced_aw::card;
@@ -35,29 +35,27 @@ impl<T: Display> IDialog for ErrorScreen<T> {
         } else {
             theme::Button::Primary
         };
-        column![
-            vertical_space(),
-            row![
-                Space::with_width(Length::FillPortion(1)),
-                card(
-                    text(self.title()),
-                    column![
-                        text(&self.kind),
-                        row![
-                            horizontal_space(),
-                            button("Ok").style(ok_button_style).on_press(Message::Ok {
-                                critical: self.critical
-                            })
-                        ],
-                    ]
-                    .spacing(DEFAULT_INDENT)
-                )
-                .style(iced_aw::style::card::CardStyles::Danger)
-                .width(Length::FillPortion(15)),
-                Space::with_width(Length::FillPortion(1))
-            ],
-            vertical_space()
-        ]
+
+        container(row![
+            Space::with_width(Length::FillPortion(1)),
+            card(
+                text(self.title()),
+                column![
+                    text(&self.kind),
+                    row![
+                        horizontal_space(),
+                        button("Ok").style(ok_button_style).on_press(Message::Ok {
+                            critical: self.critical
+                        })
+                    ],
+                ]
+                .spacing(DEFAULT_INDENT)
+            )
+            .style(iced_aw::style::card::CardStyles::Danger)
+            .width(Length::FillPortion(15)),
+            Space::with_width(Length::FillPortion(1))
+        ])
+        .center_y()
         .into()
     }
 }

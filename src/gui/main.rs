@@ -2,8 +2,8 @@ use std::{cell::RefCell, rc::Rc};
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, scrollable, text},
-    Element,
+    widget::{button, column, container, horizontal_space, row, scrollable, text},
+    Element, Length,
 };
 
 use crate::{
@@ -29,13 +29,13 @@ impl MainScreen {
 
     pub fn view(&self) -> Element<Message> {
         column![
-            row![
-                horizontal_space(),
+            container(
                 button("Add series")
                     .style(theme::Button::Positive)
-                    .on_press(Message::AddSeries),
-                horizontal_space(),
-            ],
+                    .on_press(Message::AddSeries)
+            )
+            .width(Length::Fill)
+            .center_x(),
             scrollable(
                 column(
                     self.media

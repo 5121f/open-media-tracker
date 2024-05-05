@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use iced::{
     theme,
-    widget::{button, column, horizontal_space, row, text, vertical_space, Space},
+    widget::{button, column, container, horizontal_space, row, text, Space},
     Element, Length,
 };
 use iced_aw::card;
@@ -43,33 +43,30 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
     }
 
     fn view(&self) -> Element<Message> {
-        row![
+        container(row![
             Space::with_width(Length::FillPortion(1)),
-            column![
-                vertical_space(),
-                card(
-                    text(self.title()),
-                    column![
-                        text(&self.kind),
-                        row![
-                            button("Cancel")
-                                .style(theme::Button::Destructive)
-                                .on_press(Message::Cancel),
-                            horizontal_space(),
-                            button("Confirm")
-                                .style(theme::Button::Positive)
-                                .on_press(Message::Confirm)
-                        ]
+            card(
+                text(self.title()),
+                column![
+                    text(&self.kind),
+                    row![
+                        button("Cancel")
+                            .style(theme::Button::Destructive)
+                            .on_press(Message::Cancel),
+                        horizontal_space(),
+                        button("Confirm")
+                            .style(theme::Button::Positive)
+                            .on_press(Message::Confirm)
                     ]
-                    .spacing(DEFAULT_INDENT)
-                )
-                .close_size(25.)
-                .on_close(Message::Cancel),
-                vertical_space()
-            ]
-            .width(Length::FillPortion(15)),
+                ]
+                .spacing(DEFAULT_INDENT)
+            )
+            .close_size(25.)
+            .width(Length::FillPortion(15))
+            .on_close(Message::Cancel),
             Space::with_width(Length::FillPortion(1))
-        ]
+        ])
+        .center_y()
         .into()
     }
 }
