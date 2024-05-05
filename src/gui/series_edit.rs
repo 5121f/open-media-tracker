@@ -7,7 +7,7 @@ use std::{
 };
 
 use iced::{
-    theme,
+    alignment, theme,
     widget::{button, column, container, row, text, Column, Space},
     Color, Element, Length,
 };
@@ -82,7 +82,7 @@ impl SeriesEditScreen {
                     .on_press(Message::Delete(self.editable_series_id))
             )
             .width(Length::Fill)
-            .align_x(iced::alignment::Horizontal::Right),
+            .align_x(alignment::Horizontal::Right),
         ];
         let episode_name = self.episode_name();
         let watch = container(
