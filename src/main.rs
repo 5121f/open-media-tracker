@@ -13,6 +13,7 @@ use std::{
 };
 
 use error::ErrorKind;
+use gui::LoadingScreen;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
@@ -169,7 +170,9 @@ impl ZCinema {
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::FontLoaded(res) => {
-                if res.is_err() {
+                if res.is_ok() {
+                    self.main_screen();
+                } else {
                     return Err(ErrorKind::FontLoad.into());
                 }
             }
@@ -186,10 +189,10 @@ impl ZCinema {
             .map(RefCell::new)
             .map(Rc::new)
             .collect();
-        let main_screen = Screens::main(arr_rc_clone(&media));
+        let loading_screen = Screens::loading(LoadingKind::Font);
         Ok(Self {
             media,
-            screen: main_screen,
+            screen: loading_screen,
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             config,
@@ -249,6 +252,7 @@ impl Application for ZCinema {
 pub enum Screens {
     Main(MainScreen),
     SeriesChange(SeriesEditScreen),
+    Loading(LoadingScreen<LoadingKind>),
 }
 
 impl Screens {
@@ -256,6 +260,7 @@ impl Screens {
         match self {
             Screens::Main(dialog) => dialog.view().map(Into::into),
             Screens::SeriesChange(dialog) => dialog.view().map(Into::into),
+            Screens::Loading(screen) => screen.view(),
         }
     }
 
@@ -263,6 +268,7 @@ impl Screens {
         match self {
             Screens::Main(_) => None,
             Screens::SeriesChange(dialog) => Some(dialog.title()),
+            Screens::Loading(screen) => Some(screen.title()),
         }
     }
 
@@ -274,6 +280,23 @@ impl Screens {
     fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Result<Self, ErrorKind> {
         let dialog = SeriesEditScreen::new(media, id)?;
         Ok(Self::SeriesChange(dialog))
+    }
+
+    fn loading(message: LoadingKind) -> Self {
+        let screen = LoadingScreen::new(message);
+        Self::Loading(screen)
+    }
+}
+
+pub enum LoadingKind {
+    Font,
+}
+
+impl Display for LoadingKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            LoadingKind::Font => write!(f, "Loading fonts..."),
+        }
     }
 }
 
