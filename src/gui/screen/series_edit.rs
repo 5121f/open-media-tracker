@@ -17,8 +17,9 @@ use mime_guess::mime;
 use crate::{
     error::ErrorKind,
     gui::{
+        screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
-        ConfirmScreen, ConfirmScreenMessage, Dialog, WarningMessage, WarningPopUp,
+        Dialog, WarningMessage, WarningPopUp,
     },
     series::Series,
     utils::{next_dir, read_dir},

@@ -1,16 +1,7 @@
-pub mod confirm;
 pub mod dialog;
-pub mod error;
-pub mod loading;
-pub mod main;
-pub mod series_edit;
+pub mod screen;
 pub mod utils;
 pub mod warning;
 
-pub use confirm::{ConfirmScreen, Message as ConfirmScreenMessage};
 pub use dialog::{Dialog, IDialog};
-pub use error::{ErrorScreen, Message as ErrorScreenMessage};
-pub use loading::LoadingScreen;
-pub use main::{MainScreen, Message as MainScreenMessage};
-pub use series_edit::{Message as SeriesEditScreenMessage, SeriesEditScreen};
 pub use warning::{Message as WarningMessage, WarningPopUp};

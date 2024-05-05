@@ -7,9 +7,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::IDialog;
-
-use super::utils::DEFAULT_INDENT;
+use crate::gui::{utils::DEFAULT_INDENT, IDialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {

@@ -13,7 +13,6 @@ use std::{
 };
 
 use error::ErrorKind;
-use gui::LoadingScreen;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
@@ -21,8 +20,11 @@ use crate::{
     config::Config,
     error::Error,
     gui::{
-        ConfirmScreen, ConfirmScreenMessage, Dialog, ErrorScreen, ErrorScreenMessage, MainScreen,
-        MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
+        screen::{
+            ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, LoadingScreen,
+            MainScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
+        },
+        Dialog,
     },
     series::Series,
     utils::arr_rc_clone,
