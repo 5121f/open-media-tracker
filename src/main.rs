@@ -258,8 +258,8 @@ pub enum Screens {
 impl Screens {
     fn view(&self) -> Element<Message> {
         match self {
-            Screens::Main(dialog) => dialog.view().map(Into::into),
-            Screens::SeriesChange(dialog) => dialog.view().map(Into::into),
+            Screens::Main(screen) => screen.view().map(Into::into),
+            Screens::SeriesChange(screen) => screen.view().map(Into::into),
             Screens::Loading(screen) => screen.view(),
         }
     }
@@ -267,19 +267,19 @@ impl Screens {
     fn title(&self) -> Option<String> {
         match self {
             Screens::Main(_) => None,
-            Screens::SeriesChange(dialog) => Some(dialog.title()),
+            Screens::SeriesChange(screen) => Some(screen.title()),
             Screens::Loading(screen) => Some(screen.title()),
         }
     }
 
     fn main(media: Vec<Rc<RefCell<Series>>>) -> Self {
-        let dialog = MainScreen::new(media);
-        Self::Main(dialog)
+        let screen = MainScreen::new(media);
+        Self::Main(screen)
     }
 
     fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Result<Self, ErrorKind> {
-        let dialog = SeriesEditScreen::new(media, id)?;
-        Ok(Self::SeriesChange(dialog))
+        let screen = SeriesEditScreen::new(media, id)?;
+        Ok(Self::SeriesChange(screen))
     }
 
     fn loading(message: LoadingKind) -> Self {
