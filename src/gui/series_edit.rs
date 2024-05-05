@@ -329,9 +329,7 @@ impl SeriesEditScreen {
             return Ok(());
         }
         let season_path = series.borrow().season_path().to_path_buf();
-        let next_season_path =
-            next_dir(&season_path)?.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-        self.confirm_switch_to_next_season(next_season_path);
+        self.confirm_switch_to_next_season(next_dir(&season_path)?);
         Ok(())
     }
 

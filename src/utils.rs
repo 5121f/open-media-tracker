@@ -40,7 +40,7 @@ pub fn arr_rc_clone<T>(vec: &[Rc<T>]) -> Vec<Rc<T>> {
     vec.iter().map(Rc::clone).collect()
 }
 
-pub fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
+pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     let path = path.as_ref();
     let dir_name = path
         .file_name()
@@ -63,13 +63,11 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<Option<PathBuf>, ErrorKind> {
             break;
         }
     }
-    let Some(season_dir_index) = current_dir_index else {
-        return Ok(None);
-    };
-    let next_season_index = season_dir_index + 1;
+    let current_dir_index = current_dir_index.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+    let next_season_index = current_dir_index + 1;
     if next_season_index >= dirs.len() {
-        return Ok(None);
+        return Err(ErrorKind::FailedToFindNextSeasonPath);
     }
     let next_dir = dirs[next_season_index].to_path_buf();
-    Ok(Some(next_dir))
+    Ok(next_dir)
 }
