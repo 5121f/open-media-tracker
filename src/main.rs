@@ -169,13 +169,10 @@ impl ZCinema {
                 self.error_dialog.close();
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
-            Message::FontLoaded(res) => {
-                if res.is_ok() {
-                    self.main_screen();
-                } else {
-                    return Err(ErrorKind::FontLoad.into());
-                }
-            }
+            Message::FontLoaded(res) => match res {
+                Ok(_) => self.main_screen(),
+                Err(_) => return Err(ErrorKind::FontLoad.into()),
+            },
         }
         Ok(Command::none())
     }
