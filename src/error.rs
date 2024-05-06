@@ -45,7 +45,7 @@ pub enum ErrorKind {
     FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     Parce { path: PathBuf, source: SpannedError },
-    #[error("{series_name}: Serialize error: ")]
+    #[error("{series_name}: Serialize error: {source}")]
     SerializeSeries {
         series_name: String,
         source: ron::Error,
