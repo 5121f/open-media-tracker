@@ -1,5 +1,5 @@
 use std::{
-    fmt::Display,
+    fmt::{self, Display},
     io,
     path::{Path, PathBuf},
 };
@@ -13,22 +13,18 @@ pub struct Error {
 
 impl Error {
     pub fn critical(kind: ErrorKind) -> Self {
-        Self {
-            kind,
-            critical: true,
-        }
+        let critical = true;
+        Self { kind, critical }
     }
 
     pub fn general(kind: ErrorKind) -> Self {
-        Self {
-            kind,
-            critical: false,
-        }
+        let critical = false;
+        Self { kind, critical }
     }
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.kind.fmt(f)
     }
 }
