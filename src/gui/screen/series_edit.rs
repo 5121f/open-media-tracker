@@ -376,11 +376,7 @@ impl Display for ConfirmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ConfirmKind::SwitchToNextSeason { next_season_path } => {
-                write!(
-                    f,
-                    "Proposed path to next season: {}",
-                    next_season_path.display()
-                )
+                write!(f, "Proposed path to next season: {:?}", next_season_path)
             }
             ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
                 f,
