@@ -45,11 +45,8 @@ pub enum ErrorKind {
     FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: file parsing error: {source}")]
     Parce { path: PathBuf, source: SpannedError },
-    #[error("{series_name}: Serialize error: {source}")]
-    SerializeSeries {
-        series_name: String,
-        source: ron::Error,
-    },
+    #[error("{name}: Serialize error: {source}")]
+    SerializeSeries { name: String, source: ron::Error },
     #[error("Failed to found user's data directory")]
     UserDataDirNotFound,
     #[error("{video_path}: Falied to open video in default program: {kind}")]
@@ -71,36 +68,27 @@ pub enum ErrorKind {
 
 impl ErrorKind {
     pub fn fsio(path: impl AsRef<Path>, source: io::Error) -> Self {
-        Self::FSIO {
-            path: path.as_ref().to_path_buf(),
-            kind: source.kind(),
-        }
+        let path = path.as_ref().to_path_buf();
+        let kind = source.kind();
+        Self::FSIO { path, kind }
     }
 
     pub fn parse(path: impl AsRef<Path>, source: SpannedError) -> Self {
-        Self::Parce {
-            path: path.as_ref().to_path_buf(),
-            source,
-        }
+        let path = path.as_ref().to_path_buf();
+        Self::Parce { path, source }
     }
 
     pub fn serialize_series(name: String, source: ron::Error) -> Self {
-        Self::SerializeSeries {
-            series_name: name,
-            source,
-        }
+        Self::SerializeSeries { name, source }
     }
 
     pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
-        Self::OpenVideo {
-            video_path: path.as_ref().to_path_buf(),
-            kind,
-        }
+        let video_path = path.as_ref().to_path_buf();
+        Self::OpenVideo { video_path, kind }
     }
 
     pub fn parent_dir(path: impl AsRef<Path>) -> Self {
-        Self::FaliedToGetParentDir {
-            path: path.as_ref().to_path_buf(),
-        }
+        let path = path.as_ref().to_path_buf();
+        Self::FaliedToGetParentDir { path }
     }
 }
