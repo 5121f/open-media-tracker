@@ -17,7 +17,7 @@ use crate::{
     error::ErrorKind,
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
-        utils::{link, signed_text_imput, square_button, DEFAULT_INDENT},
+        utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
         Dialog, WarningMessage, WarningPopUp,
     },
     series::Series,
@@ -113,9 +113,9 @@ impl SeriesEditScreen {
         .width(Length::Fill)
         .center_x();
         let body = column![
-            signed_text_imput("Name", &self.buffer_name, Message::NameChanged),
+            signed_text_input("Name", &self.buffer_name, Message::NameChanged),
             row![
-                signed_text_imput(
+                signed_text_input(
                     "Season",
                     &series.season().to_string(),
                     Message::SeasonChanged
@@ -125,7 +125,7 @@ impl SeriesEditScreen {
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput(
+                signed_text_input(
                     "Episode",
                     &series.episode().to_string(),
                     Message::EpisodeChanged
@@ -135,7 +135,7 @@ impl SeriesEditScreen {
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_imput("Season path", &season_path, Message::SeasonPathChanged),
+                signed_text_input("Season path", &season_path, Message::SeasonPathChanged),
                 square_button("...").on_press(Message::SeasonPathSelect),
             ]
             .spacing(DEFAULT_INDENT)

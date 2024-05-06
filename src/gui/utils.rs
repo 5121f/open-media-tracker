@@ -22,7 +22,7 @@ pub fn link<M>(s: &str) -> Button<M> {
     button(text(s).style(theme::Text::Color(CYAN))).style(theme::Button::Text)
 }
 
-pub fn signed_text_imput<'a, M, F>(sign: &str, value: &str, on_input: F) -> Row<'a, M>
+pub fn signed_text_input<'a, M, F>(sign: &str, value: &str, on_input: F) -> Row<'a, M>
 where
     M: Clone + 'a,
     F: 'a + Fn(String) -> M,
