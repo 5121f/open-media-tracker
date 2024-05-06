@@ -51,10 +51,10 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
         .parent()
         .ok_or(ErrorKind::parent_dir(&dir_name))?
         .to_owned();
-    let paths = read_dir_sort(parent)?;
-    let dirs: Vec<_> = paths.into_iter().filter(|path| path.is_dir()).collect();
+    let mut paths = read_dir_sort(parent)?;
+    paths.retain(|path| path.is_dir());
     let mut current_dir_index = None;
-    for (i, dir) in dirs.iter().enumerate() {
+    for (i, dir) in paths.iter().enumerate() {
         let dir = dir
             .file_name()
             .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
@@ -67,10 +67,10 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     }
     let current_dir_index = current_dir_index.ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
     let next_season_index = current_dir_index + 1;
-    if next_season_index >= dirs.len() {
+    if next_season_index >= paths.len() {
         return Err(ErrorKind::FailedToFindNextSeasonPath);
     }
-    let next_dir = dirs[next_season_index].to_path_buf();
+    let next_dir = paths[next_season_index].to_path_buf();
     Ok(next_dir)
 }
 
