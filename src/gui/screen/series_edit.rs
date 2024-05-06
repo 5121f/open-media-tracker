@@ -12,7 +12,6 @@ use iced::{
     Color, Element, Length,
 };
 use iced_aw::modal;
-use mime_guess::mime;
 
 use crate::{
     error::ErrorKind,
@@ -22,7 +21,7 @@ use crate::{
         Dialog, WarningMessage, WarningPopUp,
     },
     series::Series,
-    utils::{next_dir, read_dir},
+    utils::{is_media_file, next_dir, read_dir},
 };
 
 #[derive(Debug, Clone)]
@@ -353,14 +352,7 @@ impl SeriesEditScreen {
 fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
     let series_path = series_path.as_ref();
     let mut episode_paths = read_dir(series_path)?;
-    episode_paths.retain(|p| {
-        let mime = mime_guess::from_path(p);
-        let Some(mime) = mime.first() else {
-            return false;
-        };
-        let mtype = mime.type_();
-        mtype == mime::VIDEO || mtype == mime::AUDIO
-    });
+    episode_paths.retain(|p| is_media_file(p));
     episode_paths.sort();
     Ok(episode_paths)
 }

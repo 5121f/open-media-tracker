@@ -4,6 +4,8 @@ use std::{
     rc::Rc,
 };
 
+use mime_guess::mime;
+
 use crate::{config::Config, error::ErrorKind, series::Series};
 
 pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
@@ -70,4 +72,13 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     }
     let next_dir = dirs[next_season_index].to_path_buf();
     Ok(next_dir)
+}
+
+pub fn is_media_file(path: impl AsRef<Path>) -> bool {
+    let mime = mime_guess::from_path(path);
+    let Some(mime) = mime.first() else {
+        return false;
+    };
+    let mtype = mime.type_();
+    mtype == mime::VIDEO || mtype == mime::AUDIO
 }
