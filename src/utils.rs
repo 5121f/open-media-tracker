@@ -38,7 +38,7 @@ pub fn read_dir_sort(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> 
     Ok(read_dir)
 }
 
-pub fn arr_rc_clone<T>(vec: &[Rc<T>]) -> Vec<Rc<T>> {
+pub fn vec_rc_clone<T>(vec: &[Rc<T>]) -> Vec<Rc<T>> {
     vec.iter().map(Rc::clone).collect()
 }
 

@@ -27,7 +27,7 @@ use crate::{
         Dialog,
     },
     series::Series,
-    utils::arr_rc_clone,
+    utils::vec_rc_clone,
 };
 
 fn main() -> iced::Result {
@@ -60,13 +60,13 @@ struct ZCinema {
 
 impl ZCinema {
     fn change_series_screen(&mut self, id: usize) -> Result<(), ErrorKind> {
-        let media = arr_rc_clone(&self.media);
+        let media = vec_rc_clone(&self.media);
         self.screen = Screens::change_series(media, id)?;
         Ok(())
     }
 
     fn main_screen(&mut self) {
-        let media = arr_rc_clone(&self.media);
+        let media = vec_rc_clone(&self.media);
         self.screen = Screens::main(media);
     }
 
