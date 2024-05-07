@@ -9,17 +9,15 @@ use mime_guess::mime;
 use crate::{config::Config, error::ErrorKind, series::Series};
 
 pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
-    let media = read_dir(&config.data_dir)?
+    read_dir(&config.data_dir)?
         .into_iter()
         .map(|m| Series::read_from_file(m, config.clone()))
-        .collect::<Result<_, _>>()?;
-    Ok(media)
+        .collect()
 }
 
 pub fn watch(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();
-    open::that(path).map_err(|source| ErrorKind::open_vido(&path, source.kind()))?;
-    Ok(())
+    open::that(path).map_err(|source| ErrorKind::open_vido(&path, source.kind()))
 }
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
