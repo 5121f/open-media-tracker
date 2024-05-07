@@ -17,7 +17,7 @@ impl Error {
         Self { kind, critical }
     }
 
-    pub fn general(kind: ErrorKind) -> Self {
+    pub fn common(kind: ErrorKind) -> Self {
         let critical = false;
         Self { kind, critical }
     }
@@ -31,7 +31,7 @@ impl Display for Error {
 
 impl From<ErrorKind> for Error {
     fn from(value: ErrorKind) -> Self {
-        Error::general(value)
+        Error::common(value)
     }
 }
 
@@ -45,11 +45,8 @@ pub enum ErrorKind {
     SerializeSeries { name: String, source: ron::Error },
     #[error("Failed to found user's data directory")]
     UserDataDirNotFound,
-    #[error("{video_path}: Falied to open video in default program: {kind}")]
-    OpenVideo {
-        video_path: PathBuf,
-        kind: io::ErrorKind,
-    },
+    #[error("{path}: Falied to open video in default program: {kind}")]
+    OpenVideo { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: Failed to find parent directory")]
     FaliedToGetParentDir { path: PathBuf },
     #[error("Failed to find next season path")]
@@ -79,8 +76,8 @@ impl ErrorKind {
     }
 
     pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
-        let video_path = path.as_ref().to_path_buf();
-        Self::OpenVideo { video_path, kind }
+        let path = path.as_ref().to_path_buf();
+        Self::OpenVideo { path, kind }
     }
 
     pub fn parent_dir(path: impl AsRef<Path>) -> Self {
