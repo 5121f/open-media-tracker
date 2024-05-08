@@ -278,17 +278,16 @@ impl SeriesEditScreen {
         self.editable_series()
             .borrow_mut()
             .set_season_path(season_path)?;
-        self.update_edpisode_paths()?;
+        self.update_edpisode_paths();
         Ok(())
     }
 
-    fn update_edpisode_paths(&mut self) -> Result<(), ErrorKind> {
+    fn update_edpisode_paths(&mut self) {
         self.episode_paths = {
             let editable_series = self.editable_series().borrow();
             let series_path = editable_series.season_path();
             episode_paths(series_path)
         };
-        Ok(())
     }
 
     fn warning(&mut self, kind: WarningKind) {
