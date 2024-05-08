@@ -173,11 +173,20 @@ impl SeriesEditScreen {
                 series.borrow_mut().rename(value)?;
             }
             Message::SeasonChanged(value) => {
+                if value.is_empty() {
+                    return self
+                        .editable_series()
+                        .borrow_mut()
+                        .set_season(NonZeroU8::MIN);
+                }
                 if let Ok(number) = value.parse() {
                     self.editable_series().borrow_mut().set_season(number)?;
                 }
             }
             Message::EpisodeChanged(value) => {
+                if value.is_empty() {
+                    return self.set_episode_to_one();
+                }
                 if let Ok(number) = value.parse() {
                     self.set_episode(number)?;
                 }
