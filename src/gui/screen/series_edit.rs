@@ -166,7 +166,8 @@ impl SeriesEditScreen {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
-                if let Some(WarningKind::NameUsed) = self.warning.as_ref().map(|w| w.kind()) {
+                let warning_kind = self.warning.as_ref().map(|w| w.kind());
+                if matches!(warning_kind, Some(WarningKind::NameUsed)) {
                     self.warning.close();
                 }
                 let series = self.editable_series();
