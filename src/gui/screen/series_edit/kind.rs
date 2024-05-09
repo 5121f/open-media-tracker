@@ -1,4 +1,7 @@
-use std::{fmt::Display, path::PathBuf};
+use std::{
+    fmt::{self, Display},
+    path::PathBuf,
+};
 
 pub enum ConfirmKind {
     SwitchToNextSeason { next_season_path: PathBuf },
@@ -16,7 +19,7 @@ impl ConfirmKind {
 }
 
 impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ConfirmKind::SwitchToNextSeason { next_season_path } => {
                 write!(f, "Proposed path to next season: {:?}", next_season_path)
@@ -37,7 +40,7 @@ pub enum WarningKind {
 }
 
 impl Display for WarningKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
             WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
