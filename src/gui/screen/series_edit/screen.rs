@@ -1,6 +1,3 @@
-mod kind;
-mod message;
-
 use std::{cell::RefCell, num::NonZeroU8, path::PathBuf, rc::Rc};
 
 use iced::{
@@ -10,6 +7,10 @@ use iced::{
 };
 use iced_aw::modal;
 
+use super::{
+    kind::{ConfirmKind, WarningKind},
+    message::Message,
+};
 use crate::{
     error::ErrorKind,
     gui::{
@@ -20,8 +21,6 @@ use crate::{
     series::Series,
     utils::{episode_paths, next_dir},
 };
-use kind::{ConfirmKind, WarningKind};
-pub use message::Message;
 
 pub struct SeriesEditScreen {
     media: Vec<Rc<RefCell<Series>>>,
