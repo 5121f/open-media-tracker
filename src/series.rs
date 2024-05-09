@@ -121,7 +121,7 @@ impl Series {
 }
 
 pub fn file_name(name: &str) -> String {
-    format!("{}.ron", name)
+    format!("{name}.ron")
 }
 
 fn default_series_file_name() -> String {
@@ -142,7 +142,7 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
     }
     let mut i = 1;
     loop {
-        let potential_name = format!("{} {}", DEFAULT_SERIES_NAME, i);
+        let potential_name = format!("{DEFAULT_SERIES_NAME} {i}");
         let potential_file_name = file_name(&potential_name);
         let potential_name_availible = !file_names
             .iter()

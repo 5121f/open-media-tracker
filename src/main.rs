@@ -224,7 +224,7 @@ impl Application for ZCinema {
     fn title(&self) -> String {
         let program_name = "zCinema";
         self.sub_title()
-            .map(|sub_title| format!("{} - {}", program_name, sub_title))
+            .map(|sub_title| format!("{program_name} - {sub_title}"))
             .unwrap_or_else(|| String::from(program_name))
     }
 
@@ -315,8 +315,7 @@ impl Display for ConfirmKind {
             ConfirmKind::DeleteSeries { name, .. } => {
                 write!(
                     f,
-                    "You actually want to delete series \"{}\" from the list?",
-                    name
+                    "You actually want to delete series \"{name}\" from the list?",
                 )
             }
         }
