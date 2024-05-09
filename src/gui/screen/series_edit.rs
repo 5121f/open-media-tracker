@@ -1,10 +1,7 @@
-use std::{
-    cell::RefCell,
-    fmt::Display,
-    num::NonZeroU8,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+mod kind;
+mod message;
+
+use std::{cell::RefCell, num::NonZeroU8, path::PathBuf, rc::Rc};
 
 use iced::{
     alignment, theme,
@@ -21,26 +18,10 @@ use crate::{
         Dialog, WarningMessage, WarningPopUp,
     },
     series::Series,
-    utils::{is_media_file, next_dir, read_dir},
+    utils::{episode_paths, next_dir},
 };
-
-#[derive(Debug, Clone)]
-pub enum Message {
-    Back,
-    Delete(usize),
-    Watch { path: PathBuf },
-    NameChanged(String),
-    SeasonChanged(String),
-    EpisodeChanged(String),
-    SeasonPathChanged(String),
-    SeasonPathSelect,
-    SeasonInc,
-    SeasonDec,
-    EpisodeInc,
-    EpisodeDec,
-    ConfirmScreen(ConfirmScreenMessage),
-    Warning(WarningMessage),
-}
+use kind::{ConfirmKind, WarningKind};
+pub use message::Message;
 
 pub struct SeriesEditScreen {
     media: Vec<Rc<RefCell<Series>>>,
@@ -366,74 +347,5 @@ impl SeriesEditScreen {
     fn confirm_episode_overflow(&mut self, episodes_count: usize) {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
-    }
-}
-
-fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, ErrorKind> {
-    let series_path = series_path.as_ref();
-    if !series_path.exists() {
-        return Ok(None);
-    }
-    let mut episode_paths = read_dir(series_path)?;
-    episode_paths.retain(|p| is_media_file(p));
-    episode_paths.sort();
-    Ok(Some(episode_paths))
-}
-
-enum ConfirmKind {
-    SwitchToNextSeason { next_season_path: PathBuf },
-    EpisodesOverflow { series_on_disk: usize },
-}
-
-impl ConfirmKind {
-    fn switch_to_next_season(next_season_path: PathBuf) -> Self {
-        Self::SwitchToNextSeason { next_season_path }
-    }
-
-    fn episode_overflow(series_on_disk: usize) -> Self {
-        Self::EpisodesOverflow { series_on_disk }
-    }
-}
-
-impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ConfirmKind::SwitchToNextSeason { next_season_path } => {
-                write!(f, "Proposed path to next season: {:?}", next_season_path)
-            }
-            ConfirmKind::EpisodesOverflow { series_on_disk } => write!(
-                f,
-                "Seems like {} episode is a last of it season. Switch to the next season?",
-                series_on_disk
-            ),
-        }
-    }
-}
-
-enum WarningKind {
-    SeasonCanNotBeZero,
-    EpisodeCanNotBeZero,
-    NameUsed,
-}
-
-impl Display for WarningKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
-            WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
-            WarningKind::NameUsed => write!(f, "Name must be unique"),
-        }
-    }
-}
-
-impl From<ConfirmScreenMessage> for Message {
-    fn from(value: ConfirmScreenMessage) -> Self {
-        Self::ConfirmScreen(value)
-    }
-}
-
-impl From<WarningMessage> for Message {
-    fn from(value: WarningMessage) -> Self {
-        Self::Warning(value)
     }
 }

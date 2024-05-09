@@ -80,3 +80,14 @@ pub fn is_media_file(path: impl AsRef<Path>) -> bool {
     let mtype = mime.type_();
     mtype == mime::VIDEO || mtype == mime::AUDIO
 }
+
+pub fn episode_paths(series_path: impl AsRef<Path>) -> Result<Option<Vec<PathBuf>>, ErrorKind> {
+    let series_path = series_path.as_ref();
+    if !series_path.exists() {
+        return Ok(None);
+    }
+    let mut episode_paths = read_dir(series_path)?;
+    episode_paths.retain(|p| is_media_file(p));
+    episode_paths.sort();
+    Ok(Some(episode_paths))
+}
