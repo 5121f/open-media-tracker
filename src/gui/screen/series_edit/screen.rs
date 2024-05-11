@@ -255,13 +255,13 @@ impl SeriesEditScreen {
         let Some(path) = self.episode_path()? else {
             return Ok(None);
         };
-        Ok(Some(
-            path.file_name()
-                .unwrap_or_default()
-                .to_str()
-                .unwrap_or_default()
-                .to_string(),
-        ))
+        let episode_name = path
+            .file_name()
+            .unwrap_or_default()
+            .to_str()
+            .unwrap_or_default()
+            .to_string();
+        Ok(Some(episode_name))
     }
 
     fn set_season_path(&mut self, season_path: PathBuf) -> Result<(), ErrorKind> {
