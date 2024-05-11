@@ -11,16 +11,12 @@ open = "5.1.2"
 ron = "0.8.1"
 serde = { version = "1.0.201", features = ["derive"] }
 thiserror = "1.0.60"
+rfd = "0.14.1"
 
 [dependencies.iced_aw]
 version = "0.9.3"
 default-features = false
 features = ["card", "modal"]
-
-[dependencies.rfd]
-version = "0.14.1"
-default-features = false
-features = ["xdg-portal", "tokio"]
 
 [profile.release]
 lto = true
