@@ -216,17 +216,21 @@ impl SeriesEditScreen {
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
         match message {
             ConfirmScreenMessage::Confirm => {
-                let Some(confirm) = self.confirm_screen.take() else {
-                    return Ok(());
-                };
-                match confirm.take() {
-                    ConfirmKind::SwitchToNextSeason { next_season_path } => {
-                        self.set_season_path(next_season_path)?;
-                    }
-                    ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
+                if let Some(confirm) = self.confirm_screen.take() {
+                    self.confirm_kind_update(confirm.take())?
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
+        }
+        Ok(())
+    }
+
+    fn confirm_kind_update(&mut self, kind: ConfirmKind) -> Result<(), ErrorKind> {
+        match kind {
+            ConfirmKind::SwitchToNextSeason { next_season_path } => {
+                self.set_season_path(next_season_path)?;
+            }
+            ConfirmKind::EpisodesOverflow { .. } => self.increase_season()?,
         }
         Ok(())
     }
