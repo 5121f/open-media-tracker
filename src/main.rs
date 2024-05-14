@@ -55,6 +55,7 @@ struct ZCinema {
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen<Error>>,
+    loading_dialog: Dialog<LoadingScreen<LoadingKind>>,
     config: Rc<Config>,
 }
 
@@ -105,6 +106,22 @@ impl ZCinema {
             .title()
             .or_else(|| self.confirm_dialog.title())
             .or_else(|| self.screen.title())
+    }
+
+    fn load_font(&mut self) -> Command<Message> {
+        self.add_loading_process(LoadingKind::Font);
+        font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded)
+    }
+
+    fn add_loading_process(&mut self, kind: LoadingKind) {
+        match &mut self.loading_dialog.take() {
+            Some(dialog) => dialog.insert(kind),
+            None => {
+                let mut screen = LoadingScreen::new();
+                screen.insert(kind);
+                self.loading_dialog = Dialog::new(screen);
+            }
+        }
     }
 
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
@@ -172,14 +189,14 @@ impl ZCinema {
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::FontLoaded(res) => match res {
-                Ok(_) => self.main_screen(),
+                Ok(_) => self.loading_dialog.close(),
                 Err(_) => return Err(ErrorKind::FontLoad.into()),
             },
         }
         Ok(Command::none())
     }
 
-    fn new2() -> Result<Self, Error> {
+    fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Rc::new(config);
         let media: Vec<_> = Self::read_media(config.clone())
@@ -188,14 +205,16 @@ impl ZCinema {
             .map(RefCell::new)
             .map(Rc::new)
             .collect();
-        let loading_screen = Screens::loading(LoadingKind::Font);
-        Ok(Self {
-            media,
-            screen: loading_screen,
+        let mut zcinema = Self {
+            media: vec_rc_clone(&media),
+            screen: Screens::main(media),
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
+            loading_dialog: Dialog::closed(),
             config,
-        })
+        };
+        let command = zcinema.load_font();
+        Ok((zcinema, command))
     }
 }
 
@@ -207,10 +226,7 @@ impl Application for ZCinema {
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         match Self::new2() {
-            Ok(zcinema) => (
-                zcinema,
-                font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded),
-            ),
+            Ok(res) => res,
             Err(error) => (
                 Self {
                     error_dialog: Dialog::new(error.into()),
@@ -280,23 +296,11 @@ impl Screens {
         let screen = SeriesEditScreen::new(media, id)?;
         Ok(Self::SeriesChange(screen))
     }
-
-    fn loading(message: LoadingKind) -> Self {
-        let screen = LoadingScreen::new(message);
-        Self::Loading(screen)
-    }
 }
 
+#[derive(PartialEq, Eq, Hash)]
 pub enum LoadingKind {
     Font,
-}
-
-impl Display for LoadingKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            LoadingKind::Font => write!(f, "Loading fonts..."),
-        }
-    }
 }
 
 impl Default for Screens {
