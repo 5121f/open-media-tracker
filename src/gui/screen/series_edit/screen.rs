@@ -235,7 +235,7 @@ impl SeriesEditScreen {
         Ok(())
     }
 
-    fn editable_series(&self) -> &Rc<RefCell<Series>> {
+    fn editable_series(&self) -> &RefCell<Series> {
         &self.media[self.editable_series_id]
     }
 
