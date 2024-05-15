@@ -24,7 +24,7 @@ use crate::{
             ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, LoadingScreen,
             MainScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
         },
-        Dialog,
+        Dialog, IDialog,
     },
     series::Series,
     utils::vec_rc_clone,
@@ -47,6 +47,7 @@ enum Message {
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
+    Nothing,
 }
 
 #[derive(Default)]
@@ -192,6 +193,7 @@ impl ZCinema {
                 Ok(_) => self.loading_dialog.close(),
                 Err(_) => return Err(ErrorKind::FontLoad.into()),
             },
+            Message::Nothing => unreachable!(),
         }
         Ok(Command::none())
     }
@@ -255,7 +257,8 @@ impl Application for ZCinema {
         let dialog = self
             .error_dialog
             .view_into()
-            .or_else(|| self.confirm_dialog.view_into());
+            .or_else(|| self.confirm_dialog.view_into())
+            .or_else(|| self.loading_dialog.view_into());
         modal(self.screen.view(), dialog).into()
     }
 
@@ -275,7 +278,7 @@ impl Screens {
         match self {
             Screens::Main(screen) => screen.view().map(Into::into),
             Screens::SeriesChange(screen) => screen.view().map(Into::into),
-            Screens::Loading(screen) => screen.view(),
+            Screens::Loading(screen) => screen.view().map(Into::into),
         }
     }
 
@@ -347,5 +350,11 @@ impl From<SeriesEditScreenMessage> for Message {
 impl From<MainScreenMessage> for Message {
     fn from(value: MainScreenMessage) -> Self {
         Self::MainScreen(value)
+    }
+}
+
+impl From<()> for Message {
+    fn from(_value: ()) -> Self {
+        Message::Nothing
     }
 }
