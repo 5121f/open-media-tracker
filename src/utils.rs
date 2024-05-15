@@ -11,7 +11,7 @@ use crate::{config::Config, error::ErrorKind, series::Series};
 pub fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
     read_dir(&config.data_dir)?
         .into_iter()
-        .map(|m| Series::read_from_file(m, config.clone()))
+        .map(|m| Series::read_from_file(m, Rc::clone(&config)))
         .collect()
 }
 

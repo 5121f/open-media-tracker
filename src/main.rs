@@ -201,7 +201,7 @@ impl ZCinema {
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Rc::new(config);
-        let media: Vec<_> = Self::read_media(config.clone())
+        let media: Vec<_> = Self::read_media(Rc::clone(&config))
             .map_err(|kind| Error::critical(kind))?
             .into_iter()
             .map(RefCell::new)
