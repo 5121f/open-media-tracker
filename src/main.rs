@@ -200,17 +200,14 @@ impl ZCinema {
                 self.error_dialog.close();
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
-            Message::FontLoaded(res) => match res {
-                Ok(_) => self.loading_complete(LoadingKind::Font),
-                Err(_) => return Err(ErrorKind::FontLoad.into()),
-            },
-            Message::MediaLoaded(res) => match res {
-                Ok(media) => {
-                    self.media = media;
-                    self.loading_complete(LoadingKind::ReadMedia)
-                }
-                Err(err) => return Err(err.into()),
-            },
+            Message::FontLoaded(res) => {
+                res.map_err(|_| ErrorKind::FontLoad)?;
+                self.loading_complete(LoadingKind::Font);
+            }
+            Message::MediaLoaded(res) => {
+                self.media = res?;
+                self.loading_complete(LoadingKind::ReadMedia)
+            }
         }
         Ok(Command::none())
     }
