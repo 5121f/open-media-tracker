@@ -235,16 +235,15 @@ impl Application for ZCinema {
     type Message = Message;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
-        match Self::new2() {
-            Ok(res) => res,
-            Err(error) => (
+        Self::new2().unwrap_or_else(|error| {
+            (
                 Self {
                     error_dialog: Dialog::new(error.into()),
                     ..Default::default()
                 },
                 Command::none(),
-            ),
-        }
+            )
+        })
     }
 
     fn title(&self) -> String {
