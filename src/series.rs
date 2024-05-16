@@ -128,10 +128,6 @@ pub fn file_name(name: &str) -> String {
     format!("{name}.ron")
 }
 
-fn default_series_file_name() -> String {
-    file_name(DEFAULT_SERIES_NAME)
-}
-
 fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
     let dir_entrys = utils::read_dir(path)?;
     let file_names: Vec<_> = dir_entrys
@@ -139,19 +135,15 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
         .flat_map(|e| e.file_name())
         .map(|n| n.to_string_lossy())
         .collect();
-    let default_series_name_availible =
-        !file_names.iter().any(|n| n == &default_series_file_name());
-    if default_series_name_availible {
-        return Ok(DEFAULT_SERIES_NAME.to_string());
-    }
     let mut i = 1;
+    let mut potential_name = DEFAULT_SERIES_NAME.to_string();
     loop {
-        let potential_name = format!("{DEFAULT_SERIES_NAME} {i}");
         let potential_file_name = file_name(&potential_name);
         let potential_name_availible = !file_names.iter().any(|n| n == &potential_file_name);
         if potential_name_availible {
             return Ok(potential_name);
         }
+        potential_name = format!("{DEFAULT_SERIES_NAME} {i}");
         i += 1;
     }
 }
