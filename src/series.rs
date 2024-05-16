@@ -2,7 +2,7 @@ use std::{
     fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
-    rc::Rc,
+    sync::Arc,
 };
 
 use ron::ser::PrettyConfig;
@@ -12,18 +12,18 @@ use crate::{config::Config, error::ErrorKind, utils};
 
 const DEFAULT_SERIES_NAME: &str = "New series";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Series {
     name: String,
     season: NonZeroU8,
     episode: NonZeroU8,
     season_path: PathBuf,
     #[serde(skip)]
-    config: Rc<Config>,
+    config: Arc<Config>,
 }
 
 impl Series {
-    pub fn new(config: Rc<Config>) -> Result<Self, ErrorKind> {
+    pub fn new(config: Arc<Config>) -> Result<Self, ErrorKind> {
         let one = NonZeroU8::MIN;
         let series = Self {
             name: find_availible_new_name(&config.data_dir)?,
@@ -36,10 +36,14 @@ impl Series {
         Ok(series)
     }
 
-    pub fn read_from_file(path: impl AsRef<Path>, config: Rc<Config>) -> Result<Self, ErrorKind> {
+    pub async fn read_from_file(
+        path: impl AsRef<Path>,
+        config: Arc<Config>,
+    ) -> Result<Self, ErrorKind> {
         let path = path.as_ref();
-        let file_content =
-            fs::read_to_string(path).map_err(|source| ErrorKind::fsio(path, source))?;
+        let file_content = async_fs::read_to_string(path)
+            .await
+            .map_err(|source| ErrorKind::fsio(path, source))?;
         let series =
             ron::from_str(&file_content).map_err(|source| ErrorKind::parse(path, source))?;
         let series = Series { config, ..series };

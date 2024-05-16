@@ -8,7 +8,7 @@ mod utils;
 
 use std::{
     fmt::{self, Display},
-    rc::Rc,
+    sync::Arc,
 };
 
 use error::ErrorKind;
@@ -45,6 +45,7 @@ enum Message {
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
+    MediaLoaded(Result<Vec<Series>, ErrorKind>),
     Nothing,
 }
 
@@ -55,7 +56,7 @@ struct ZCinema {
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen<Error>>,
     loading_dialog: Dialog<LoadingScreen<LoadingKind>>,
-    config: Rc<Config>,
+    config: Arc<Config>,
 }
 
 impl ZCinema {
@@ -106,6 +107,13 @@ impl ZCinema {
     fn load_font(&mut self) -> Command<Message> {
         self.add_loading_process(LoadingKind::Font);
         font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded)
+    }
+
+    fn read_media(&mut self) -> Command<Message> {
+        Command::perform(
+            utils::read_media(Arc::clone(&self.config)),
+            Message::MediaLoaded,
+        )
     }
 
     fn add_loading_process(&mut self, kind: LoadingKind) {
@@ -162,7 +170,7 @@ impl ZCinema {
     fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
         match message {
             MainScreenMessage::AddSeries => {
-                let series = Series::new(Rc::clone(&self.config))?;
+                let series = Series::new(Arc::clone(&self.config))?;
                 self.media.push(series);
                 self.change_series_screen(self.media.len() - 1)?;
             }
@@ -186,6 +194,7 @@ impl ZCinema {
                 Ok(_) => self.loading_dialog.close(),
                 Err(_) => return Err(ErrorKind::FontLoad.into()),
             },
+            Message::MediaLoaded(res) => self.media = res?,
             Message::Nothing => unreachable!(),
         }
         Ok(Command::none())
@@ -193,17 +202,16 @@ impl ZCinema {
 
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
-        let config = Rc::new(config);
-        let media = utils::read_media(Rc::clone(&config)).map_err(|kind| Error::critical(kind))?;
+        let config = Arc::new(config);
         let mut zcinema = Self {
-            media,
+            media: Vec::new(),
             screen: Screens::main(),
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             loading_dialog: Dialog::closed(),
             config,
         };
-        let command = zcinema.load_font();
+        let command = Command::batch(vec![zcinema.load_font(), zcinema.read_media()]);
         Ok((zcinema, command))
     }
 }

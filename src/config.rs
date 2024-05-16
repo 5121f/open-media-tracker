@@ -2,7 +2,7 @@ use std::{fs, path::PathBuf};
 
 use crate::error::ErrorKind;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Config {
     pub data_dir: PathBuf,
 }
