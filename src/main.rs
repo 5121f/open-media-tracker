@@ -7,7 +7,6 @@ mod series;
 mod utils;
 
 use std::{
-    cell::RefCell,
     fmt::{self, Display},
     rc::Rc,
 };
@@ -27,7 +26,6 @@ use crate::{
         Dialog, IDialog,
     },
     series::Series,
-    utils::vec_rc_clone,
 };
 
 fn main() -> iced::Result {
@@ -52,7 +50,7 @@ enum Message {
 
 #[derive(Default)]
 struct ZCinema {
-    media: Vec<Rc<RefCell<Series>>>,
+    media: Vec<Series>,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen<Error>>,
@@ -62,14 +60,12 @@ struct ZCinema {
 
 impl ZCinema {
     fn change_series_screen(&mut self, id: usize) -> Result<(), ErrorKind> {
-        let media = vec_rc_clone(&self.media);
-        self.screen = Screens::change_series(media, id)?;
+        self.screen = Screens::change_series(&self.media, id)?;
         Ok(())
     }
 
     fn main_screen(&mut self) {
-        let media = vec_rc_clone(&self.media);
-        self.screen = Screens::main(media);
+        self.screen = Screens::main();
     }
 
     fn error_screen(&mut self, error: Error) {
@@ -83,7 +79,7 @@ impl ZCinema {
 
     fn remove_series(&mut self, id: usize) -> Result<(), ErrorKind> {
         let series = &self.media[id];
-        series.borrow().remove_file(&self.config.data_dir)?;
+        series.remove_file(&self.config.data_dir)?;
         self.media.remove(id);
         Ok(())
     }
@@ -96,7 +92,15 @@ impl ZCinema {
         self.error_dialog
             .title()
             .or_else(|| self.confirm_dialog.title())
-            .or_else(|| self.screen.title())
+            .or_else(|| self.title())
+    }
+
+    fn title(&self) -> Option<String> {
+        match &self.screen {
+            Screens::Main(_) => None,
+            Screens::SeriesChange(screen) => Some(screen.title(&self.media)),
+            Screens::Loading(screen) => Some(screen.title()),
+        }
     }
 
     fn load_font(&mut self) -> Command<Message> {
@@ -141,14 +145,14 @@ impl ZCinema {
         match message {
             SeriesEditScreenMessage::Delete(id) => {
                 let series = &self.media[id];
-                let name = series.borrow().name().to_string();
+                let name = series.name().to_string();
                 self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
             }
             SeriesEditScreenMessage::Back => self.main_screen(),
             SeriesEditScreenMessage::Watch { path } => utils::watch(path)?,
             _ => {
                 if let Screens::SeriesChange(dialog) = &mut self.screen {
-                    dialog.update(message)?;
+                    dialog.update(&mut self.media, message)?;
                 }
             }
         }
@@ -159,7 +163,6 @@ impl ZCinema {
         match message {
             MainScreenMessage::AddSeries => {
                 let series = Series::new(Rc::clone(&self.config))?;
-                let series = Rc::new(RefCell::new(series));
                 self.media.push(series);
                 self.change_series_screen(self.media.len() - 1)?;
             }
@@ -191,15 +194,10 @@ impl ZCinema {
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Rc::new(config);
-        let media: Vec<_> = utils::read_media(Rc::clone(&config))
-            .map_err(|kind| Error::critical(kind))?
-            .into_iter()
-            .map(RefCell::new)
-            .map(Rc::new)
-            .collect();
+        let media = utils::read_media(Rc::clone(&config)).map_err(|kind| Error::critical(kind))?;
         let mut zcinema = Self {
-            media: vec_rc_clone(&media),
-            screen: Screens::main(media),
+            media,
+            screen: Screens::main(),
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             loading_dialog: Dialog::closed(),
@@ -249,7 +247,12 @@ impl Application for ZCinema {
             .view_into()
             .or_else(|| self.confirm_dialog.view_into())
             .or_else(|| self.loading_dialog.view_into());
-        modal(self.screen.view(), dialog).into()
+        let screen = match &self.screen {
+            Screens::Main(screen) => screen.view(&self.media).map(Into::into),
+            Screens::SeriesChange(screen) => screen.view(&self.media).map(Into::into),
+            Screens::Loading(screen) => screen.view().map(Into::into),
+        };
+        modal(screen, dialog).into()
     }
 
     fn theme(&self) -> Theme {
@@ -264,28 +267,11 @@ pub enum Screens {
 }
 
 impl Screens {
-    fn view(&self) -> Element<Message> {
-        match self {
-            Screens::Main(screen) => screen.view().map(Into::into),
-            Screens::SeriesChange(screen) => screen.view().map(Into::into),
-            Screens::Loading(screen) => screen.view().map(Into::into),
-        }
+    fn main() -> Self {
+        Self::Main(MainScreen::new())
     }
 
-    fn title(&self) -> Option<String> {
-        match self {
-            Screens::Main(_) => None,
-            Screens::SeriesChange(screen) => Some(screen.title()),
-            Screens::Loading(screen) => Some(screen.title()),
-        }
-    }
-
-    fn main(media: Vec<Rc<RefCell<Series>>>) -> Self {
-        let screen = MainScreen::new(media);
-        Self::Main(screen)
-    }
-
-    fn change_series(media: Vec<Rc<RefCell<Series>>>, id: usize) -> Result<Self, ErrorKind> {
+    fn change_series(media: &[Series], id: usize) -> Result<Self, ErrorKind> {
         let screen = SeriesEditScreen::new(media, id)?;
         Ok(Self::SeriesChange(screen))
     }

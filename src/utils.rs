@@ -36,10 +36,6 @@ pub fn read_dir_sort(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> 
     Ok(read_dir)
 }
 
-pub fn vec_rc_clone<T>(vec: &[Rc<T>]) -> Vec<Rc<T>> {
-    vec.iter().map(Rc::clone).collect()
-}
-
 pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     let path = path.as_ref();
     let dir_name = path

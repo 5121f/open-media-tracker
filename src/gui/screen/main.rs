@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use iced::{
     theme,
     widget::{button, column, container, horizontal_space, row, scrollable, text},
@@ -18,16 +16,14 @@ pub enum Message {
 }
 
 #[derive(Default)]
-pub struct MainScreen {
-    media: Vec<Rc<RefCell<Series>>>,
-}
+pub struct MainScreen;
 
 impl MainScreen {
-    pub fn new(media: Vec<Rc<RefCell<Series>>>) -> Self {
-        Self { media }
+    pub fn new() -> Self {
+        Self
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self, media: &[Series]) -> Element<Message> {
         column![
             container(
                 button("Add series")
@@ -38,11 +34,11 @@ impl MainScreen {
             .center_x(),
             scrollable(
                 column(
-                    self.media
+                    media
                         .iter()
                         .enumerate()
                         .map(|(id, m)| row![
-                            text(&m.borrow().name()),
+                            text(&m.name()),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSeries(id))
                         ])
