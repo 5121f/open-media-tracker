@@ -144,8 +144,7 @@ impl SeriesEditScreen {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                let name_is_used = self.media.iter().any(|s| s.borrow().name() == &value);
-                if name_is_used {
+                if self.name_already_used(&value) {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
@@ -211,6 +210,10 @@ impl SeriesEditScreen {
 
     pub fn title(&self) -> String {
         self.editable_series().borrow().name().to_string()
+    }
+
+    fn name_already_used(&self, name: &str) -> bool {
+        self.media.iter().any(|s| s.borrow().name() == name)
     }
 
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
