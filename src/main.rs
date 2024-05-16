@@ -118,6 +118,15 @@ impl ZCinema {
         )
     }
 
+    fn loading_complete(&mut self, kind: LoadingKind) {
+        if let Some(loadnig_screen) = &mut self.loading_dialog.take() {
+            loadnig_screen.complete(kind);
+            if loadnig_screen.all_complete() {
+                self.loading_dialog.close();
+            }
+        }
+    }
+
     fn add_loading_process(&mut self, kind: LoadingKind) {
         match &mut self.loading_dialog.take() {
             Some(dialog) => dialog.insert(kind),
@@ -193,10 +202,16 @@ impl ZCinema {
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::FontLoaded(res) => match res {
-                Ok(_) => self.loading_dialog.close(),
+                Ok(_) => self.loading_complete(LoadingKind::Font),
                 Err(_) => return Err(ErrorKind::FontLoad.into()),
             },
-            Message::MediaLoaded(res) => self.media = res?,
+            Message::MediaLoaded(res) => match res {
+                Ok(media) => {
+                    self.media = media;
+                    self.loading_complete(LoadingKind::ReadMedia)
+                }
+                Err(err) => return Err(err.into()),
+            },
             Message::Nothing => unreachable!(),
         }
         Ok(Command::none())
@@ -253,7 +268,7 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         if let Some(loading_screen) = self.loading_dialog.as_ref() {
-            return loading_screen.view().map(Into::into);
+            return loading_screen.view();
         }
 
         let dialog = self

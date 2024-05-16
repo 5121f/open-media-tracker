@@ -26,11 +26,19 @@ where
         self.kind_count += 1;
     }
 
+    pub fn complete(&mut self, kind: T) {
+        self.kinds.remove(&kind);
+    }
+
+    pub fn all_complete(&self) -> bool {
+        self.kinds.len() == 0
+    }
+
     pub fn title(&self) -> String {
         String::from("Loading")
     }
 
-    pub fn view(&self) -> Element<()> {
+    pub fn view<'a, M: 'a>(&'a self) -> Element<M> {
         container(text(format!(
             "Loading ({}/{})...",
             self.kind_count - self.kinds.len(),
