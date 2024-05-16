@@ -46,7 +46,6 @@ enum Message {
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
     MediaLoaded(Result<Vec<Series>, ErrorKind>),
-    Nothing,
 }
 
 #[derive(Default)]
@@ -212,7 +211,6 @@ impl ZCinema {
                 }
                 Err(err) => return Err(err.into()),
             },
-            Message::Nothing => unreachable!(),
         }
         Ok(Command::none())
     }
@@ -355,11 +353,5 @@ impl From<SeriesEditScreenMessage> for Message {
 impl From<MainScreenMessage> for Message {
     fn from(value: MainScreenMessage) -> Self {
         Self::MainScreen(value)
-    }
-}
-
-impl From<()> for Message {
-    fn from(_value: ()) -> Self {
-        Message::Nothing
     }
 }
