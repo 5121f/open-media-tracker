@@ -18,6 +18,7 @@ use crate::{
         utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
         Dialog, WarningMessage, WarningPopUp,
     },
+    media::Media,
     series::Series,
     utils::{episode_paths, next_dir},
 };
@@ -137,12 +138,12 @@ impl SeriesEditScreen {
         modal(layout, confirm_screen).into()
     }
 
-    pub fn update(&mut self, media: &mut [Series], message: Message) -> Result<(), ErrorKind> {
+    pub fn update(&mut self, media: &mut Media, message: Message) -> Result<(), ErrorKind> {
         match message {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                if self.name_already_used(media, &value) {
+                if media.name_is_used(&value) {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
@@ -207,10 +208,6 @@ impl SeriesEditScreen {
 
     pub fn title(&self, media: &[Series]) -> String {
         self.editable_series(media).name().to_string()
-    }
-
-    fn name_already_used(&self, media: &[Series], name: &str) -> bool {
-        media.iter().any(|s| s.name() == name)
     }
 
     fn confirm_screen_update(

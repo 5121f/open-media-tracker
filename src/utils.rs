@@ -1,22 +1,11 @@
 use std::{
     fs,
     path::{Path, PathBuf},
-    sync::Arc,
 };
 
 use mime_guess::mime;
 
-use crate::{config::Config, error::ErrorKind, series::Series};
-
-pub async fn read_media(config: Arc<Config>) -> Result<Vec<Series>, ErrorKind> {
-    let dir_content = read_dir(&config.data_dir)?;
-    let mut media = Vec::with_capacity(dir_content.len());
-    for entry in dir_content {
-        let series = Series::read_from_file(entry, Arc::clone(&config)).await?;
-        media.push(series);
-    }
-    Ok(media)
-}
+use crate::error::ErrorKind;
 
 pub fn watch(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();

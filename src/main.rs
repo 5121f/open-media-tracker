@@ -3,6 +3,7 @@
 mod config;
 mod error;
 mod gui;
+mod media;
 mod series;
 mod utils;
 
@@ -25,6 +26,7 @@ use crate::{
         },
         Dialog,
     },
+    media::Media,
     series::Series,
 };
 
@@ -45,12 +47,12 @@ enum Message {
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
-    MediaLoaded(Result<Vec<Series>, ErrorKind>),
+    MediaLoaded(Result<Media, ErrorKind>),
 }
 
 #[derive(Default)]
 struct ZCinema {
-    media: Vec<Series>,
+    media: Media,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error_dialog: Dialog<ErrorScreen<Error>>,
@@ -75,13 +77,6 @@ impl ZCinema {
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
         let screen = ConfirmScreen::new(kind);
         self.confirm_dialog = Dialog::new(screen);
-    }
-
-    fn remove_series(&mut self, id: usize) -> Result<(), ErrorKind> {
-        let series = &self.media[id];
-        series.remove_file(&self.config.data_dir)?;
-        self.media.remove(id);
-        Ok(())
     }
 
     fn close_app(&self) -> Command<Message> {
@@ -111,10 +106,7 @@ impl ZCinema {
 
     fn read_media(&mut self) -> Command<Message> {
         self.add_loading_process(LoadingKind::ReadMedia);
-        Command::perform(
-            utils::read_media(Arc::clone(&self.config)),
-            Message::MediaLoaded,
-        )
+        Command::perform(Media::read(Arc::clone(&self.config)), Message::MediaLoaded)
     }
 
     fn loading_complete(&mut self, kind: LoadingKind) {
@@ -145,7 +137,7 @@ impl ZCinema {
                 };
                 match dialog.kind() {
                     ConfirmKind::DeleteSeries { id, .. } => {
-                        self.remove_series(*id)?;
+                        self.media.remove(&self.config, *id)?;
                         self.confirm_dialog.close();
                         self.main_screen();
                     }
@@ -205,7 +197,7 @@ impl ZCinema {
                 self.loading_complete(LoadingKind::Font);
             }
             Message::MediaLoaded(res) => {
-                self.media = res?;
+                self.media = res?.into();
                 self.loading_complete(LoadingKind::ReadMedia)
             }
         }
@@ -216,7 +208,7 @@ impl ZCinema {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Arc::new(config);
         let mut zcinema = Self {
-            media: Vec::new(),
+            media: Media::new(),
             screen: Screens::main(),
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
