@@ -22,12 +22,6 @@ pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
     Ok(files)
 }
 
-pub fn read_dir_sort(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
-    let mut read_dir = read_dir(path)?;
-    read_dir.sort();
-    Ok(read_dir)
-}
-
 pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     let path = path.as_ref();
     let dir_name = path
@@ -37,8 +31,9 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
         .parent()
         .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
         .to_owned();
-    let mut paths = read_dir_sort(parent)?;
+    let mut paths = read_dir(parent)?;
     paths.retain(|path| path.is_dir());
+    paths.sort();
     let mut current_dir_index = None;
     for (i, dir) in paths.iter().enumerate() {
         let dir = dir
