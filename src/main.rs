@@ -118,7 +118,7 @@ impl ZCinema {
     }
 
     fn loading_complete(&mut self, kind: LoadingKind) {
-        if let Some(loadnig_screen) = &mut self.loading_dialog.take() {
+        if let Some(loadnig_screen) = self.loading_dialog.as_mut() {
             loadnig_screen.complete(kind);
             if loadnig_screen.all_complete() {
                 self.loading_dialog.close();
@@ -127,7 +127,7 @@ impl ZCinema {
     }
 
     fn add_loading_process(&mut self, kind: LoadingKind) {
-        match &mut self.loading_dialog.take() {
+        match self.loading_dialog.as_mut() {
             Some(dialog) => dialog.insert(kind),
             None => {
                 let mut screen = LoadingScreen::new();
