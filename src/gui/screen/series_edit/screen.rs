@@ -59,22 +59,26 @@ impl SeriesEditScreen {
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let episode_name = self.episode_name(media);
+        let episode_file_name = self.episode_file_name(media);
         let watch = container(
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(episode_name.clone().ok().flatten().map(|episode_name| {
-                    Message::Watch {
-                        path: self
-                            .editable_series(media)
-                            .season_path()
-                            .join(&episode_name),
-                    }
-                })),
+                .on_press_maybe(
+                    episode_file_name
+                        .clone()
+                        .ok()
+                        .flatten()
+                        .map(|episode_name| Message::Watch {
+                            path: self
+                                .editable_series(media)
+                                .season_path()
+                                .join(&episode_name),
+                        }),
+                ),
         )
         .width(Length::Fill)
         .center_x();
-        let watch_sign = match episode_name {
+        let watch_sign = match episode_file_name {
             Ok(Some(episde_name)) => Some(episde_name),
             Ok(None) => None,
             Err(ErrorKind::FSIO { kind, .. }) => Some(format!("Season path is incorrect: {kind}")),
@@ -263,7 +267,7 @@ impl SeriesEditScreen {
         (self.editable_series(media).episode().get() - 1) as usize
     }
 
-    fn episode_name(&self, media: &[Series]) -> Result<Option<String>, ErrorKind> {
+    fn episode_file_name(&self, media: &[Series]) -> Result<Option<String>, ErrorKind> {
         let Some(path) = self.episode_path(media)? else {
             return Ok(None);
         };
