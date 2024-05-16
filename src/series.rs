@@ -139,8 +139,8 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
     let mut potential_name = DEFAULT_SERIES_NAME.to_string();
     loop {
         let potential_file_name = file_name(&potential_name);
-        let potential_name_availible = !file_names.iter().any(|n| n == &potential_file_name);
-        if potential_name_availible {
+        let potential_name_used = file_names.iter().any(|n| n == &potential_file_name);
+        if !potential_name_used {
             return Ok(potential_name);
         }
         potential_name = format!("{DEFAULT_SERIES_NAME} {i}");
