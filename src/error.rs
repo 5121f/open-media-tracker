@@ -47,8 +47,6 @@ pub enum ErrorKind {
     UserDataDirNotFound,
     #[error("{path}: Falied to open video in default program: {kind}")]
     OpenVideo { path: PathBuf, kind: io::ErrorKind },
-    #[error("{path}: Failed to find parent directory")]
-    FaliedToGetParentDir { path: PathBuf },
     #[error("Failed to find next season path")]
     FailedToFindNextSeasonPath,
     #[error("Filed to load font")]
@@ -78,10 +76,5 @@ impl ErrorKind {
     pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
         let path = path.as_ref().to_path_buf();
         Self::OpenVideo { path, kind }
-    }
-
-    pub fn parent_dir(path: impl AsRef<Path>) -> Self {
-        let path = path.as_ref().to_path_buf();
-        Self::FaliedToGetParentDir { path }
     }
 }

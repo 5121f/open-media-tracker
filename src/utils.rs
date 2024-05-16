@@ -35,7 +35,7 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
         .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
     let parent = path
         .parent()
-        .ok_or(ErrorKind::parent_dir(&dir_name))?
+        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
         .to_owned();
     let mut paths = read_dir_sort(parent)?;
     paths.retain(|path| path.is_dir());
