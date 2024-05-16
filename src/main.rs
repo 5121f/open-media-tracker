@@ -23,7 +23,7 @@ use crate::{
             ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, LoadingScreen,
             MainScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
         },
-        Dialog, IDialog,
+        Dialog,
     },
     series::Series,
 };
@@ -92,7 +92,9 @@ impl ZCinema {
     fn sub_title(&self) -> Option<String> {
         self.error_dialog
             .title()
+            .or_else(|| self.error_dialog.title())
             .or_else(|| self.confirm_dialog.title())
+            .or_else(|| self.loading_dialog.as_ref().map(|d| d.title()))
             .or_else(|| self.title())
     }
 
@@ -100,7 +102,6 @@ impl ZCinema {
         match &self.screen {
             Screens::Main(_) => None,
             Screens::SeriesChange(screen) => Some(screen.title(&self.media)),
-            Screens::Loading(screen) => Some(screen.title()),
         }
     }
 
@@ -110,6 +111,7 @@ impl ZCinema {
     }
 
     fn read_media(&mut self) -> Command<Message> {
+        self.add_loading_process(LoadingKind::ReadMedia);
         Command::perform(
             utils::read_media(Arc::clone(&self.config)),
             Message::MediaLoaded,
@@ -254,11 +256,14 @@ impl Application for ZCinema {
             .error_dialog
             .view_into()
             .or_else(|| self.confirm_dialog.view_into())
-            .or_else(|| self.loading_dialog.view_into());
+            .or_else(|| {
+                self.loading_dialog
+                    .as_ref()
+                    .map(|d| d.view().map(Into::into))
+            });
         let screen = match &self.screen {
             Screens::Main(screen) => screen.view(&self.media).map(Into::into),
             Screens::SeriesChange(screen) => screen.view(&self.media).map(Into::into),
-            Screens::Loading(screen) => screen.view().map(Into::into),
         };
         modal(screen, dialog).into()
     }
@@ -271,7 +276,6 @@ impl Application for ZCinema {
 pub enum Screens {
     Main(MainScreen),
     SeriesChange(SeriesEditScreen),
-    Loading(LoadingScreen<LoadingKind>),
 }
 
 impl Screens {
@@ -288,6 +292,7 @@ impl Screens {
 #[derive(PartialEq, Eq, Hash)]
 pub enum LoadingKind {
     Font,
+    ReadMedia,
 }
 
 impl Default for Screens {

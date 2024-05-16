@@ -5,11 +5,9 @@ use iced::{
     Element, Length,
 };
 
-use crate::gui::IDialog;
-
 pub struct LoadingScreen<T> {
     kinds: HashSet<T>,
-    max: usize,
+    kind_count: usize,
 }
 
 impl<T> LoadingScreen<T>
@@ -19,27 +17,23 @@ where
     pub fn new() -> Self {
         Self {
             kinds: HashSet::new(),
-            max: 0,
+            kind_count: 0,
         }
     }
 
     pub fn insert(&mut self, kind: T) {
         self.kinds.insert(kind);
-        self.max += 1;
+        self.kind_count += 1;
     }
-}
 
-impl<T> IDialog for LoadingScreen<T> {
-    type Message = ();
-
-    fn title(&self) -> String {
+    pub fn title(&self) -> String {
         String::from("Loading")
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    pub fn view(&self) -> Element<()> {
         container(text(format!(
             "Loading ({}/{})...",
-            self.max - self.kinds.len(),
+            self.kind_count - self.kinds.len(),
             self.kinds.len()
         )))
         .width(Length::Fill)
@@ -47,12 +41,5 @@ impl<T> IDialog for LoadingScreen<T> {
         .center_x()
         .center_y()
         .into()
-    }
-}
-
-impl<T> From<HashSet<T>> for LoadingScreen<T> {
-    fn from(value: HashSet<T>) -> Self {
-        let max = value.len();
-        Self { kinds: value, max }
     }
 }
