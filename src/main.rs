@@ -88,16 +88,6 @@ impl ZCinema {
         Ok(())
     }
 
-    fn read_media(config: Rc<Config>) -> Result<Vec<Series>, ErrorKind> {
-        let media = config
-            .data_dir
-            .exists()
-            .then(|| utils::read_media(config))
-            .transpose()?
-            .unwrap_or_default();
-        Ok(media)
-    }
-
     fn close_app(&self) -> Command<Message> {
         window::close(window::Id::MAIN)
     }
@@ -201,7 +191,7 @@ impl ZCinema {
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Rc::new(config);
-        let media: Vec<_> = Self::read_media(Rc::clone(&config))
+        let media: Vec<_> = utils::read_media(Rc::clone(&config))
             .map_err(|kind| Error::critical(kind))?
             .into_iter()
             .map(RefCell::new)
