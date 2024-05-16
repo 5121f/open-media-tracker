@@ -287,16 +287,12 @@ impl SeriesEditScreen {
     ) -> Result<(), ErrorKind> {
         self.editable_series_mut(media)
             .set_season_path(season_path)?;
-        self.update_edpisode_paths(media);
-        Ok(())
-    }
-
-    fn update_edpisode_paths(&mut self, media: &[Series]) {
         self.episode_paths = {
             let editable_series = self.editable_series(media);
             let series_path = editable_series.season_path();
             episode_paths(series_path)
         };
+        Ok(())
     }
 
     fn warning(&mut self, kind: WarningKind) {
