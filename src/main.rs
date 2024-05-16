@@ -252,19 +252,20 @@ impl Application for ZCinema {
     }
 
     fn view(&self) -> Element<Message> {
+        if let Some(loading_screen) = self.loading_dialog.as_ref() {
+            return loading_screen.view().map(Into::into);
+        }
+
         let dialog = self
             .error_dialog
             .view_into()
-            .or_else(|| self.confirm_dialog.view_into())
-            .or_else(|| {
-                self.loading_dialog
-                    .as_ref()
-                    .map(|d| d.view().map(Into::into))
-            });
+            .or_else(|| self.confirm_dialog.view_into());
+
         let screen = match &self.screen {
             Screens::Main(screen) => screen.view(&self.media).map(Into::into),
             Screens::SeriesChange(screen) => screen.view(&self.media).map(Into::into),
         };
+
         modal(screen, dialog).into()
     }
 
