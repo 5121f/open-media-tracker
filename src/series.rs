@@ -148,9 +148,7 @@ fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> 
     loop {
         let potential_name = format!("{DEFAULT_SERIES_NAME} {i}");
         let potential_file_name = file_name(&potential_name);
-        let potential_name_availible = !file_names
-            .iter()
-            .any(|n: &std::borrow::Cow<'_, str>| n == &potential_file_name);
+        let potential_name_availible = !file_names.iter().any(|n| n == &potential_file_name);
         if potential_name_availible {
             return Ok(potential_name);
         }
