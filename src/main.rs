@@ -61,9 +61,8 @@ struct ZCinema {
 }
 
 impl ZCinema {
-    fn change_series_screen(&mut self, id: usize) -> Result<(), ErrorKind> {
-        self.screen = Screens::change_series(&self.media, id)?;
-        Ok(())
+    fn change_series_screen(&mut self, id: usize) {
+        self.screen = Screens::change_series(&self.media, id);
     }
 
     fn main_screen(&mut self) {
@@ -174,9 +173,9 @@ impl ZCinema {
             MainScreenMessage::AddSeries => {
                 let series = Series::new(Arc::clone(&self.config))?;
                 self.media.push(series);
-                self.change_series_screen(self.media.len() - 1)?;
+                self.change_series_screen(self.media.len() - 1);
             }
-            MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id)?,
+            MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id),
         }
         Ok(())
     }
@@ -285,9 +284,9 @@ impl Screens {
         Self::Main(MainScreen::new())
     }
 
-    fn change_series(media: &[Series], id: usize) -> Result<Self, ErrorKind> {
-        let screen = SeriesEditScreen::new(media, id)?;
-        Ok(Self::SeriesChange(screen))
+    fn change_series(media: &[Series], id: usize) -> Self {
+        let screen = SeriesEditScreen::new(media, id);
+        Self::SeriesChange(screen)
     }
 }
 

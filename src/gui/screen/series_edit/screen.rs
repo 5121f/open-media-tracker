@@ -32,17 +32,17 @@ pub struct SeriesEditScreen {
 }
 
 impl SeriesEditScreen {
-    pub fn new(media: &[Series], editable_series_id: usize) -> Result<Self, ErrorKind> {
+    pub fn new(media: &[Series], editable_series_id: usize) -> Self {
         let editable_series = &media[editable_series_id];
         let editable_series_name = editable_series.name().to_string();
         let episode_paths = episode_paths(editable_series.season_path());
-        Ok(Self {
+        Self {
             confirm_screen: Dialog::closed(),
             warning: Dialog::closed(),
             editable_series_id,
             episode_paths,
             buffer_name: editable_series_name,
-        })
+        }
     }
 
     pub fn view(&self, media: &[Series]) -> Element<Message> {
