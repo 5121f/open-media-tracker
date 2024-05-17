@@ -51,8 +51,6 @@ pub enum ErrorKind {
     FailedToFindNextSeasonPath,
     #[error("Filed to load font")]
     FontLoad,
-    #[error("{season_path}: Season path did not exists")]
-    SeasonPathDidNotExists { season_path: PathBuf },
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
 }
