@@ -8,7 +8,7 @@ use std::{
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{config::Config, error::ErrorKind, utils};
+use crate::{config::Config, error::ErrorKind};
 
 const DEFAULT_SERIES_NAME: &str = "New series";
 
@@ -127,17 +127,12 @@ pub fn file_name(name: &str) -> String {
 }
 
 fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
-    let dir_entrys = utils::read_dir(path)?;
-    let file_names: Vec<_> = dir_entrys
-        .iter()
-        .flat_map(|e| e.file_name())
-        .map(|n| n.to_string_lossy())
-        .collect();
+    let path = path.as_ref();
     let mut i = 1;
     let mut potential_name = DEFAULT_SERIES_NAME.to_string();
     loop {
         let potential_file_name = file_name(&potential_name);
-        let potential_name_used = file_names.iter().any(|n| n == &potential_file_name);
+        let potential_name_used = path.join(potential_file_name).exists();
         if !potential_name_used {
             return Ok(potential_name);
         }
