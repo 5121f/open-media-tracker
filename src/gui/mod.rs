@@ -7,4 +7,4 @@ mod list;
 
 pub use dialog::{Dialog, IDialog};
 pub use list::Message as ListMessage;
-pub use warning::{Message as WarningMessage, WarningPopUp};
+pub use warning::{warning_view, Message as WarningMessage};
