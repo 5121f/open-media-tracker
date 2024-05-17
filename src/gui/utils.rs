@@ -18,7 +18,7 @@ pub fn square_button<M>(content: &str) -> Button<M> {
 }
 
 pub fn link<M>(s: &str) -> Button<M> {
-    const CYAN: Color = Color::from_rgb(0.0, 255.0, 255.0);
+    const CYAN: Color = Color::from_rgb(0., 1., 1.);
     button(text(s).style(theme::Text::Color(CYAN))).style(theme::Button::Text)
 }
 
