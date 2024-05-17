@@ -22,7 +22,7 @@ pub fn list(buttons: Vec<&str>) -> Element<Message> {
                     .map(Into::into)
                     .collect::<Vec<_>>(),
             )
-            .spacing(DEFAULT_INDENT),
+            .padding(DEFAULT_INDENT),
         )
         .style(theme::Container::Custom(Box::new(List))),
     )
