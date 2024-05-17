@@ -199,9 +199,7 @@ impl SeriesEditScreen {
                     self.set_season_path(media, folder)?;
                 }
             }
-            Message::Warning(message) => match message {
-                WarningMessage::Close => self.warning.close(),
-            },
+            Message::Warning(WarningMessage::Close) => self.warning.close(),
         }
         Ok(())
     }
