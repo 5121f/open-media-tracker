@@ -41,7 +41,8 @@ impl MainScreen {
                             text(&m.name()),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSeries(id))
-                        ])
+                        ]
+                        .spacing(DEFAULT_INDENT))
                         .map(Into::into)
                         .collect::<Vec<_>>()
                 )
