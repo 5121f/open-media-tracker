@@ -13,9 +13,9 @@ impl Media {
         Self(Vec::new())
     }
 
-    pub fn remove(&mut self, config: &Config, id: usize) -> Result<(), ErrorKind> {
+    pub fn remove(&mut self, id: usize) -> Result<(), ErrorKind> {
         let series = &self.0[id];
-        series.remove_file(&config.data_dir)?;
+        series.remove_file()?;
         self.0.remove(id);
         Ok(())
     }

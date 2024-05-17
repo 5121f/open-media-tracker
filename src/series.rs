@@ -55,12 +55,10 @@ impl Series {
     }
 
     pub fn rename(&mut self, new_name: String) -> Result<(), ErrorKind> {
-        let data_dir = &self.config.data_dir;
         if self.name != new_name {
-            let current_path = self.path(data_dir);
-            let new_path = data_dir.join(file_name(&new_name));
+            let new_path = self.config.data_dir.join(file_name(&new_name));
             self.name = new_name;
-            fs::rename(current_path, new_path)
+            fs::rename(self.path(), new_path)
                 .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
         }
         self.save()?;
@@ -74,13 +72,13 @@ impl Series {
         if !dir.exists() {
             fs::create_dir(&dir).map_err(|source| ErrorKind::fsio(dir, source))?;
         }
-        let path = self.path(&dir);
+        let path = self.path();
         fs::write(path, content).map_err(|source| ErrorKind::fsio(dir, source))?;
         Ok(())
     }
 
-    pub fn remove_file(&self, dir: impl AsRef<Path>) -> Result<(), ErrorKind> {
-        let path = self.path(dir);
+    pub fn remove_file(&self) -> Result<(), ErrorKind> {
+        let path = self.path();
         fs::remove_file(&path).map_err(|source| ErrorKind::fsio(path, source))
     }
 
@@ -119,8 +117,8 @@ impl Series {
         &self.name
     }
 
-    fn path(&self, dir: impl AsRef<Path>) -> PathBuf {
-        dir.as_ref().join(self.file_name())
+    fn path(&self) -> PathBuf {
+        self.config.data_dir.join(self.file_name())
     }
 }
 

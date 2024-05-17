@@ -136,7 +136,7 @@ impl ZCinema {
                 };
                 match dialog.kind() {
                     ConfirmKind::DeleteSeries { id, .. } => {
-                        self.media.remove(&self.config, *id)?;
+                        self.media.remove(*id)?;
                         self.confirm_dialog.close();
                         self.main_screen();
                     }
