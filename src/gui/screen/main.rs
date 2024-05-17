@@ -1,11 +1,11 @@
 use iced::{
     theme,
-    widget::{button, column, container, horizontal_space, row, scrollable, text},
+    widget::{button, column, container},
     Element, Length,
 };
 
 use crate::{
-    gui::utils::{square_button, DEFAULT_INDENT},
+    gui::{list::list, utils::DEFAULT_INDENT, ListMessage},
     series::Series,
 };
 
@@ -13,6 +13,7 @@ use crate::{
 pub enum Message {
     AddSeries,
     ChangeSeries(usize),
+    MenuButton(ListMessage),
 }
 
 #[derive(Default)]
@@ -23,7 +24,7 @@ impl MainScreen {
         Self
     }
 
-    pub fn view(&self, media: &[Series]) -> Element<Message> {
+    pub fn view<'a>(&'a self, media: &'a [Series]) -> Element<Message> {
         column![
             container(
                 button("Add series")
@@ -32,22 +33,7 @@ impl MainScreen {
             )
             .width(Length::Fill)
             .center_x(),
-            scrollable(
-                column(
-                    media
-                        .iter()
-                        .enumerate()
-                        .map(|(id, m)| row![
-                            text(m.name()),
-                            horizontal_space(),
-                            square_button("...").on_press(Message::ChangeSeries(id))
-                        ]
-                        .spacing(DEFAULT_INDENT))
-                        .map(Into::into)
-                        .collect::<Vec<_>>()
-                )
-                .spacing(DEFAULT_INDENT)
-            )
+            list(media.into_iter().map(Series::name).collect()).map(Message::MenuButton)
         ]
         .spacing(DEFAULT_INDENT)
         .padding(DEFAULT_INDENT)

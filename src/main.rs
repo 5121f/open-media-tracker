@@ -176,6 +176,9 @@ impl ZCinema {
                 self.change_series_screen(self.media.len() - 1);
             }
             MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id),
+            MainScreenMessage::MenuButton(gui::ListMessage::Enter(id)) => {
+                self.change_series_screen(id)
+            }
         }
         Ok(())
     }
