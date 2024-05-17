@@ -38,7 +38,7 @@ impl MainScreen {
                         .iter()
                         .enumerate()
                         .map(|(id, m)| row![
-                            text(&m.name()),
+                            text(m.name()),
                             horizontal_space(),
                             square_button("...").on_press(Message::ChangeSeries(id))
                         ]
