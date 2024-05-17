@@ -26,7 +26,7 @@ impl Series {
     pub fn new(config: Arc<Config>) -> Result<Self, ErrorKind> {
         let one = NonZeroU8::MIN;
         let series = Self {
-            name: find_availible_new_name(&config.data_dir)?,
+            name: find_availible_name(&config.data_dir)?,
             season: one,
             episode: one,
             season_path: Default::default(),
@@ -126,7 +126,7 @@ pub fn file_name(name: &str) -> String {
     format!("{name}.ron")
 }
 
-fn find_availible_new_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
+fn find_availible_name(path: impl AsRef<Path>) -> Result<String, ErrorKind> {
     let path = path.as_ref();
     let mut i = 1;
     let mut potential_name = DEFAULT_SERIES_NAME.to_string();
