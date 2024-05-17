@@ -21,8 +21,8 @@ use crate::{
     error::Error,
     gui::{
         screen::{
-            ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage, LoadingScreen,
-            MainScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
+            main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
+            LoadingScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
         },
         Dialog,
     },
@@ -66,7 +66,7 @@ impl ZCinema {
     }
 
     fn main_screen(&mut self) {
-        self.screen = Screens::main();
+        self.screen = Screens::Main;
     }
 
     fn error_screen(&mut self, error: Error) {
@@ -93,7 +93,7 @@ impl ZCinema {
 
     fn title(&self) -> Option<String> {
         match &self.screen {
-            Screens::Main(_) => None,
+            Screens::Main => None,
             Screens::SeriesChange(screen) => Some(screen.title(&self.media)),
         }
     }
@@ -175,7 +175,6 @@ impl ZCinema {
                 self.media.push(series);
                 self.change_series_screen(self.media.len() - 1);
             }
-            MainScreenMessage::ChangeSeries(id) => self.change_series_screen(id),
             MainScreenMessage::MenuButton(gui::ListMessage::Enter(id)) => {
                 self.change_series_screen(id)
             }
@@ -211,7 +210,7 @@ impl ZCinema {
         let config = Arc::new(config);
         let mut zcinema = Self {
             media: Media::new(),
-            screen: Screens::main(),
+            screen: Screens::Main,
             confirm_dialog: Dialog::closed(),
             error_dialog: Dialog::closed(),
             loading_dialog: Dialog::closed(),
@@ -265,7 +264,7 @@ impl Application for ZCinema {
             .or_else(|| self.confirm_dialog.view_into());
 
         let screen = match &self.screen {
-            Screens::Main(screen) => screen.view(&self.media).map(Into::into),
+            Screens::Main => main_screen_view(&self.media).map(Into::into),
             Screens::SeriesChange(screen) => screen.view(&self.media).map(Into::into),
         };
 
@@ -278,15 +277,11 @@ impl Application for ZCinema {
 }
 
 pub enum Screens {
-    Main(MainScreen),
+    Main,
     SeriesChange(SeriesEditScreen),
 }
 
 impl Screens {
-    fn main() -> Self {
-        Self::Main(MainScreen::new())
-    }
-
     fn change_series(media: &[Series], id: usize) -> Self {
         let screen = SeriesEditScreen::new(media, id);
         Self::SeriesChange(screen)
@@ -301,7 +296,7 @@ pub enum LoadingKind {
 
 impl Default for Screens {
     fn default() -> Self {
-        Screens::Main(MainScreen::default())
+        Self::Main
     }
 }
 
