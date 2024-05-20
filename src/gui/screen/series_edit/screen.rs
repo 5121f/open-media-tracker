@@ -320,7 +320,8 @@ impl SeriesEditScreen {
     }
 
     fn episodes_count(&self) -> Option<usize> {
-        self.episode_paths.as_ref().ok().map(|p| p.len())
+        let count = self.episode_paths.as_ref().ok()?.len();
+        Some(count)
     }
 
     fn set_episode_to_one(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
