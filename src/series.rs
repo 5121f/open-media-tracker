@@ -57,9 +57,9 @@ impl Series {
     pub fn rename(&mut self, new_name: String) -> Result<(), ErrorKind> {
         if self.name != new_name {
             let new_path = self.config.data_dir.join(file_name(&new_name));
-            self.name = new_name;
             fs::rename(self.path(), new_path)
                 .map_err(|source| ErrorKind::fsio(self.name.clone(), source))?;
+            self.name = new_name;
         }
         self.save()?;
         Ok(())
