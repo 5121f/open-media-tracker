@@ -269,9 +269,8 @@ impl SeriesEditScreen {
         let episode_name = self
             .episode_path(media)?
             .file_name()
-            .unwrap_or_default()
-            .to_str()
-            .unwrap_or_default()
+            .ok_or(ErrorKind::EpisodesDidNotFound)?
+            .to_string_lossy()
             .to_string();
         Ok(episode_name)
     }
