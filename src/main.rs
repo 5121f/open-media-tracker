@@ -125,8 +125,8 @@ impl ZCinema {
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
         match message {
             ConfirmScreenMessage::Confirm => {
-                if let Some(dialog) = self.confirm_dialog.take() {
-                    self.confirm_kind_update(dialog.kind())?;
+                if let Some(kind) = self.confirm_dialog.kind() {
+                    self.confirm_kind_update(kind.clone())?;
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
@@ -294,6 +294,7 @@ impl Default for Screens {
     }
 }
 
+#[derive(Clone)]
 enum ConfirmKind {
     DeleteSeries { name: String, id: usize },
 }

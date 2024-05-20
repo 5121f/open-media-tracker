@@ -3,6 +3,7 @@ use std::{
     path::PathBuf,
 };
 
+#[derive(Clone)]
 pub enum ConfirmKind {
     SwitchToNextSeason { next_season_path: PathBuf },
     EpisodesOverflow { series_on_disk: usize },

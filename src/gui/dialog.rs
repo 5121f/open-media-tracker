@@ -9,6 +9,12 @@ pub trait IDialog {
     fn view(&self) -> Element<Self::Message>;
 }
 
+pub trait IHaveKind {
+    type Kind;
+
+    fn kind(&self) -> &Self::Kind;
+}
+
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
@@ -46,6 +52,12 @@ impl<T: IDialog> Dialog<T> {
         M: From<T::Message> + 'a,
     {
         self.view_map(Into::into)
+    }
+}
+
+impl<T: IHaveKind> Dialog<T> {
+    pub fn kind(&self) -> Option<&T::Kind> {
+        self.0.as_ref().map(T::kind)
     }
 }
 

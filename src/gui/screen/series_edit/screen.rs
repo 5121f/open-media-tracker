@@ -143,10 +143,7 @@ impl SeriesEditScreen {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
-                if matches!(
-                    self.warning.as_ref().map(|w| w.kind()),
-                    Some(WarningKind::NameUsed)
-                ) {
+                if matches!(self.warning.kind(), Some(WarningKind::NameUsed)) {
                     self.warning.close();
                 }
                 let series = self.editable_series_mut(media);
@@ -221,8 +218,8 @@ impl SeriesEditScreen {
     ) -> Result<(), ErrorKind> {
         match message {
             ConfirmScreenMessage::Confirm => {
-                if let Some(confirm) = self.confirm_screen.take() {
-                    self.confirm_kind_update(media, confirm.kind())?
+                if let Some(kind) = self.confirm_screen.kind() {
+                    self.confirm_kind_update(media, kind.clone())?
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
