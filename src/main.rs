@@ -103,11 +103,12 @@ impl ZCinema {
     }
 
     fn loading_complete(&mut self, kind: LoadingKind) {
-        if let Some(loadnig_screen) = self.loading_dialog.as_mut() {
-            loadnig_screen.complete(kind);
-            if loadnig_screen.all_complete() {
-                self.loading_dialog.close();
-            }
+        let Some(loadnig_screen) = self.loading_dialog.as_mut() else {
+            return;
+        };
+        loadnig_screen.complete(kind);
+        if loadnig_screen.all_complete() {
+            self.loading_dialog.close();
         }
     }
 
