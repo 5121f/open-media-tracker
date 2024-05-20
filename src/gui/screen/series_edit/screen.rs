@@ -20,7 +20,7 @@ use crate::{
     },
     media::Media,
     series::Series,
-    utils::{episode_paths, next_dir},
+    utils::{self, episode_paths, next_dir},
 };
 
 pub struct SeriesEditScreen {
@@ -118,6 +118,7 @@ impl SeriesEditScreen {
             .spacing(DEFAULT_INDENT),
             row![
                 signed_text_input("Season path", &season_path, Message::SeasonPathChanged),
+                square_button(">").on_press(Message::OpenSeasonDirectory),
                 square_button("...").on_press(Message::SeasonPathSelect),
             ]
             .spacing(DEFAULT_INDENT)
@@ -203,6 +204,14 @@ impl SeriesEditScreen {
                 }
             }
             Message::Warning(WarningMessage::Close) => self.warning = None,
+            Message::OpenSeasonDirectory => {
+                let season_path = self.editable_series(media).season_path();
+                if !season_path.is_dir() {
+                    self.warning(WarningKind::WrongSeasonPath);
+                    return Ok(());
+                }
+                utils::open(season_path)?;
+            }
         }
         Ok(())
     }

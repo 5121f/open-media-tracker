@@ -45,8 +45,8 @@ pub enum ErrorKind {
     SerializeSeries { name: String, source: ron::Error },
     #[error("Failed to found user's data directory")]
     UserDataDirNotFound,
-    #[error("{path}: Falied to open video in default program: {kind}")]
-    OpenVideo { path: PathBuf, kind: io::ErrorKind },
+    #[error("{path}: Falied to open default program: {kind}")]
+    Open { path: PathBuf, kind: io::ErrorKind },
     #[error("Failed to find next season path")]
     FailedToFindNextSeasonPath,
     #[error("Filed to load font")]
@@ -71,8 +71,8 @@ impl ErrorKind {
         Self::SerializeSeries { name, source }
     }
 
-    pub fn open_vido(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
+    pub fn open(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
         let path = path.as_ref().to_path_buf();
-        Self::OpenVideo { path, kind }
+        Self::Open { path, kind }
     }
 }

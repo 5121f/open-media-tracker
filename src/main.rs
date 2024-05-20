@@ -159,7 +159,7 @@ impl ZCinema {
                 self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
             }
             SeriesEditScreenMessage::Back => self.main_screen(),
-            SeriesEditScreenMessage::Watch { path } => utils::watch(path)?,
+            SeriesEditScreenMessage::Watch { path } => utils::open(path)?,
             _ => {
                 if let Screens::SeriesChange(dialog) = &mut self.screen {
                     dialog.update(&mut self.media, message)?;

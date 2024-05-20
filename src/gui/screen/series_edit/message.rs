@@ -12,6 +12,7 @@ pub enum Message {
     EpisodeChanged(String),
     SeasonPathChanged(String),
     SeasonPathSelect,
+    OpenSeasonDirectory,
     SeasonInc,
     SeasonDec,
     EpisodeInc,

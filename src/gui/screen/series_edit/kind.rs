@@ -37,6 +37,7 @@ pub enum WarningKind {
     SeasonCanNotBeZero,
     EpisodeCanNotBeZero,
     NameUsed,
+    WrongSeasonPath,
 }
 
 impl Display for WarningKind {
@@ -45,6 +46,7 @@ impl Display for WarningKind {
             WarningKind::SeasonCanNotBeZero => write!(f, "Season can not be zero"),
             WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
             WarningKind::NameUsed => write!(f, "Name must be unique"),
+            WarningKind::WrongSeasonPath => write!(f, "Wrong season path"),
         }
     }
 }

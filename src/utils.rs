@@ -7,9 +7,9 @@ use mime_guess::mime;
 
 use crate::error::ErrorKind;
 
-pub fn watch(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
+pub fn open(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();
-    open::that(path).map_err(|source| ErrorKind::open_vido(&path, source.kind()))
+    open::that(path).map_err(|source| ErrorKind::open(&path, source.kind()))
 }
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
