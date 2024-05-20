@@ -13,17 +13,16 @@ use std::{
     sync::Arc,
 };
 
-use error::ErrorKind;
-use gui::screen::error_title;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
 use crate::{
     config::Config,
     error::Error,
+    error::ErrorKind,
     gui::{
         screen::{
-            error_view, main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreenMessage,
+            main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
             LoadingScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
         },
         Dialog,
@@ -48,7 +47,7 @@ struct ZCinema {
     media: Media,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
-    error: Option<Error>,
+    error: Dialog<ErrorScreen>,
     loading_dialog: Dialog<LoadingScreen<LoadingKind>>,
     config: Arc<Config>,
 }
@@ -63,7 +62,8 @@ impl ZCinema {
     }
 
     fn error_screen(&mut self, error: Error) {
-        self.error = Some(error);
+        let screen = ErrorScreen::new(error);
+        self.error = Dialog::new(screen);
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
@@ -77,8 +77,7 @@ impl ZCinema {
 
     fn sub_title(&self) -> Option<String> {
         self.error
-            .as_ref()
-            .map(|_| error_title())
+            .title()
             .or_else(|| self.confirm_dialog.title())
             .or_else(|| self.loading_dialog.as_ref().map(|d| d.title()))
             .or_else(|| self.title())
@@ -189,7 +188,7 @@ impl ZCinema {
                 if critical {
                     return Ok(self.close_app());
                 }
-                self.error = None;
+                self.error.close();
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::FontLoaded(res) => {
@@ -211,7 +210,7 @@ impl ZCinema {
             media: Media::new(),
             screen: Screens::Main,
             confirm_dialog: Dialog::closed(),
-            error: None,
+            error: Dialog::closed(),
             loading_dialog: Dialog::closed(),
             config,
         };
@@ -228,13 +227,9 @@ impl Application for ZCinema {
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         Self::new2().unwrap_or_else(|error| {
-            (
-                Self {
-                    error: Some(error),
-                    ..Default::default()
-                },
-                Command::none(),
-            )
+            let mut zcinema = Self::default();
+            zcinema.error_screen(error);
+            (zcinema, Command::none())
         })
     }
 
@@ -259,8 +254,7 @@ impl Application for ZCinema {
 
         let dialog = self
             .error
-            .as_ref()
-            .map(|error| error_view(error).map(Into::into))
+            .view_into()
             .or_else(|| self.confirm_dialog.view_into());
 
         let screen = match &self.screen {
