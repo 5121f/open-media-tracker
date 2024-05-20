@@ -4,6 +4,7 @@ mod config;
 mod error;
 mod gui;
 mod media;
+mod message;
 mod series;
 mod utils;
 
@@ -28,6 +29,7 @@ use crate::{
         Dialog,
     },
     media::Media,
+    message::Message,
     series::Series,
 };
 
@@ -39,16 +41,6 @@ fn main() -> iced::Result {
         },
         ..Settings::default()
     })
-}
-
-#[derive(Debug, Clone)]
-enum Message {
-    MainScreen(MainScreenMessage),
-    SeriesEditScreen(SeriesEditScreenMessage),
-    ConfirmScreen(ConfirmScreenMessage),
-    ErrorScreen(ErrorScreenMessage),
-    FontLoaded(Result<(), font::Error>),
-    MediaLoaded(Result<Media, ErrorKind>),
 }
 
 #[derive(Default)]
@@ -316,29 +308,5 @@ impl Display for ConfirmKind {
                 )
             }
         }
-    }
-}
-
-impl From<ConfirmScreenMessage> for Message {
-    fn from(value: ConfirmScreenMessage) -> Self {
-        Self::ConfirmScreen(value)
-    }
-}
-
-impl From<ErrorScreenMessage> for Message {
-    fn from(value: ErrorScreenMessage) -> Self {
-        Self::ErrorScreen(value)
-    }
-}
-
-impl From<SeriesEditScreenMessage> for Message {
-    fn from(value: SeriesEditScreenMessage) -> Self {
-        Self::SeriesEditScreen(value)
-    }
-}
-
-impl From<MainScreenMessage> for Message {
-    fn from(value: MainScreenMessage) -> Self {
-        Self::MainScreen(value)
     }
 }
