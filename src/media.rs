@@ -24,7 +24,8 @@ impl Media {
         let dir_content = read_dir(&config.data_dir)?;
         let mut media = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let series = Series::read_from_file(entry, Arc::clone(&config)).await?;
+            let config = Arc::clone(&config);
+            let series = Series::read_from_file(entry, config).await?;
             media.push(series);
         }
         Ok(media.into())
