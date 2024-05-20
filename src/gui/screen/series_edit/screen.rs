@@ -27,7 +27,7 @@ pub struct SeriesEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Option<WarningKind>,
     editable_series_id: usize,
-    episode_paths: Result<Option<Vec<PathBuf>>, ErrorKind>,
+    episode_paths: Result<Vec<PathBuf>, ErrorKind>,
     buffer_name: String,
 }
 
@@ -64,36 +64,29 @@ impl SeriesEditScreen {
         let watch = container(
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(
-                    episode_file_name
-                        .clone()
-                        .ok()
-                        .flatten()
-                        .map(|episode_name| Message::Watch {
-                            path: self
-                                .editable_series(media)
-                                .season_path()
-                                .join(&episode_name),
-                        }),
-                ),
+                .on_press_maybe(episode_file_name.clone().ok().map(|episode_name| {
+                    Message::Watch {
+                        path: self
+                            .editable_series(media)
+                            .season_path()
+                            .join(&episode_name),
+                    }
+                })),
         )
         .width(Length::Fill)
         .center_x();
         let watch_sign = match episode_file_name {
-            Ok(Some(episde_name)) => Some(episde_name),
-            Ok(None) => None,
-            Err(ErrorKind::FSIO { kind, .. }) => Some(format!("Season path is incorrect: {kind}")),
-            Err(err) => Some(format!("Season path is incorrect: {err}")),
+            Ok(episde_name) => episde_name,
+            Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
+            Err(err) => format!("Season path is incorrect: {err}"),
         };
-        let watch_sign = watch_sign.map(|watch_sign| {
-            container(
-                text(watch_sign)
-                    .size(13)
-                    .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
-            )
-            .width(Length::Fill)
-            .center_x()
-        });
+        let watch_sign = container(
+            text(watch_sign)
+                .size(13)
+                .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
+        )
+        .width(Length::Fill)
+        .center_x();
         let body = column![
             signed_text_input("Name", &self.buffer_name, Message::NameChanged),
             row![
@@ -131,7 +124,7 @@ impl SeriesEditScreen {
 
         layout = layout.push(top);
         layout = layout.push(watch);
-        layout = layout.push_maybe(watch_sign);
+        layout = layout.push(watch_sign);
         layout = layout.push(space);
         layout = layout.push_maybe(
             self.warning
@@ -258,33 +251,28 @@ impl SeriesEditScreen {
         &mut media[self.editable_series_id]
     }
 
-    fn episode_path(&self, media: &[Series]) -> Result<Option<PathBuf>, ErrorKind> {
+    fn episode_path(&self, media: &[Series]) -> Result<PathBuf, ErrorKind> {
         let episode_paths = self.episode_paths.as_ref().map_err(Clone::clone)?;
-        let Some(episode_paths) = episode_paths else {
-            return Ok(None);
-        };
         if episode_paths.is_empty() {
             return Err(ErrorKind::EpisodesDidNotFound);
         }
         let episode_path = episode_paths[self.episode_id(media)].clone();
-        Ok(Some(episode_path))
+        Ok(episode_path)
     }
 
     fn episode_id(&self, media: &[Series]) -> usize {
         (self.editable_series(media).episode().get() - 1) as usize
     }
 
-    fn episode_file_name(&self, media: &[Series]) -> Result<Option<String>, ErrorKind> {
-        let Some(path) = self.episode_path(media)? else {
-            return Ok(None);
-        };
-        let episode_name = path
+    fn episode_file_name(&self, media: &[Series]) -> Result<String, ErrorKind> {
+        let episode_name = self
+            .episode_path(media)?
             .file_name()
             .unwrap_or_default()
             .to_str()
             .unwrap_or_default()
             .to_string();
-        Ok(Some(episode_name))
+        Ok(episode_name)
     }
 
     fn set_season_path(
@@ -331,7 +319,7 @@ impl SeriesEditScreen {
     }
 
     fn episodes_count(&self) -> Option<usize> {
-        self.episode_paths.as_ref().ok()?.as_ref().map(|p| p.len())
+        self.episode_paths.as_ref().ok().map(|p| p.len())
     }
 
     fn set_episode_to_one(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
