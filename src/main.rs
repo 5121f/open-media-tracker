@@ -98,7 +98,8 @@ impl ZCinema {
 
     fn read_media(&mut self) -> Command<Message> {
         self.add_loading_process(LoadingKind::ReadMedia);
-        Command::perform(Media::read(Arc::clone(&self.config)), Message::MediaLoaded)
+        let read_media_future = Media::read(Arc::clone(&self.config));
+        Command::perform(read_media_future, Message::MediaLoaded)
     }
 
     fn loading_complete(&mut self, kind: LoadingKind) {
