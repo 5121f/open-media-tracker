@@ -20,7 +20,7 @@ use crate::{
     },
     media::Media,
     series::Series,
-    utils::{self, episode_paths, next_dir},
+    utils,
 };
 
 pub struct SeriesEditScreen {
@@ -35,7 +35,7 @@ impl SeriesEditScreen {
     pub fn new(media: &[Series], editable_series_id: usize) -> Self {
         let editable_series = &media[editable_series_id];
         let editable_series_name = editable_series.name().to_string();
-        let episode_paths = episode_paths(editable_series.season_path());
+        let episode_paths = utils::episode_paths(editable_series.season_path());
         Self {
             confirm_screen: Dialog::closed(),
             warning: None,
@@ -286,7 +286,7 @@ impl SeriesEditScreen {
         self.episode_paths = {
             let editable_series = self.editable_series(media);
             let series_path = editable_series.season_path();
-            episode_paths(series_path)
+            utils::episode_paths(series_path)
         };
         Ok(())
     }
@@ -337,7 +337,7 @@ impl SeriesEditScreen {
             return Ok(());
         }
         let season_path = series.season_path().to_path_buf();
-        self.confirm_switch_to_next_season(next_dir(&season_path)?);
+        self.confirm_switch_to_next_season(utils::next_dir(&season_path)?);
         Ok(())
     }
 
