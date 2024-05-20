@@ -34,7 +34,7 @@ use crate::{
 fn main() -> iced::Result {
     ZCinema::run(Settings {
         window: window::Settings {
-            size: Size::new(700., 500.),
+            size: Size::new(550., 400.),
             ..window::Settings::default()
         },
         ..Settings::default()
