@@ -19,16 +19,12 @@ pub struct ConfirmScreen<T> {
     kind: T,
 }
 
-impl<T: Display> ConfirmScreen<T> {
+impl<T> ConfirmScreen<T> {
     pub fn new(kind: T) -> Self {
         Self { kind }
     }
 
-    pub fn kind(&self) -> &T {
-        &self.kind
-    }
-
-    pub fn take(self) -> T {
+    pub fn kind(self) -> T {
         self.kind
     }
 }

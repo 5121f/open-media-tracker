@@ -222,7 +222,7 @@ impl SeriesEditScreen {
         match message {
             ConfirmScreenMessage::Confirm => {
                 if let Some(confirm) = self.confirm_screen.take() {
-                    self.confirm_kind_update(media, confirm.take())?
+                    self.confirm_kind_update(media, confirm.kind())?
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_screen.close(),

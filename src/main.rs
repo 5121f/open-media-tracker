@@ -127,7 +127,7 @@ impl ZCinema {
         match message {
             ConfirmScreenMessage::Confirm => {
                 if let Some(dialog) = self.confirm_dialog.take() {
-                    self.confirm_kind_update(dialog.take())?;
+                    self.confirm_kind_update(dialog.kind())?;
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
