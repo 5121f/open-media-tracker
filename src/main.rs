@@ -124,18 +124,22 @@ impl ZCinema {
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
         match message {
             ConfirmScreenMessage::Confirm => {
-                let Some(dialog) = self.confirm_dialog.as_ref() else {
-                    return Ok(());
-                };
-                match dialog.kind() {
-                    ConfirmKind::DeleteSeries { id, .. } => {
-                        self.media.remove(*id)?;
-                        self.confirm_dialog.close();
-                        self.main_screen();
-                    }
+                if let Some(dialog) = self.confirm_dialog.take() {
+                    self.confirm_kind_update(dialog.take())?;
                 }
             }
             ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
+        }
+        Ok(())
+    }
+
+    fn confirm_kind_update(&mut self, kind: ConfirmKind) -> Result<(), ErrorKind> {
+        match kind {
+            ConfirmKind::DeleteSeries { id, .. } => {
+                self.media.remove(id)?;
+                self.confirm_dialog.close();
+                self.main_screen();
+            }
         }
         Ok(())
     }
