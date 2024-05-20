@@ -118,6 +118,11 @@ impl SeriesEditScreen {
         ]
         .spacing(DEFAULT_INDENT);
         let space = Space::with_height(Length::Fixed(15.0));
+        let warning = self
+            .warning
+            .as_ref()
+            .map(|kind| warning_view(kind).map(Into::into));
+
         let mut layout = Column::new()
             .padding(DEFAULT_INDENT)
             .spacing(DEFAULT_INDENT);
@@ -126,11 +131,7 @@ impl SeriesEditScreen {
         layout = layout.push(watch);
         layout = layout.push(watch_sign);
         layout = layout.push(space);
-        layout = layout.push_maybe(
-            self.warning
-                .as_ref()
-                .map(|kind| warning_view(kind).map(Into::into)),
-        );
+        layout = layout.push_maybe(warning);
         layout = layout.push(body);
 
         modal(layout, confirm_screen).into()
