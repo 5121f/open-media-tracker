@@ -16,7 +16,7 @@ use crate::{
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
-        warning_view, Dialog, WarningMessage,
+        Dialog, WarningMessage, WarningScreen,
     },
     media::Media,
     series::Series,
@@ -25,7 +25,7 @@ use crate::{
 
 pub struct SeriesEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
-    warning: Option<WarningKind>,
+    warning: Dialog<WarningScreen<WarningKind>>,
     editable_series_id: usize,
     episode_paths: Result<Vec<PathBuf>, ErrorKind>,
     buffer_name: String,
@@ -38,7 +38,7 @@ impl SeriesEditScreen {
         let episode_paths = utils::episode_paths(editable_series.season_path());
         Self {
             confirm_screen: Dialog::closed(),
-            warning: None,
+            warning: Dialog::closed(),
             editable_series_id,
             episode_paths,
             buffer_name: editable_series_name,
@@ -118,10 +118,7 @@ impl SeriesEditScreen {
         ]
         .spacing(DEFAULT_INDENT);
         let space = Space::with_height(Length::Fixed(15.0));
-        let warning = self
-            .warning
-            .as_ref()
-            .map(|kind| warning_view(kind).map(Into::into));
+        let warning = self.warning.view_into();
 
         let mut layout = Column::new()
             .padding(DEFAULT_INDENT)
@@ -146,8 +143,11 @@ impl SeriesEditScreen {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
-                if matches!(self.warning, Some(WarningKind::NameUsed)) {
-                    self.warning = None;
+                if matches!(
+                    self.warning.as_ref().map(|w| w.kind()),
+                    Some(WarningKind::NameUsed)
+                ) {
+                    self.warning.close();
                 }
                 let series = self.editable_series_mut(media);
                 series.rename(value)?;
@@ -197,7 +197,7 @@ impl SeriesEditScreen {
                     self.set_season_path(media, folder)?;
                 }
             }
-            Message::Warning(WarningMessage::Close) => self.warning = None,
+            Message::Warning(WarningMessage::Close) => self.warning.close(),
             Message::OpenSeasonDirectory => {
                 let season_path = self.editable_series(media).season_path();
                 if !season_path.is_dir() {
@@ -291,7 +291,8 @@ impl SeriesEditScreen {
     }
 
     fn warning(&mut self, kind: WarningKind) {
-        self.warning = Some(kind);
+        let screen = WarningScreen::new(kind);
+        self.warning = Dialog::new(screen);
     }
 
     fn increase_episode(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
