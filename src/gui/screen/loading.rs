@@ -36,7 +36,7 @@ where
     }
 
     pub fn view<'a, M: 'a>(&'a self) -> Element<M> {
-        container(text(format!("Loading...")))
+        container(text("Loading..."))
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()
