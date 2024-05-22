@@ -36,8 +36,9 @@ pub fn list_button(text: &str) -> Button<Message> {
 }
 
 fn background_color() -> Color {
-    Color::from_rgb8(29, 31, 34)
+    Color::from_rgb8(26, 27, 30)
 }
+
 struct ListButton;
 
 impl button::StyleSheet for ListButton {
