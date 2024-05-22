@@ -232,11 +232,10 @@ impl SeriesEditScreen {
     ) -> Result<(), ErrorKind> {
         match kind {
             ConfirmKind::SwitchToNextSeason { next_season_path } => {
-                self.set_season_path(media, next_season_path)?;
+                self.set_season_path(media, next_season_path)
             }
-            ConfirmKind::EpisodesOverflow { .. } => self.increase_season(media)?,
+            ConfirmKind::EpisodesOverflow { .. } => self.increase_season(media),
         }
-        Ok(())
     }
 
     fn editable_series<'a>(&'a self, media: &'a [Series]) -> &'a Series {
@@ -310,8 +309,7 @@ impl SeriesEditScreen {
             return Ok(());
         }
         let series = self.editable_series_mut(media);
-        series.set_episode(value)?;
-        Ok(())
+        series.set_episode(value)
     }
 
     fn episodes_count(&self) -> Option<usize> {
