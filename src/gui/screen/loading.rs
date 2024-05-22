@@ -5,6 +5,10 @@ use iced::{
     Element, Length,
 };
 
+use crate::gui::IDialog;
+
+pub struct Message;
+
 pub struct LoadingScreen<T> {
     kinds: HashSet<T>,
 }
@@ -30,12 +34,16 @@ where
     pub fn all_complete(&self) -> bool {
         self.kinds.len() == 0
     }
+}
 
-    pub fn title(&self) -> String {
+impl<T> IDialog for LoadingScreen<T> {
+    type Message = Message;
+
+    fn title(&self) -> String {
         String::from("Loading")
     }
 
-    pub fn view<'a, M: 'a>(&'a self) -> Element<M> {
+    fn view(&self) -> Element<Self::Message> {
         container(text("Loading..."))
             .width(Length::Fill)
             .height(Length::Fill)

@@ -3,7 +3,8 @@ use iced::font;
 use crate::{
     error::ErrorKind,
     gui::screen::{
-        ConfirmScreenMessage, ErrorScreenMessage, MainScreenMessage, SeriesEditScreenMessage,
+        ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
+        SeriesEditScreenMessage,
     },
     media::Media,
 };
@@ -16,6 +17,7 @@ pub enum Message {
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
     MediaLoaded(Result<Media, ErrorKind>),
+    LoadingMessage,
 }
 
 impl From<ConfirmScreenMessage> for Message {
@@ -39,5 +41,11 @@ impl From<SeriesEditScreenMessage> for Message {
 impl From<MainScreenMessage> for Message {
     fn from(value: MainScreenMessage) -> Self {
         Self::MainScreen(value)
+    }
+}
+
+impl From<LoadingMessage> for Message {
+    fn from(_: LoadingMessage) -> Self {
+        Self::LoadingMessage
     }
 }

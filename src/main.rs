@@ -13,6 +13,7 @@ use std::{
     sync::Arc,
 };
 
+use gui::IDialog;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
@@ -79,7 +80,7 @@ impl ZCinema {
         self.error
             .title()
             .or_else(|| self.confirm_dialog.title())
-            .or_else(|| self.loading_dialog.as_ref().map(|d| d.title()))
+            .or_else(|| self.loading_dialog.title())
             .or_else(|| self.title())
     }
 
@@ -199,6 +200,7 @@ impl ZCinema {
                 self.media = res?.into();
                 self.loading_complete(LoadingKind::ReadMedia)
             }
+            Message::LoadingMessage => {}
         }
         Ok(Command::none())
     }
@@ -249,7 +251,7 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         if let Some(loading_screen) = self.loading_dialog.as_ref() {
-            return loading_screen.view();
+            return loading_screen.view().map(Into::into);
         }
 
         let dialog = self
