@@ -333,7 +333,8 @@ impl SeriesEditScreen {
             return Ok(());
         }
         let season_path = series.season_path().to_path_buf();
-        self.confirm_switch_to_next_season(utils::next_dir(&season_path)?);
+        let next_dir = utils::next_dir(&season_path)?;
+        self.confirm_switch_to_next_season(next_dir);
         Ok(())
     }
 
