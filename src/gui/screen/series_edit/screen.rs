@@ -60,23 +60,20 @@ impl SeriesEditScreen {
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let episode_file_name = self.episode_file_name(media);
+        let episode_file_path = self.episode_path(media);
         let watch = container(
             button("Watch")
                 .style(theme::Button::Positive)
-                .on_press_maybe(episode_file_name.clone().ok().map(|episode_name| {
+                .on_press_maybe(episode_file_path.clone().ok().map(|episode_file_path| {
                     Message::Watch {
-                        path: self
-                            .editable_series(media)
-                            .season_path()
-                            .join(&episode_name),
+                        path: episode_file_path,
                     }
                 })),
         )
         .width(Length::Fill)
         .center_x();
-        let watch_sign = match episode_file_name {
-            Ok(episde_name) => episde_name,
+        let watch_sign = match self.episode_file_name(media) {
+            Ok(file_name) => file_name,
             Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
             Err(err) => format!("Season path is incorrect: {err}"),
         };
@@ -265,7 +262,7 @@ impl SeriesEditScreen {
     fn episode_file_name(&self, media: &[Series]) -> Result<String, ErrorKind> {
         let episode_name = self
             .episode_path(media)?
-            .file_name()
+            .file_stem()
             .ok_or(ErrorKind::EpisodesDidNotFound)?
             .to_string_lossy()
             .to_string();
