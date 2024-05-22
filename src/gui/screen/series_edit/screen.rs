@@ -60,19 +60,19 @@ impl SeriesEditScreen {
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let episode_file_path = self.episode_path(media);
-        let watch =
-            container(
-                button("Watch")
-                    .style(theme::Button::Positive)
-                    .on_press_maybe(episode_file_path.ok().map(|episode_file_path| {
-                        Message::Watch {
-                            path: episode_file_path,
-                        }
-                    })),
-            )
-            .width(Length::Fill)
-            .center_x();
+        let watch_message = self
+            .episode_path(media)
+            .ok()
+            .map(|episode_file_path| Message::Watch {
+                path: episode_file_path,
+            });
+        let watch = container(
+            button("Watch")
+                .style(theme::Button::Positive)
+                .on_press_maybe(watch_message),
+        )
+        .width(Length::Fill)
+        .center_x();
         let watch_sign = match self.episode_file_name(media) {
             Ok(file_name) => file_name,
             Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
