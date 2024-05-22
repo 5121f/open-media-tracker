@@ -251,7 +251,7 @@ impl Application for ZCinema {
 
     fn view(&self) -> Element<Message> {
         if let Some(loading_screen) = self.loading_dialog.as_ref() {
-            return loading_screen.view().map(Into::into);
+            return loading_screen.view_into();
         }
 
         let dialog = self
