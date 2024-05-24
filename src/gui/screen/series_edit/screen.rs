@@ -73,18 +73,15 @@ impl SeriesEditScreen {
         )
         .width(Length::Fill)
         .center_x();
-        let watch_sign = match self.episode_file_name(media) {
-            Ok(file_name) => file_name,
-            Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
-            Err(err) => format!("Season path is incorrect: {err}"),
-        };
-        let watch_sign = container(
-            text(watch_sign)
-                .size(13)
-                .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
-        )
-        .width(Length::Fill)
-        .center_x();
+        let watch_sign = self.watch_sign(media).map(|watch_sign| {
+            container(
+                text(watch_sign)
+                    .size(13)
+                    .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
+            )
+            .width(Length::Fill)
+            .center_x()
+        });
         let body = column![
             signed_text_input("Name", &self.buffer_name, Message::NameChanged),
             row![
@@ -124,7 +121,7 @@ impl SeriesEditScreen {
 
         layout = layout.push(top);
         layout = layout.push(watch);
-        layout = layout.push(watch_sign);
+        layout = layout.push_maybe(watch_sign);
         layout = layout.push(space);
         layout = layout.push_maybe(warning);
         layout = layout.push(body);
@@ -207,6 +204,18 @@ impl SeriesEditScreen {
 
     pub fn title(&self, media: &[Series]) -> String {
         self.editable_series(media).name().to_string()
+    }
+
+    fn watch_sign(&self, media: &[Series]) -> Option<String> {
+        if !self.editable_series(media).season_path_is_present() {
+            return None;
+        }
+        let watch_sign = match self.episode_file_name(media) {
+            Ok(file_name) => file_name,
+            Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
+            Err(err) => format!("Season path is incorrect: {err}"),
+        };
+        Some(watch_sign)
     }
 
     fn confirm_screen_update(
