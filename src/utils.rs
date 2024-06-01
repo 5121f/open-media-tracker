@@ -5,18 +5,18 @@ use std::{
 
 use mime_guess::mime;
 
-use crate::error::ErrorKind;
+use crate::error::{ErrorKind, FSIOError};
 
 pub fn open(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();
     open::that(path).map_err(|source| ErrorKind::open(&path, source.kind()))
 }
 
-pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
-    let read_dir = fs::read_dir(&path).map_err(|source| ErrorKind::fsio(&path, source))?;
+pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, FSIOError> {
+    let read_dir = fs::read_dir(&path).map_err(|source| FSIOError::new(&path, source))?;
     let mut files = Vec::new();
     for entry in read_dir {
-        let entry = entry.map_err(|source| ErrorKind::fsio(&path, source))?;
+        let entry = entry.map_err(|source| FSIOError::new(&path, source))?;
         files.push(entry.path());
     }
     Ok(files)
