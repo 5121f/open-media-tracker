@@ -31,6 +31,7 @@ impl Media {
         Ok(media.into())
     }
 
+    /// Rename series with check on unique
     pub fn rename_series(&mut self, series_id: usize, new_name: String) -> Result<(), MediaErrror> {
         if self.name_is_used(&new_name) {
             return Err(MediaErrror::NameIsUsed);
