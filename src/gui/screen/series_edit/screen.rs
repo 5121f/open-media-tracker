@@ -145,7 +145,9 @@ impl SeriesEditScreen {
             }
             Message::SeasonChanged(value) => {
                 if value.is_empty() {
-                    return self.editable_series_mut(media).set_season(NonZeroU8::MIN);
+                    if let Err(error) = self.editable_series_mut(media).set_season(NonZeroU8::MIN) {
+                        return Err(error.into());
+                    }
                 }
                 if let Ok(number) = value.parse() {
                     self.editable_series_mut(media).set_season(number)?;
@@ -310,7 +312,8 @@ impl SeriesEditScreen {
             return Ok(());
         }
         let series = self.editable_series_mut(media);
-        series.set_episode(value)
+        series.set_episode(value)?;
+        Ok(())
     }
 
     fn episodes_count(&self) -> Option<usize> {
@@ -320,7 +323,8 @@ impl SeriesEditScreen {
 
     fn set_episode_to_one(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
         let series = self.editable_series_mut(media);
-        series.set_episode(NonZeroU8::MIN)
+        series.set_episode(NonZeroU8::MIN)?;
+        Ok(())
     }
 
     fn increase_season(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {

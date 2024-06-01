@@ -4,9 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ron::de::SpannedError;
-
-use crate::episode::EpisodeError;
+use crate::{episode::EpisodeError, series::SeriesError};
 
 pub struct Error {
     pub kind: ErrorKind,
@@ -41,10 +39,6 @@ impl From<ErrorKind> for Error {
 pub enum ErrorKind {
     #[error("{path}: I/O error: {kind}")]
     FSIO { path: PathBuf, kind: io::ErrorKind },
-    #[error("{path}: file parsing error: {source}")]
-    Parce { path: PathBuf, source: SpannedError },
-    #[error("{name}: Serialize error: {source}")]
-    SerializeSeries { name: String, source: ron::Error },
     #[error("Failed to found user's data directory")]
     UserDataDirNotFound,
     #[error("{path}: Falied to open default program: {kind}")]
@@ -56,7 +50,11 @@ pub enum ErrorKind {
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
     #[error(transparent)]
+    Series(#[from] SeriesError),
+    #[error(transparent)]
     Episode(#[from] EpisodeError),
+    #[error(transparent)]
+    FSIOError(#[from] FSIOError),
 }
 
 impl ErrorKind {
@@ -66,17 +64,28 @@ impl ErrorKind {
         Self::FSIO { path, kind }
     }
 
-    pub fn parse(path: impl AsRef<Path>, source: SpannedError) -> Self {
-        let path = path.as_ref().to_path_buf();
-        Self::Parce { path, source }
-    }
-
-    pub fn serialize_series(name: String, source: ron::Error) -> Self {
-        Self::SerializeSeries { name, source }
-    }
-
     pub fn open(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
         let path = path.as_ref().to_path_buf();
         Self::Open { path, kind }
+    }
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+pub struct FSIOError {
+    path: PathBuf,
+    kind: io::ErrorKind,
+}
+
+impl FSIOError {
+    pub fn new(path: impl AsRef<Path>, source: io::Error) -> Self {
+        let path = path.as_ref().to_path_buf();
+        let kind = source.kind();
+        Self { path, kind }
+    }
+}
+
+impl Display for FSIOError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: I/O error: {}", self.path.display(), self.kind)
     }
 }

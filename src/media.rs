@@ -3,7 +3,12 @@ use std::{
     sync::Arc,
 };
 
-use crate::{config::Config, error::ErrorKind, series::Series, utils::read_dir};
+use crate::{
+    config::Config,
+    error::ErrorKind,
+    series::{Series, SeriesError},
+    utils::read_dir,
+};
 
 #[derive(Debug, Clone, Default)]
 pub struct Media(Vec<Series>);
@@ -69,6 +74,8 @@ impl From<Vec<Series>> for Media {
 pub enum MediaErrror {
     #[error("Name is used")]
     NameIsUsed,
+    #[error(transparent)]
+    SeriesError(#[from] SeriesError),
     #[error(transparent)]
     ErrorKind(#[from] ErrorKind),
 }
