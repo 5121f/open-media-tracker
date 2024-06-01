@@ -6,6 +6,8 @@ use std::{
 
 use ron::de::SpannedError;
 
+use crate::episode::EpisodeError;
+
 pub struct Error {
     pub kind: ErrorKind,
     pub critical: bool,
@@ -53,8 +55,8 @@ pub enum ErrorKind {
     FontLoad,
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
-    #[error("Episode must be media file")]
-    EpisodeMustBeAMediaFile,
+    #[error(transparent)]
+    Episode(#[from] EpisodeError),
 }
 
 impl ErrorKind {

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{error::ErrorKind, utils};
+use crate::utils;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Episode {
@@ -8,9 +8,9 @@ pub struct Episode {
 }
 
 impl Episode {
-    pub fn new(path: PathBuf) -> Result<Self, ErrorKind> {
+    pub fn new(path: PathBuf) -> Result<Self, EpisodeError> {
         if !utils::is_media_file(&path) {
-            return Err(ErrorKind::EpisodeMustBeAMediaFile);
+            return Err(EpisodeError::MustBeAMediaFile);
         }
         Ok(Self { path })
     }
@@ -26,4 +26,10 @@ impl Episode {
             .to_string_lossy()
             .to_string()
     }
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+pub enum EpisodeError {
+    #[error("Episode must be media file")]
+    MustBeAMediaFile,
 }
