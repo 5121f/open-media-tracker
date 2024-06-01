@@ -7,7 +7,7 @@ use crate::{
     config::Config,
     error::ErrorKind,
     series::{Series, SeriesError},
-    utils::read_dir,
+    utils,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -26,7 +26,7 @@ impl Media {
     }
 
     pub async fn read(config: Arc<Config>) -> Result<Self, ErrorKind> {
-        let dir_content = read_dir(&config.data_dir)?;
+        let dir_content = utils::read_dir(&config.data_dir)?;
         let mut media = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
             let config = Arc::clone(&config);
