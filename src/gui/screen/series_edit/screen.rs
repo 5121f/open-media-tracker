@@ -20,7 +20,7 @@ use crate::{
         utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
         Dialog, WarningMessage, WarningScreen,
     },
-    media::Media,
+    media::{Media, MediaErrror},
     series::Series,
     utils,
 };
@@ -133,15 +133,15 @@ impl SeriesEditScreen {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                if media.name_is_used(&value) {
+                if let Err(MediaErrror::NameIsUsed) =
+                    media.rename_series(self.editable_series_id, value)
+                {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
                 if matches!(self.warning.kind(), Some(WarningKind::NameUsed)) {
                     self.warning.close();
                 }
-                let series = self.editable_series_mut(media);
-                series.rename(value)?;
             }
             Message::SeasonChanged(value) => {
                 if value.is_empty() {

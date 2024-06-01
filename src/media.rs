@@ -31,7 +31,15 @@ impl Media {
         Ok(media.into())
     }
 
-    pub fn name_is_used(&self, name: &str) -> bool {
+    pub fn rename_series(&mut self, series_id: usize, new_name: String) -> Result<(), MediaErrror> {
+        if self.name_is_used(&new_name) {
+            return Err(MediaErrror::NameIsUsed);
+        }
+        self.0[series_id].rename(new_name)?;
+        Ok(())
+    }
+
+    fn name_is_used(&self, name: &str) -> bool {
         self.0.iter().any(|s| s.name() == name)
     }
 }
@@ -54,4 +62,12 @@ impl From<Vec<Series>> for Media {
     fn from(value: Vec<Series>) -> Self {
         Self(value)
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum MediaErrror {
+    #[error("Name is used")]
+    NameIsUsed,
+    #[error(transparent)]
+    ErrorKind(#[from] ErrorKind),
 }
