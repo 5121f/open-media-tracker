@@ -241,9 +241,13 @@ impl SeriesEditScreen {
     ) -> Result<(), ErrorKind> {
         match kind {
             ConfirmKind::SwitchToNextSeason { next_season_path } => {
+                self.confirm_screen.close();
                 self.set_season_path(media, next_season_path)
             }
-            ConfirmKind::EpisodesOverflow { .. } => self.increase_season(media),
+            ConfirmKind::EpisodesOverflow { .. } => {
+                self.confirm_screen.close();
+                self.increase_season(media)
+            }
         }
     }
 
