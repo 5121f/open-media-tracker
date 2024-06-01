@@ -53,6 +53,8 @@ pub enum ErrorKind {
     FontLoad,
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
+    #[error("Episode must be media file")]
+    EpisodeMustBeAMediaFile,
 }
 
 impl ErrorKind {

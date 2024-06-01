@@ -5,7 +5,7 @@ use std::{
 
 use mime_guess::mime;
 
-use crate::error::ErrorKind;
+use crate::{episode::Episode, error::ErrorKind};
 
 pub fn open(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
     let path = path.as_ref();
@@ -58,10 +58,13 @@ pub fn is_media_file(path: impl AsRef<Path>) -> bool {
     mtype == mime::VIDEO || mtype == mime::AUDIO
 }
 
-pub fn episode_paths(series_path: impl AsRef<Path>) -> Result<Vec<PathBuf>, ErrorKind> {
+pub fn episodes(series_path: impl AsRef<Path>) -> Result<Vec<Episode>, ErrorKind> {
     let series_path = series_path.as_ref();
-    let mut episode_paths = read_dir(series_path)?;
-    episode_paths.retain(|p| is_media_file(p));
-    episode_paths.sort();
-    Ok(episode_paths)
+    let episode_paths = read_dir(series_path)?;
+    let mut episodes: Vec<_> = episode_paths
+        .into_iter()
+        .flat_map(|path| Episode::new(path).ok())
+        .collect();
+    episodes.sort();
+    Ok(episodes)
 }

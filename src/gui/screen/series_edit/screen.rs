@@ -12,6 +12,7 @@ use super::{
     message::Message,
 };
 use crate::{
+    episode::Episode,
     error::ErrorKind,
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
@@ -27,7 +28,7 @@ pub struct SeriesEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningScreen<WarningKind>>,
     editable_series_id: usize,
-    episode_paths: Result<Vec<PathBuf>, ErrorKind>,
+    episodes: Result<Vec<Episode>, ErrorKind>,
     buffer_name: String,
 }
 
@@ -35,12 +36,12 @@ impl SeriesEditScreen {
     pub fn new(media: &[Series], editable_series_id: usize) -> Self {
         let editable_series = &media[editable_series_id];
         let editable_series_name = editable_series.name().to_string();
-        let episode_paths = utils::episode_paths(editable_series.season_path());
+        let episodes = utils::episodes(editable_series.season_path());
         Self {
             confirm_screen: Dialog::closed(),
             warning: Dialog::closed(),
             editable_series_id,
-            episode_paths,
+            episodes,
             buffer_name: editable_series_name,
         }
     }
@@ -60,12 +61,9 @@ impl SeriesEditScreen {
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let watch_message = self
-            .episode_path(media)
-            .ok()
-            .map(|episode_file_path| Message::Watch {
-                path: episode_file_path,
-            });
+        let watch_message = self.episode(media).ok().map(|episode| Message::Watch {
+            path: episode.path().to_owned(),
+        });
         let watch = container(
             button("Watch")
                 .style(theme::Button::Positive)
@@ -210,8 +208,8 @@ impl SeriesEditScreen {
         if !self.editable_series(media).season_path_is_present() {
             return None;
         }
-        let watch_sign = match self.episode_file_name(media) {
-            Ok(file_name) => file_name,
+        let watch_sign = match self.episode(media) {
+            Ok(episode) => episode.name(),
             Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
             Err(err) => format!("Season path is incorrect: {err}"),
         };
@@ -259,27 +257,16 @@ impl SeriesEditScreen {
         &mut media[self.editable_series_id]
     }
 
-    fn episode_path(&self, media: &[Series]) -> Result<PathBuf, ErrorKind> {
-        let episode_paths = self.episode_paths.as_ref().map_err(Clone::clone)?;
-        if episode_paths.is_empty() {
-            return Err(ErrorKind::EpisodesDidNotFound);
-        }
-        let episode_path = episode_paths[self.episode_id(media)].clone();
-        Ok(episode_path)
+    fn episodes(&self) -> Result<&Vec<Episode>, ErrorKind> {
+        self.episodes.as_ref().map_err(Clone::clone)
+    }
+
+    fn episode(&self, media: &[Series]) -> Result<&Episode, ErrorKind> {
+        Ok(&self.episodes()?[self.episode_id(media)])
     }
 
     fn episode_id(&self, media: &[Series]) -> usize {
         (self.editable_series(media).episode().get() - 1) as usize
-    }
-
-    fn episode_file_name(&self, media: &[Series]) -> Result<String, ErrorKind> {
-        let episode_name = self
-            .episode_path(media)?
-            .file_stem()
-            .ok_or(ErrorKind::EpisodesDidNotFound)?
-            .to_string_lossy()
-            .to_string();
-        Ok(episode_name)
     }
 
     fn set_season_path(
@@ -289,10 +276,10 @@ impl SeriesEditScreen {
     ) -> Result<(), ErrorKind> {
         self.editable_series_mut(media)
             .set_season_path(season_path)?;
-        self.episode_paths = {
+        self.episodes = {
             let editable_series = self.editable_series(media);
             let series_path = editable_series.season_path();
-            utils::episode_paths(series_path)
+            utils::episodes(series_path)
         };
         Ok(())
     }
@@ -326,7 +313,7 @@ impl SeriesEditScreen {
     }
 
     fn episodes_count(&self) -> Option<usize> {
-        let count = self.episode_paths.as_ref().ok()?.len();
+        let count = self.episodes.as_ref().ok()?.len();
         Some(count)
     }
 
