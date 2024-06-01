@@ -12,6 +12,7 @@ use super::{
     message::Message,
 };
 use crate::{
+    episdoes::Episodes,
     episode::Episode,
     error::ErrorKind,
     gui::{
@@ -28,7 +29,7 @@ pub struct SeriesEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningScreen<WarningKind>>,
     editable_series_id: usize,
-    episodes: Result<Vec<Episode>, ErrorKind>,
+    episodes: Result<Episodes, ErrorKind>,
     buffer_name: String,
 }
 
@@ -36,7 +37,7 @@ impl SeriesEditScreen {
     pub fn new(media: &[Series], editable_series_id: usize) -> Self {
         let editable_series = &media[editable_series_id];
         let editable_series_name = editable_series.name().to_string();
-        let episodes = utils::episodes(editable_series.season_path());
+        let episodes = Episodes::read(editable_series.season_path());
         Self {
             confirm_screen: Dialog::closed(),
             warning: Dialog::closed(),
@@ -257,7 +258,7 @@ impl SeriesEditScreen {
         &mut media[self.editable_series_id]
     }
 
-    fn episodes(&self) -> Result<&Vec<Episode>, ErrorKind> {
+    fn episodes(&self) -> Result<&Episodes, ErrorKind> {
         self.episodes.as_ref().map_err(Clone::clone)
     }
 
@@ -279,7 +280,7 @@ impl SeriesEditScreen {
         self.episodes = {
             let editable_series = self.editable_series(media);
             let series_path = editable_series.season_path();
-            utils::episodes(series_path)
+            Episodes::read(series_path)
         };
         Ok(())
     }
