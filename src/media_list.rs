@@ -5,6 +5,7 @@ use std::{
 
 use crate::{
     config::Config,
+    error::FSIOError,
     media::{Media, MediaError},
     utils,
 };
@@ -17,14 +18,14 @@ impl MediaList {
         Self(Vec::new())
     }
 
-    pub fn remove(&mut self, id: usize) -> Result<(), MediaError> {
+    pub fn remove(&mut self, id: usize) -> Result<()> {
         let media = &self.0[id];
         media.remove_file()?;
         self.0.remove(id);
         Ok(())
     }
 
-    pub async fn read(config: Arc<Config>) -> Result<Self, MediaError> {
+    pub async fn read(config: Arc<Config>) -> Result<Self> {
         let dir_content = utils::read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
@@ -36,9 +37,9 @@ impl MediaList {
     }
 
     /// Rename media with check on unique
-    pub fn rename_media(&mut self, media_id: usize, new_name: String) -> Result<(), MediaErrror> {
+    pub fn rename_media(&mut self, media_id: usize, new_name: String) -> Result<()> {
         if self.name_is_used(&new_name) {
-            return Err(MediaErrror::NameIsUsed);
+            return Err(MediaListError::NameIsUsed);
         }
         self.0[media_id].rename(new_name)?;
         Ok(())
@@ -70,9 +71,13 @@ impl From<Vec<Media>> for MediaList {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum MediaErrror {
+pub enum MediaListError {
     #[error("Name is used")]
     NameIsUsed,
     #[error(transparent)]
     MediaError(#[from] MediaError),
+    #[error(transparent)]
+    FSIO(#[from] FSIOError),
 }
+
+type Result<T> = std::result::Result<T, MediaListError>;

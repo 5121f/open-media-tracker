@@ -21,7 +21,7 @@ use crate::{
         Dialog, WarningMessage, WarningScreen,
     },
     media::Media,
-    media_list::{MediaErrror, MediaList},
+    media_list::{MediaList, MediaListError},
     utils,
 };
 
@@ -137,7 +137,7 @@ impl MediaEditScreen {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
-                if let Err(MediaErrror::NameIsUsed) =
+                if let Err(MediaListError::NameIsUsed) =
                     media_list.rename_media(self.editable_media_id, value)
                 {
                     self.warning(WarningKind::NameUsed);
