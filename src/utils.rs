@@ -26,10 +26,10 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
     let path = path.as_ref();
     let dir_name = path
         .file_name()
-        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
+        .ok_or(ErrorKind::FailedToFindNextChapterPath)?;
     let parent = path
         .parent()
-        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?
+        .ok_or(ErrorKind::FailedToFindNextChapterPath)?
         .to_owned();
     let mut paths = read_dir(parent)?;
     paths.retain(|path| path.is_dir());
@@ -40,12 +40,12 @@ pub fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf, ErrorKind> {
         .flat_map(|name| name.to_str())
         .enumerate()
         .find(|(_, file_name)| *file_name == dir_name)
-        .ok_or(ErrorKind::FailedToFindNextSeasonPath)?;
-    let next_season_index = current_dir_index + 1;
-    if next_season_index >= paths.len() {
-        return Err(ErrorKind::FailedToFindNextSeasonPath);
+        .ok_or(ErrorKind::FailedToFindNextChapterPath)?;
+    let next_chapter_index = current_dir_index + 1;
+    if next_chapter_index >= paths.len() {
+        return Err(ErrorKind::FailedToFindNextChapterPath);
     }
-    let next_dir = paths[next_season_index].to_path_buf();
+    let next_dir = paths[next_chapter_index].to_path_buf();
     Ok(next_dir)
 }
 

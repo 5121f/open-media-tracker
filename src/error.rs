@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{episode::EpisodeError, series::SeriesError};
+use crate::{episode::EpisodeError, media::MediaError};
 
 pub struct Error {
     pub kind: ErrorKind,
@@ -43,14 +43,14 @@ pub enum ErrorKind {
     UserDataDirNotFound,
     #[error("{path}: Falied to open default program: {kind}")]
     Open { path: PathBuf, kind: io::ErrorKind },
-    #[error("Failed to find next season path")]
-    FailedToFindNextSeasonPath,
+    #[error("Failed to find next chapter path")]
+    FailedToFindNextChapterPath,
     #[error("Filed to load font")]
     FontLoad,
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
     #[error(transparent)]
-    Series(#[from] SeriesError),
+    Media(#[from] MediaError),
     #[error(transparent)]
     Episode(#[from] EpisodeError),
     #[error(transparent)]

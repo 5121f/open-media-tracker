@@ -12,7 +12,7 @@ use super::{
     message::Message,
 };
 use crate::{
-    episdoes::Episodes,
+    episdoe_list::EpisodeList,
     episode::Episode,
     error::ErrorKind,
     gui::{
@@ -20,49 +20,49 @@ use crate::{
         utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
         Dialog, WarningMessage, WarningScreen,
     },
-    media::{Media, MediaErrror},
-    series::Series,
+    media::Media,
+    media_list::{MediaErrror, MediaList},
     utils,
 };
 
-pub struct SeriesEditScreen {
+pub struct MediaEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningScreen<WarningKind>>,
-    editable_series_id: usize,
-    episodes: Result<Episodes, ErrorKind>,
+    editable_media_id: usize,
+    episodes: Result<EpisodeList, ErrorKind>,
     buffer_name: String,
 }
 
-impl SeriesEditScreen {
-    pub fn new(media: &[Series], editable_series_id: usize) -> Self {
-        let editable_series = &media[editable_series_id];
-        let editable_series_name = editable_series.name().to_string();
-        let episodes = Episodes::read(editable_series.season_path());
+impl MediaEditScreen {
+    pub fn new(media: &[Media], editable_media_id: usize) -> Self {
+        let editable_media = &media[editable_media_id];
+        let editable_episode_name = editable_media.name().to_string();
+        let episodes = EpisodeList::read(editable_media.chapter_path());
         Self {
             confirm_screen: Dialog::closed(),
             warning: Dialog::closed(),
-            editable_series_id,
+            editable_media_id,
             episodes,
-            buffer_name: editable_series_name,
+            buffer_name: editable_episode_name,
         }
     }
 
-    pub fn view(&self, media: &[Series]) -> Element<Message> {
+    pub fn view(&self, media_list: &[Media]) -> Element<Message> {
         let confirm_screen = self.confirm_screen.view_into();
-        let series = self.editable_series(media);
-        let season_path = series.season_path().display().to_string();
+        let media = self.editable_media(media_list);
+        let chapter_path = media.chapter_path().display().to_string();
         let top = row![
             container(link("< Back").on_press(Message::Back)).width(Length::Fill),
-            text(series.name()),
+            text(media.name()),
             container(
                 button("Delete")
                     .style(theme::Button::Destructive)
-                    .on_press(Message::Delete(self.editable_series_id))
+                    .on_press(Message::Delete(self.editable_media_id))
             )
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let watch_message = self.episode(media).ok().map(|episode| Message::Watch {
+        let watch_message = self.episode(media_list).ok().map(|episode| Message::Watch {
             path: episode.path().to_owned(),
         });
         let watch = container(
@@ -72,7 +72,7 @@ impl SeriesEditScreen {
         )
         .width(Length::Fill)
         .center_x();
-        let watch_sign = self.watch_sign(media).map(|watch_sign| {
+        let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
             container(
                 text(watch_sign)
                     .size(13)
@@ -85,18 +85,18 @@ impl SeriesEditScreen {
             signed_text_input("Name", &self.buffer_name, Message::NameChanged),
             row![
                 signed_text_input(
-                    "Season",
-                    &series.season().to_string(),
-                    Message::SeasonChanged
+                    "Chapter",
+                    &media.chapter().to_string(),
+                    Message::ChapterChanged
                 ),
-                square_button("-").on_press(Message::SeasonDec),
-                square_button("+").on_press(Message::SeasonInc)
+                square_button("-").on_press(Message::ChapterDec),
+                square_button("+").on_press(Message::ChapterInc)
             ]
             .spacing(DEFAULT_INDENT),
             row![
                 signed_text_input(
                     "Episode",
-                    &series.episode().to_string(),
+                    &media.episode().to_string(),
                     Message::EpisodeChanged
                 ),
                 square_button("-").on_press(Message::EpisodeDec),
@@ -104,9 +104,9 @@ impl SeriesEditScreen {
             ]
             .spacing(DEFAULT_INDENT),
             row![
-                signed_text_input("Season path", &season_path, Message::SeasonPathChanged),
-                square_button(">").on_press(Message::OpenSeasonDirectory),
-                square_button("...").on_press(Message::SeasonPathSelect),
+                signed_text_input("Chapter path", &chapter_path, Message::ChapterPathChanged),
+                square_button(">").on_press(Message::OpenChapterDirectory),
+                square_button("...").on_press(Message::ChapterPathSelect),
             ]
             .spacing(DEFAULT_INDENT)
         ]
@@ -128,13 +128,17 @@ impl SeriesEditScreen {
         modal(layout, confirm_screen).into()
     }
 
-    pub fn update(&mut self, media: &mut Media, message: Message) -> Result<(), ErrorKind> {
+    pub fn update(
+        &mut self,
+        media_list: &mut MediaList,
+        message: Message,
+    ) -> Result<(), ErrorKind> {
         match message {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
                 if let Err(MediaErrror::NameIsUsed) =
-                    media.rename_series(self.editable_series_id, value)
+                    media_list.rename_media(self.editable_media_id, value)
                 {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
@@ -143,85 +147,88 @@ impl SeriesEditScreen {
                     self.warning.close();
                 }
             }
-            Message::SeasonChanged(value) => {
+            Message::ChapterChanged(value) => {
                 if value.is_empty() {
-                    if let Err(error) = self.editable_series_mut(media).set_season(NonZeroU8::MIN) {
+                    if let Err(error) = self
+                        .editable_media_mut(media_list)
+                        .set_chapter(NonZeroU8::MIN)
+                    {
                         return Err(error.into());
                     }
                 }
                 if let Ok(number) = value.parse() {
-                    self.editable_series_mut(media).set_season(number)?;
+                    self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
             Message::EpisodeChanged(value) => {
                 if value.is_empty() {
-                    return self.set_episode_to_one(media);
+                    return self.set_episode_to_one(media_list);
                 }
                 if let Ok(number) = value.parse() {
-                    self.set_episode(media, number)?;
+                    self.set_episode(media_list, number)?;
                 }
             }
-            Message::SeasonInc => self.increase_season(media)?,
-            Message::SeasonDec => {
-                let series = self.editable_series_mut(media);
-                let new_value = series.season().get() - 1;
+            Message::ChapterInc => self.increase_chapter(media_list)?,
+            Message::ChapterDec => {
+                let media = self.editable_media_mut(media_list);
+                let new_value = media.chapter().get() - 1;
                 let new_value = NonZeroU8::new(new_value);
                 match new_value {
-                    Some(number) => series.set_season(number)?,
-                    None => self.warning(WarningKind::SeasonCanNotBeZero),
+                    Some(number) => media.set_chapter(number)?,
+                    None => self.warning(WarningKind::ChapterCanNotBeZero),
                 }
             }
-            Message::EpisodeInc => self.increase_episode(media)?,
+            Message::EpisodeInc => self.increase_episode(media_list)?,
             Message::EpisodeDec => {
-                let series = self.editable_series_mut(media);
-                let new_value = series.episode().get() - 1;
+                let media = self.editable_media_mut(media_list);
+                let new_value = media.episode().get() - 1;
                 let new_value = NonZeroU8::new(new_value);
                 match new_value {
-                    Some(number) => self.editable_series_mut(media).set_episode(number)?,
+                    Some(number) => self.editable_media_mut(media_list).set_episode(number)?,
                     None => self.warning(WarningKind::EpisodeCanNotBeZero),
                 }
             }
-            Message::SeasonPathChanged(value) => {
-                self.set_season_path(media, PathBuf::from(value))?
+            Message::ChapterPathChanged(value) => {
+                self.set_chapter_path(media_list, PathBuf::from(value))?
             }
-            Message::ConfirmScreen(message) => self.confirm_screen_update(media, message)?,
-            Message::SeasonPathSelect => {
+            Message::ConfirmScreen(message) => self.confirm_screen_update(media_list, message)?,
+            Message::ChapterPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.set_season_path(media, folder)?;
+                    self.set_chapter_path(media_list, folder)?;
                 }
             }
             Message::Warning(WarningMessage::Close) => self.warning.close(),
-            Message::OpenSeasonDirectory => {
-                let season_path = self.editable_series(media).season_path();
-                if !season_path.is_dir() {
-                    self.warning(WarningKind::WrongSeasonPath);
+            Message::OpenChapterDirectory => {
+                let chapter_path = self.editable_media(media_list).chapter_path();
+                if !chapter_path.is_dir() {
+                    self.warning(WarningKind::WrongChapterPath);
                     return Ok(());
                 }
-                utils::open(season_path)?;
+                utils::open(chapter_path)?;
             }
         }
         Ok(())
     }
 
-    pub fn title(&self, media: &[Series]) -> String {
-        self.editable_series(media).name().to_string()
+    pub fn title(&self, media: &[Media]) -> String {
+        self.editable_media(media).name().to_string()
     }
 
-    fn watch_sign(&self, media: &[Series]) -> Option<String> {
-        if !self.editable_series(media).season_path_is_present() {
+    fn watch_sign(&self, media: &[Media]) -> Option<String> {
+        if !self.editable_media(media).chapter_path_is_present() {
             return None;
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::FSIO { kind, .. }) => format!("Season path is incorrect: {kind}"),
-            Err(err) => format!("Season path is incorrect: {err}"),
+            Err(ErrorKind::FSIO { kind, .. }) => format!("Chapter path is incorrect: {kind}"),
+            Err(err) => format!("Chapter path is incorrect: {err}"),
         };
         Some(watch_sign)
     }
 
     fn confirm_screen_update(
         &mut self,
-        media: &mut [Series],
+        media: &mut [Media],
         message: ConfirmScreenMessage,
     ) -> Result<(), ErrorKind> {
         match message {
@@ -237,52 +244,52 @@ impl SeriesEditScreen {
 
     fn confirm_kind_update(
         &mut self,
-        media: &mut [Series],
+        media: &mut [Media],
         kind: ConfirmKind,
     ) -> Result<(), ErrorKind> {
         match kind {
-            ConfirmKind::SwitchToNextSeason { next_season_path } => {
+            ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm_screen.close();
-                self.set_season_path(media, next_season_path)
+                self.set_chapter_path(media, path)
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm_screen.close();
-                self.increase_season(media)
+                self.increase_chapter(media)
             }
         }
     }
 
-    fn editable_series<'a>(&'a self, media: &'a [Series]) -> &'a Series {
-        &media[self.editable_series_id]
+    fn editable_media<'a>(&'a self, media: &'a [Media]) -> &'a Media {
+        &media[self.editable_media_id]
     }
 
-    fn editable_series_mut<'a>(&'a self, media: &'a mut [Series]) -> &'a mut Series {
-        &mut media[self.editable_series_id]
+    fn editable_media_mut<'a>(&'a self, media: &'a mut [Media]) -> &'a mut Media {
+        &mut media[self.editable_media_id]
     }
 
-    fn episodes(&self) -> Result<&Episodes, ErrorKind> {
+    fn episodes(&self) -> Result<&EpisodeList, ErrorKind> {
         self.episodes.as_ref().map_err(Clone::clone)
     }
 
-    fn episode(&self, media: &[Series]) -> Result<&Episode, ErrorKind> {
+    fn episode(&self, media: &[Media]) -> Result<&Episode, ErrorKind> {
         Ok(&self.episodes()?[self.episode_id(media)])
     }
 
-    fn episode_id(&self, media: &[Series]) -> usize {
-        (self.editable_series(media).episode().get() - 1) as usize
+    fn episode_id(&self, media: &[Media]) -> usize {
+        (self.editable_media(media).episode().get() - 1) as usize
     }
 
-    fn set_season_path(
+    fn set_chapter_path(
         &mut self,
-        media: &mut [Series],
-        season_path: PathBuf,
+        media: &mut [Media],
+        chapter_path: PathBuf,
     ) -> Result<(), ErrorKind> {
-        self.editable_series_mut(media)
-            .set_season_path(season_path)?;
+        self.editable_media_mut(media)
+            .set_chapter_path(chapter_path)?;
         self.episodes = {
-            let editable_series = self.editable_series(media);
-            let series_path = editable_series.season_path();
-            Episodes::read(series_path)
+            let editable_media = self.editable_media(media);
+            let media_path = editable_media.chapter_path();
+            EpisodeList::read(media_path)
         };
         Ok(())
     }
@@ -292,16 +299,16 @@ impl SeriesEditScreen {
         self.warning = Dialog::new(screen);
     }
 
-    fn increase_episode(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
-        let series = self.editable_series(media);
-        let next_episode = series.episode().saturating_add(1);
-        self.set_episode(media, next_episode)
+    fn increase_episode(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+        let media = self.editable_media(media_list);
+        let next_episode = media.episode().saturating_add(1);
+        self.set_episode(media_list, next_episode)
     }
 
-    fn set_episode(&mut self, media: &mut [Series], value: NonZeroU8) -> Result<(), ErrorKind> {
-        let series = self.editable_series_mut(media);
-        if !series.season_path_is_present() || value <= series.episode() {
-            series.set_episode(value)?;
+    fn set_episode(&mut self, media_list: &mut [Media], value: NonZeroU8) -> Result<(), ErrorKind> {
+        let media = self.editable_media_mut(media_list);
+        if !media.chapter_path_is_present() || value <= media.episode() {
+            media.set_episode(value)?;
             return Ok(());
         }
         let Some(episodes_count) = self.episodes_count() else {
@@ -311,8 +318,8 @@ impl SeriesEditScreen {
             self.confirm_episode_overflow(episodes_count);
             return Ok(());
         }
-        let series = self.editable_series_mut(media);
-        series.set_episode(value)?;
+        let media = self.editable_media_mut(media_list);
+        media.set_episode(value)?;
         Ok(())
     }
 
@@ -321,22 +328,22 @@ impl SeriesEditScreen {
         Some(count)
     }
 
-    fn set_episode_to_one(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
-        let series = self.editable_series_mut(media);
-        series.set_episode(NonZeroU8::MIN)?;
+    fn set_episode_to_one(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+        let media = self.editable_media_mut(media_list);
+        media.set_episode(NonZeroU8::MIN)?;
         Ok(())
     }
 
-    fn increase_season(&mut self, media: &mut [Series]) -> Result<(), ErrorKind> {
-        self.set_episode_to_one(media)?;
-        let series = self.editable_series_mut(media);
-        let next_season = series.season().saturating_add(1);
-        series.set_season(next_season)?;
-        if !series.season_path_is_present() {
+    fn increase_chapter(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+        self.set_episode_to_one(media_list)?;
+        let media = self.editable_media_mut(media_list);
+        let next_chapter = media.chapter().saturating_add(1);
+        media.set_chapter(next_chapter)?;
+        if !media.chapter_path_is_present() {
             return Ok(());
         }
-        let next_dir = utils::next_dir(series.season_path())?;
-        self.confirm_switch_to_next_season(next_dir);
+        let next_dir = utils::next_dir(media.chapter_path())?;
+        self.confirm_switch_to_next_chapter(next_dir);
         Ok(())
     }
 
@@ -345,8 +352,8 @@ impl SeriesEditScreen {
         self.confirm_screen = Dialog::new(confirm);
     }
 
-    fn confirm_switch_to_next_season(&mut self, next_season_path: PathBuf) {
-        let kind = ConfirmKind::switch_to_next_season(next_season_path);
+    fn confirm_switch_to_next_chapter(&mut self, next_chapter_path: PathBuf) {
+        let kind = ConfirmKind::switch_to_next_chapter(next_chapter_path);
         self.confirm(kind);
     }
 

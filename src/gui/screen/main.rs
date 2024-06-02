@@ -6,25 +6,25 @@ use iced::{
 
 use crate::{
     gui::{list::list, utils::DEFAULT_INDENT, ListMessage},
-    series::Series,
+    media::Media,
 };
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    AddSeries,
+    AddMedia,
     MenuButton(ListMessage),
 }
 
-pub fn main_screen_view(media: &[Series]) -> Element<Message> {
+pub fn main_screen_view(media: &[Media]) -> Element<Message> {
     column![
         container(
-            button("Add series")
+            button("Add media")
                 .style(theme::Button::Positive)
-                .on_press(Message::AddSeries)
+                .on_press(Message::AddMedia)
         )
         .width(Length::Fill)
         .center_x(),
-        list(media.into_iter().map(Series::name).collect()).map(Message::MenuButton)
+        list(media.into_iter().map(Media::name).collect()).map(Message::MenuButton)
     ]
     .spacing(DEFAULT_INDENT)
     .padding(DEFAULT_INDENT)

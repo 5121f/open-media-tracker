@@ -4,19 +4,19 @@ use crate::{
     error::ErrorKind,
     gui::screen::{
         ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
-        SeriesEditScreenMessage,
+        MediaEditScreenMessage,
     },
-    media::Media,
+    media_list::MediaList,
 };
 
 #[derive(Debug, Clone)]
 pub enum Message {
     MainScreen(MainScreenMessage),
-    SeriesEditScreen(SeriesEditScreenMessage),
+    MediaEditScreen(MediaEditScreenMessage),
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
-    MediaLoaded(Result<Media, ErrorKind>),
+    MediaLoaded(Result<MediaList, ErrorKind>),
     LoadingMessage,
 }
 
@@ -32,9 +32,9 @@ impl From<ErrorScreenMessage> for Message {
     }
 }
 
-impl From<SeriesEditScreenMessage> for Message {
-    fn from(value: SeriesEditScreenMessage) -> Self {
-        Self::SeriesEditScreen(value)
+impl From<MediaEditScreenMessage> for Message {
+    fn from(value: MediaEditScreenMessage) -> Self {
+        Self::MediaEditScreen(value)
     }
 }
 

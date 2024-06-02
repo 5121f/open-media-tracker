@@ -1,13 +1,13 @@
 #![windows_subsystem = "windows"] // Do not open console window on startup on Windows
 
 mod config;
-mod episdoes;
+mod episdoe_list;
 mod episode;
 mod error;
 mod gui;
 mod media;
+mod media_list;
 mod message;
-mod series;
 mod utils;
 
 use std::{
@@ -26,13 +26,13 @@ use crate::{
     gui::{
         screen::{
             main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
-            LoadingScreen, MainScreenMessage, SeriesEditScreen, SeriesEditScreenMessage,
+            LoadingScreen, MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
         },
         Dialog,
     },
     media::Media,
+    media_list::MediaList,
     message::Message,
-    series::Series,
 };
 
 fn main() -> iced::Result {
@@ -47,7 +47,7 @@ fn main() -> iced::Result {
 
 #[derive(Default)]
 struct OpenMediaTracker {
-    media: Media,
+    media: MediaList,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error: Dialog<ErrorScreen>,
@@ -56,8 +56,8 @@ struct OpenMediaTracker {
 }
 
 impl OpenMediaTracker {
-    fn change_series_screen(&mut self, id: usize) {
-        self.screen = Screens::change_series(&self.media, id);
+    fn change_media_screen(&mut self, id: usize) {
+        self.screen = Screens::change_media(&self.media, id);
     }
 
     fn main_screen(&mut self) {
@@ -89,7 +89,7 @@ impl OpenMediaTracker {
     fn title(&self) -> Option<String> {
         match &self.screen {
             Screens::Main => None,
-            Screens::SeriesChange(screen) => Some(screen.title(&self.media)),
+            Screens::MediaChange(screen) => Some(screen.title(&self.media)),
         }
     }
 
@@ -100,7 +100,7 @@ impl OpenMediaTracker {
 
     fn read_media(&mut self) -> Command<Message> {
         self.add_loading_process(LoadingKind::ReadMedia);
-        let read_media_future = Media::read(Arc::clone(&self.config));
+        let read_media_future = MediaList::read(Arc::clone(&self.config));
         Command::perform(read_media_future, Message::MediaLoaded)
     }
 
@@ -139,7 +139,7 @@ impl OpenMediaTracker {
 
     fn confirm_kind_update(&mut self, kind: ConfirmKind) -> Result<(), ErrorKind> {
         match kind {
-            ConfirmKind::DeleteSeries { id, .. } => {
+            ConfirmKind::DeleteMedia { id, .. } => {
                 self.media.remove(id)?;
                 self.confirm_dialog.close();
                 self.main_screen();
@@ -148,20 +148,20 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn series_edit_screen_update(
+    fn media_edit_screen_update(
         &mut self,
-        message: SeriesEditScreenMessage,
+        message: MediaEditScreenMessage,
     ) -> Result<(), ErrorKind> {
         match message {
-            SeriesEditScreenMessage::Delete(id) => {
-                let series = &self.media[id];
-                let name = series.name().to_string();
-                self.confirm_dialog(ConfirmKind::DeleteSeries { id, name });
+            MediaEditScreenMessage::Delete(id) => {
+                let media = &self.media[id];
+                let name = media.name().to_string();
+                self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
-            SeriesEditScreenMessage::Back => self.main_screen(),
-            SeriesEditScreenMessage::Watch { path } => utils::open(path)?,
+            MediaEditScreenMessage::Back => self.main_screen(),
+            MediaEditScreenMessage::Watch { path } => utils::open(path)?,
             _ => {
-                if let Screens::SeriesChange(dialog) = &mut self.screen {
+                if let Screens::MediaChange(dialog) = &mut self.screen {
                     dialog.update(&mut self.media, message)?;
                 }
             }
@@ -171,13 +171,13 @@ impl OpenMediaTracker {
 
     fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
         match message {
-            MainScreenMessage::AddSeries => {
-                let series = Series::new(Arc::clone(&self.config))?;
-                self.media.push(series);
-                self.change_series_screen(self.media.len() - 1);
+            MainScreenMessage::AddMedia => {
+                let media = Media::new(Arc::clone(&self.config))?;
+                self.media.push(media);
+                self.change_media_screen(self.media.len() - 1);
             }
             MainScreenMessage::MenuButton(gui::ListMessage::Enter(id)) => {
-                self.change_series_screen(id)
+                self.change_media_screen(id)
             }
         }
         Ok(())
@@ -186,7 +186,7 @@ impl OpenMediaTracker {
     fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
         match message {
             Message::MainScreen(message) => self.main_screen_update(message)?,
-            Message::SeriesEditScreen(message) => self.series_edit_screen_update(message)?,
+            Message::MediaEditScreen(message) => self.media_edit_screen_update(message)?,
             Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
                 if critical {
                     return Ok(self.close_app());
@@ -211,7 +211,7 @@ impl OpenMediaTracker {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Arc::new(config);
         let mut omt = Self {
-            media: Media::new(),
+            media: MediaList::new(),
             screen: Screens::Main,
             confirm_dialog: Dialog::closed(),
             error: Dialog::closed(),
@@ -263,7 +263,7 @@ impl Application for OpenMediaTracker {
 
         let screen = match &self.screen {
             Screens::Main => main_screen_view(&self.media).map(Into::into),
-            Screens::SeriesChange(screen) => screen.view(&self.media).map(Into::into),
+            Screens::MediaChange(screen) => screen.view(&self.media).map(Into::into),
         };
 
         modal(screen, dialog).into()
@@ -276,13 +276,13 @@ impl Application for OpenMediaTracker {
 
 pub enum Screens {
     Main,
-    SeriesChange(SeriesEditScreen),
+    MediaChange(MediaEditScreen),
 }
 
 impl Screens {
-    fn change_series(media: &[Series], id: usize) -> Self {
-        let screen = SeriesEditScreen::new(media, id);
-        Self::SeriesChange(screen)
+    fn change_media(media: &[Media], id: usize) -> Self {
+        let screen = MediaEditScreen::new(media, id);
+        Self::MediaChange(screen)
     }
 }
 
@@ -300,16 +300,16 @@ impl Default for Screens {
 
 #[derive(Clone)]
 enum ConfirmKind {
-    DeleteSeries { name: String, id: usize },
+    DeleteMedia { name: String, id: usize },
 }
 
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ConfirmKind::DeleteSeries { name, .. } => {
+            ConfirmKind::DeleteMedia { name, .. } => {
                 write!(
                     f,
-                    "You actually want to delete series \"{name}\" from the list?",
+                    "You actually want to delete media \"{name}\" from the list?",
                 )
             }
         }
