@@ -14,7 +14,7 @@ use super::{
 use crate::{
     episdoe_list::EpisodeList,
     episode::Episode,
-    error::ErrorKind,
+    error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
@@ -220,7 +220,9 @@ impl MediaEditScreen {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::FSIO { kind, .. }) => format!("Chapter path is incorrect: {kind}"),
+            Err(ErrorKind::FSIO(FSIOError { kind, .. })) => {
+                format!("Chapter path is incorrect: {kind}")
+            }
             Err(err) => format!("Chapter path is incorrect: {err}"),
         };
         Some(watch_sign)

@@ -39,8 +39,6 @@ impl From<ErrorKind> for Error {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
-    #[error("{path}: I/O error: {kind}")]
-    FSIO { path: PathBuf, kind: io::ErrorKind },
     #[error("{path}: Falied to open default program: {kind}")]
     Open { path: PathBuf, kind: io::ErrorKind },
     #[error("Failed to find next chapter path")]
@@ -50,6 +48,8 @@ pub enum ErrorKind {
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
     #[error(transparent)]
+    FSIO(#[from] FSIOError),
+    #[error(transparent)]
     Config(#[from] ConfigError),
     #[error(transparent)]
     Media(#[from] MediaError),
@@ -57,8 +57,6 @@ pub enum ErrorKind {
     MediaList(#[from] MediaListError),
     #[error(transparent)]
     Episode(#[from] EpisodeError),
-    #[error(transparent)]
-    FSIOError(#[from] FSIOError),
 }
 
 impl ErrorKind {
@@ -70,8 +68,8 @@ impl ErrorKind {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub struct FSIOError {
-    path: PathBuf,
-    kind: io::ErrorKind,
+    pub path: PathBuf,
+    pub kind: io::ErrorKind,
 }
 
 impl FSIOError {
