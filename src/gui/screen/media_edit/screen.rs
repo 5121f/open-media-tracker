@@ -144,12 +144,9 @@ impl MediaEditScreen {
             }
             Message::ChapterChanged(value) => {
                 if value.is_empty() {
-                    if let Err(error) = self
-                        .editable_media_mut(media_list)
-                        .set_chapter(NonZeroU8::MIN)
-                    {
-                        return Err(error.into());
-                    }
+                    self.editable_media_mut(media_list)
+                        .set_chapter(NonZeroU8::MIN)?;
+                    return Ok(());
                 }
                 if let Ok(number) = value.parse() {
                     self.editable_media_mut(media_list).set_chapter(number)?;
