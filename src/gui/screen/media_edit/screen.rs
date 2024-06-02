@@ -2,7 +2,7 @@ use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
     alignment, theme,
-    widget::{button, column, container, row, text, Column, Space},
+    widget::{button, column, container, row, text, Column},
     Color, Element, Length,
 };
 use iced_aw::modal;
@@ -17,7 +17,7 @@ use crate::{
     error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
-        utils::{link, signed_text_input, square_button, DEFAULT_INDENT},
+        utils::{link, signed_text_input, square_button, DEFAULT_INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
     media::Media,
@@ -111,17 +111,13 @@ impl MediaEditScreen {
             .spacing(DEFAULT_INDENT)
         ]
         .spacing(DEFAULT_INDENT);
-        let space = Space::with_height(Length::Fixed(15.0));
         let warning = self.warning.view_into();
 
-        let mut layout = Column::new()
-            .padding(DEFAULT_INDENT)
-            .spacing(DEFAULT_INDENT);
+        let mut layout = Column::new().padding(PADDING).spacing(PADDING);
 
         layout = layout.push(top);
         layout = layout.push(watch);
         layout = layout.push_maybe(watch_sign);
-        layout = layout.push(space);
         layout = layout.push_maybe(warning);
         layout = layout.push(body);
 

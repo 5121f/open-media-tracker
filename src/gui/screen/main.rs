@@ -1,11 +1,11 @@
 use iced::{
     theme,
-    widget::{button, column, container},
+    widget::{button, container, Column},
     Element, Length,
 };
 
 use crate::{
-    gui::{list::list, utils::DEFAULT_INDENT, ListMessage},
+    gui::{list::list, utils::PADDING, ListMessage},
     media::Media,
 };
 
@@ -16,7 +16,7 @@ pub enum Message {
 }
 
 pub fn main_screen_view(media: &[Media]) -> Element<Message> {
-    let mut layout = column![].spacing(DEFAULT_INDENT).padding(DEFAULT_INDENT);
+    let mut layout = Column::new().spacing(PADDING).padding(PADDING);
 
     let add_media_button = container(
         button("Add media")

@@ -4,8 +4,6 @@ use iced::{
     Border, Color, Element, Length, Theme,
 };
 
-use super::utils::DEFAULT_INDENT;
-
 #[derive(Debug, Clone)]
 pub enum Message {
     Enter(usize),
@@ -17,17 +15,14 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
     }
 
     let view = scrollable(
-        container(
-            column(
-                buttons
-                    .into_iter()
-                    .enumerate()
-                    .map(|(id, text)| list_button(text).on_press(Message::Enter(id)))
-                    .map(Into::into)
-                    .collect::<Vec<_>>(),
-            )
-            .padding(DEFAULT_INDENT),
-        )
+        container(column(
+            buttons
+                .into_iter()
+                .enumerate()
+                .map(|(id, text)| list_button(text).on_press(Message::Enter(id)))
+                .map(Into::into)
+                .collect::<Vec<_>>(),
+        ))
         .style(theme::Container::Custom(Box::new(List))),
     );
 

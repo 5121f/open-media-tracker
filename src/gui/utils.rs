@@ -5,6 +5,7 @@ use iced::{
 };
 
 pub const DEFAULT_INDENT: u16 = 5;
+pub const PADDING: u16 = 8;
 
 pub fn square_button<M>(content: &str) -> Button<M> {
     button(
