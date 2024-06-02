@@ -17,7 +17,7 @@ use crate::{
     error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
-        utils::{link, signed_text_input, square_button, DEFAULT_INDENT, GRAY_TEXT, PADDING},
+        utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
     media::Media,
@@ -92,7 +92,7 @@ impl MediaEditScreen {
                 square_button("-").on_press(Message::ChapterDec),
                 square_button("+").on_press(Message::ChapterInc)
             ]
-            .spacing(DEFAULT_INDENT),
+            .spacing(INDENT),
             row![
                 signed_text_input(
                     "Episode",
@@ -102,15 +102,15 @@ impl MediaEditScreen {
                 square_button("-").on_press(Message::EpisodeDec),
                 square_button("+").on_press(Message::EpisodeInc)
             ]
-            .spacing(DEFAULT_INDENT),
+            .spacing(INDENT),
             row![
                 signed_text_input("Chapter path", &chapter_path, Message::ChapterPathChanged),
                 square_button(">").on_press(Message::OpenChapterDirectory),
                 square_button("...").on_press(Message::ChapterPathSelect),
             ]
-            .spacing(DEFAULT_INDENT)
+            .spacing(INDENT)
         ]
-        .spacing(DEFAULT_INDENT);
+        .spacing(INDENT);
         let warning = self.warning.view_into();
 
         let mut layout = Column::new().padding(PADDING).spacing(PADDING);

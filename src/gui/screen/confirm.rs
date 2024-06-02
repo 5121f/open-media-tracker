@@ -7,7 +7,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::{dialog::IHaveKind, utils::DEFAULT_INDENT, IDialog};
+use crate::gui::{dialog::IHaveKind, utils::INDENT, IDialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -49,7 +49,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
                             .on_press(Message::Confirm)
                     ]
                 ]
-                .spacing(DEFAULT_INDENT)
+                .spacing(INDENT)
             )
             .close_size(25.)
             .width(Length::FillPortion(15))

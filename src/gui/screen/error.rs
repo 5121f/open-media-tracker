@@ -7,7 +7,7 @@ use iced_aw::card;
 
 use crate::{
     error::Error,
-    gui::{utils::DEFAULT_INDENT, IDialog},
+    gui::{utils::INDENT, IDialog},
 };
 
 #[derive(Debug, Clone)]
@@ -48,7 +48,7 @@ impl IDialog for ErrorScreen {
                         })
                     ],
                 ]
-                .spacing(DEFAULT_INDENT)
+                .spacing(INDENT)
             )
             .style(iced_aw::style::card::CardStyles::Danger)
             .width(Length::FillPortion(15)),

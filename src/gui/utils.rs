@@ -4,7 +4,7 @@ use iced::{
     Alignment, Color,
 };
 
-pub const DEFAULT_INDENT: u16 = 5;
+pub const INDENT: u16 = 5;
 pub const PADDING: u16 = 8;
 pub const GRAY_TEXT: Color = Color::from_rgb(0.6, 0.6, 0.6);
 
@@ -30,6 +30,6 @@ where
     F: 'a + Fn(String) -> M,
 {
     row![text(sign), text_input(sign, value).on_input(on_input)]
-        .spacing(DEFAULT_INDENT)
+        .spacing(INDENT)
         .align_items(Alignment::Center)
 }
