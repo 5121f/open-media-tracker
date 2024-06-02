@@ -36,7 +36,7 @@ use crate::{
 };
 
 fn main() -> iced::Result {
-    ZCinema::run(Settings {
+    OpenMediaTracker::run(Settings {
         window: window::Settings {
             size: Size::new(550., 400.),
             ..window::Settings::default()
@@ -46,7 +46,7 @@ fn main() -> iced::Result {
 }
 
 #[derive(Default)]
-struct ZCinema {
+struct OpenMediaTracker {
     media: Media,
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
@@ -55,7 +55,7 @@ struct ZCinema {
     config: Arc<Config>,
 }
 
-impl ZCinema {
+impl OpenMediaTracker {
     fn change_series_screen(&mut self, id: usize) {
         self.screen = Screens::change_series(&self.media, id);
     }
@@ -210,7 +210,7 @@ impl ZCinema {
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind))?;
         let config = Arc::new(config);
-        let mut zcinema = Self {
+        let mut omt = Self {
             media: Media::new(),
             screen: Screens::Main,
             confirm_dialog: Dialog::closed(),
@@ -218,12 +218,12 @@ impl ZCinema {
             loading_dialog: Dialog::closed(),
             config,
         };
-        let command = Command::batch(vec![zcinema.load_font(), zcinema.read_media()]);
-        Ok((zcinema, command))
+        let command = Command::batch(vec![omt.load_font(), omt.read_media()]);
+        Ok((omt, command))
     }
 }
 
-impl Application for ZCinema {
+impl Application for OpenMediaTracker {
     type Executor = executor::Default;
     type Theme = Theme;
     type Flags = ();
@@ -231,14 +231,14 @@ impl Application for ZCinema {
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         Self::new2().unwrap_or_else(|error| {
-            let mut zcinema = Self::default();
-            zcinema.error_screen(error);
-            (zcinema, Command::none())
+            let mut omt = Self::default();
+            omt.error_screen(error);
+            (omt, Command::none())
         })
     }
 
     fn title(&self) -> String {
-        let program_name = "zCinema";
+        let program_name = "Open Media Tracker";
         self.sub_title()
             .map(|sub_title| format!("{program_name} - {sub_title}"))
             .unwrap_or_else(|| String::from(program_name))

@@ -1,5 +1,5 @@
 install: build_release
-    cp target/release/zcinema ~/.local/bin
+    cp target/release/open_media_tracker ~/.local/bin
 
 build_release:
     cargo build --release
