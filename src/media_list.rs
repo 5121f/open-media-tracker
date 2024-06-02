@@ -5,7 +5,6 @@ use std::{
 
 use crate::{
     config::Config,
-    error::ErrorKind,
     media::{Media, MediaError},
     utils,
 };
@@ -18,14 +17,14 @@ impl MediaList {
         Self(Vec::new())
     }
 
-    pub fn remove(&mut self, id: usize) -> Result<(), ErrorKind> {
+    pub fn remove(&mut self, id: usize) -> Result<(), MediaError> {
         let media = &self.0[id];
         media.remove_file()?;
         self.0.remove(id);
         Ok(())
     }
 
-    pub async fn read(config: Arc<Config>) -> Result<Self, ErrorKind> {
+    pub async fn read(config: Arc<Config>) -> Result<Self, MediaError> {
         let dir_content = utils::read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
@@ -76,6 +75,4 @@ pub enum MediaErrror {
     NameIsUsed,
     #[error(transparent)]
     MediaError(#[from] MediaError),
-    #[error(transparent)]
-    ErrorKind(#[from] ErrorKind),
 }
