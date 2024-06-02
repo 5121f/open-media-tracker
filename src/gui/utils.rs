@@ -6,6 +6,7 @@ use iced::{
 
 pub const DEFAULT_INDENT: u16 = 5;
 pub const PADDING: u16 = 8;
+pub const GRAY_TEXT: Color = Color::from_rgb(0.6, 0.6, 0.6);
 
 pub fn square_button<M>(content: &str) -> Button<M> {
     button(

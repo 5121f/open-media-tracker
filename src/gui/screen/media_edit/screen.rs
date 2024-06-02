@@ -3,7 +3,7 @@ use std::{num::NonZeroU8, path::PathBuf};
 use iced::{
     alignment, theme,
     widget::{button, column, container, row, text, Column},
-    Color, Element, Length,
+    Element, Length,
 };
 use iced_aw::modal;
 
@@ -17,7 +17,7 @@ use crate::{
     error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
-        utils::{link, signed_text_input, square_button, DEFAULT_INDENT, PADDING},
+        utils::{link, signed_text_input, square_button, DEFAULT_INDENT, GRAY_TEXT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
     media::Media,
@@ -76,7 +76,7 @@ impl MediaEditScreen {
             container(
                 text(watch_sign)
                     .size(13)
-                    .style(theme::Text::Color(Color::new(0.6, 0.6, 0.6, 1.))),
+                    .style(theme::Text::Color(GRAY_TEXT)),
             )
             .width(Length::Fill)
             .center_x()
