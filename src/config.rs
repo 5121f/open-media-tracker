@@ -8,7 +8,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn read() -> Result<Self, ConfigError> {
+    pub fn read() -> Result<Self> {
         let data_dir = dirs::data_dir()
             .ok_or(ConfigError::UserDataDirNotFound)?
             .join("open media tracker");
@@ -26,3 +26,5 @@ pub enum ConfigError {
     #[error(transparent)]
     FSIO(#[from] FSIOError),
 }
+
+type Result<T> = std::result::Result<T, ConfigError>;

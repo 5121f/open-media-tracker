@@ -8,7 +8,7 @@ pub struct Episode {
 }
 
 impl Episode {
-    pub fn new(path: PathBuf) -> Result<Self, EpisodeError> {
+    pub fn new(path: PathBuf) -> Result<Self> {
         if !utils::is_media_file(&path) {
             return Err(EpisodeError::MustBeAMediaFile);
         }
@@ -33,3 +33,5 @@ pub enum EpisodeError {
     #[error("Episode must be media file")]
     MustBeAMediaFile,
 }
+
+type Result<T> = std::result::Result<T, EpisodeError>;
