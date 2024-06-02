@@ -252,10 +252,6 @@ impl Application for OpenMediaTracker {
     }
 
     fn view(&self) -> Element<Message> {
-        if let Some(loading_screen) = self.loading_dialog.as_ref() {
-            return loading_screen.view_into();
-        }
-
         let dialog = self
             .error
             .view_into()
@@ -266,7 +262,15 @@ impl Application for OpenMediaTracker {
             Screens::MediaChange(screen) => screen.view(&self.media).map(Into::into),
         };
 
-        modal(screen, dialog).into()
+        if dialog.is_some() {
+            return modal(screen, dialog).into();
+        }
+
+        if let Some(loading_screen) = self.loading_dialog.as_ref() {
+            return loading_screen.view_into();
+        }
+
+        screen
     }
 
     fn theme(&self) -> Theme {
