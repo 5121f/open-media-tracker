@@ -62,12 +62,6 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub fn fsio(path: impl AsRef<Path>, source: io::Error) -> Self {
-        let path = path.as_ref().to_path_buf();
-        let kind = source.kind();
-        Self::FSIO { path, kind }
-    }
-
     pub fn open(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
         let path = path.as_ref().to_path_buf();
         Self::Open { path, kind }
