@@ -199,7 +199,7 @@ impl OpenMediaTracker {
                 self.loading_complete(LoadingKind::Font);
             }
             Message::MediaLoaded(res) => {
-                self.media = res?.into();
+                self.media = res.map_err(Into::<ErrorKind>::into)?.into();
                 self.loading_complete(LoadingKind::ReadMedia)
             }
             Message::LoadingMessage => {}

@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{episode::EpisodeError, media::MediaError};
+use crate::{episode::EpisodeError, media::MediaError, media_list::MediaListError};
 
 pub struct Error {
     pub kind: ErrorKind,
@@ -51,6 +51,8 @@ pub enum ErrorKind {
     EpisodesDidNotFound,
     #[error(transparent)]
     Media(#[from] MediaError),
+    #[error(transparent)]
+    MediaList(#[from] MediaListError),
     #[error(transparent)]
     Episode(#[from] EpisodeError),
     #[error(transparent)]

@@ -1,12 +1,11 @@
 use iced::font;
 
 use crate::{
-    error::ErrorKind,
     gui::screen::{
         ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
         MediaEditScreenMessage,
     },
-    media_list::MediaList,
+    media_list::{MediaList, MediaListError},
 };
 
 #[derive(Debug, Clone)]
@@ -16,7 +15,7 @@ pub enum Message {
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), font::Error>),
-    MediaLoaded(Result<MediaList, ErrorKind>),
+    MediaLoaded(Result<MediaList, MediaListError>),
     LoadingMessage,
 }
 

@@ -23,7 +23,7 @@ pub struct Media {
 }
 
 impl Media {
-    pub fn new(config: Arc<Config>) -> Result<Self, MediaError> {
+    pub fn new(config: Arc<Config>) -> Result<Self> {
         let one = NonZeroU8::MIN;
         let media = Self {
             name: find_availible_name(&config.data_dir),
@@ -36,10 +36,7 @@ impl Media {
         Ok(media)
     }
 
-    pub async fn read_from_file(
-        path: impl AsRef<Path>,
-        config: Arc<Config>,
-    ) -> Result<Self, MediaError> {
+    pub async fn read_from_file(path: impl AsRef<Path>, config: Arc<Config>) -> Result<Self> {
         let path = path.as_ref();
         let file_content = async_fs::read_to_string(path)
             .await
@@ -54,7 +51,7 @@ impl Media {
         file_name(&self.name)
     }
 
-    pub fn rename(&mut self, new_name: String) -> Result<(), MediaError> {
+    pub fn rename(&mut self, new_name: String) -> Result<()> {
         if self.name != new_name {
             let new_path = self.config.data_dir.join(file_name(&new_name));
             fs::rename(self.path(), new_path)
@@ -65,7 +62,7 @@ impl Media {
         Ok(())
     }
 
-    pub fn save(&self) -> Result<(), MediaError> {
+    pub fn save(&self) -> Result<()> {
         let dir = &self.config.data_dir;
         let content = self.ser_to_ron()?;
         if !dir.exists() {
@@ -76,26 +73,26 @@ impl Media {
         Ok(())
     }
 
-    pub fn remove_file(&self) -> Result<(), FSIOError> {
+    pub fn remove_file(&self) -> Result<()> {
         let path = self.path();
-        fs::remove_file(&path).map_err(|source| FSIOError::new(path, source))
+        fs::remove_file(&path).map_err(|source| FSIOError::new(path, source).into())
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
         !self.chapter_path.as_os_str().is_empty()
     }
 
-    pub fn set_chapter(&mut self, value: NonZeroU8) -> Result<(), MediaError> {
+    pub fn set_chapter(&mut self, value: NonZeroU8) -> Result<()> {
         self.chapter = value;
         self.save()
     }
 
-    pub fn set_episode(&mut self, value: NonZeroU8) -> Result<(), MediaError> {
+    pub fn set_episode(&mut self, value: NonZeroU8) -> Result<()> {
         self.episode = value;
         self.save()
     }
 
-    pub fn set_chapter_path(&mut self, value: PathBuf) -> Result<(), MediaError> {
+    pub fn set_chapter_path(&mut self, value: PathBuf) -> Result<()> {
         self.chapter_path = value;
         self.save()
     }
@@ -116,7 +113,7 @@ impl Media {
         &self.name
     }
 
-    fn ser_to_ron(&self) -> Result<String, MediaError> {
+    fn ser_to_ron(&self) -> Result<String> {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
             .map_err(|source| MediaError::serialize(self.name.clone(), source))
     }
@@ -165,3 +162,5 @@ impl MediaError {
         Self::Deserialize { path, source }
     }
 }
+
+type Result<T> = std::result::Result<T, MediaError>;

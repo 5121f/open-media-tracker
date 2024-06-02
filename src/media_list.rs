@@ -70,7 +70,7 @@ impl From<Vec<Media>> for MediaList {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum MediaListError {
     #[error("Name is used")]
     NameIsUsed,
