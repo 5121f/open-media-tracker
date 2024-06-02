@@ -266,7 +266,11 @@ impl MediaEditScreen {
     }
 
     fn episodes(&self) -> Result<&EpisodeList, ErrorKind> {
-        self.episodes.as_ref().map_err(Clone::clone)
+        let episodes = self.episodes.as_ref().map_err(Clone::clone)?;
+        if episodes.is_empty() {
+            return Err(ErrorKind::EpisodesDidNotFound);
+        }
+        Ok(episodes)
     }
 
     fn episode(&self, media: &[Media]) -> Result<&Episode, ErrorKind> {
