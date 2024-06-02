@@ -12,6 +12,9 @@ impl EpisodeList {
             .into_iter()
             .flat_map(|path| Episode::new(path).ok())
             .collect();
+        if episodes.is_empty() {
+            return Err(ErrorKind::EpisodesDidNotFound);
+        }
         episodes.sort();
         Ok(Self(episodes))
     }
