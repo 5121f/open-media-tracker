@@ -208,7 +208,7 @@ impl OpenMediaTracker {
     }
 
     fn new2() -> Result<(Self, Command<Message>), Error> {
-        let config = Config::read().map_err(|kind| Error::critical(kind))?;
+        let config = Config::read().map_err(|kind| Error::critical(kind.into()))?;
         let config = Arc::new(config);
         let mut omt = Self {
             media: MediaList::new(),

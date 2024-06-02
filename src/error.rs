@@ -4,7 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{episode::EpisodeError, media::MediaError, media_list::MediaListError};
+use crate::{
+    config::ConfigError, episode::EpisodeError, media::MediaError, media_list::MediaListError,
+};
 
 pub struct Error {
     pub kind: ErrorKind,
@@ -39,8 +41,6 @@ impl From<ErrorKind> for Error {
 pub enum ErrorKind {
     #[error("{path}: I/O error: {kind}")]
     FSIO { path: PathBuf, kind: io::ErrorKind },
-    #[error("Failed to found user's data directory")]
-    UserDataDirNotFound,
     #[error("{path}: Falied to open default program: {kind}")]
     Open { path: PathBuf, kind: io::ErrorKind },
     #[error("Failed to find next chapter path")]
@@ -49,6 +49,8 @@ pub enum ErrorKind {
     FontLoad,
     #[error("Episodes didn't found")]
     EpisodesDidNotFound,
+    #[error(transparent)]
+    Config(#[from] ConfigError),
     #[error(transparent)]
     Media(#[from] MediaError),
     #[error(transparent)]
