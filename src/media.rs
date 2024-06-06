@@ -18,7 +18,7 @@ pub struct Media {
     episode: NonZeroU8,
     chapter_path: PathBuf,
     #[serde(skip)]
-    dest_path: PathBuf,
+    path: PathBuf,
 }
 
 impl Media {
@@ -29,7 +29,7 @@ impl Media {
             chapter: one,
             episode: one,
             chapter_path: Default::default(),
-            dest_path,
+            path: dest_path,
         };
         media.save()?;
         Ok(media)
@@ -43,7 +43,7 @@ impl Media {
         let media =
             ron::from_str(&file_content).map_err(|source| MediaError::deserialize(path, source))?;
         let media = Media {
-            dest_path: path.to_owned(),
+            path: path.to_owned(),
             ..media
         };
         Ok(media)
@@ -58,10 +58,10 @@ impl Media {
             return Ok(());
         }
         let new_path = self.parent().join(file_name(&new_name));
-        fs::rename(&self.dest_path, &new_path)
+        fs::rename(&self.path, &new_path)
             .map_err(|source| FSIOError::new(self.name.clone(), source))?;
         self.name = new_name;
-        self.dest_path = new_path;
+        self.path = new_path;
         self.save()?;
         Ok(())
     }
@@ -70,17 +70,14 @@ impl Media {
         let content = self.ser_to_ron()?;
         let parent = self.parent();
         if !parent.exists() {
-            fs::create_dir(&self.dest_path)
-                .map_err(|source| FSIOError::new(&self.dest_path, source))?;
+            fs::create_dir(&self.path).map_err(|source| FSIOError::new(&self.path, source))?;
         }
-        fs::write(&self.dest_path, content)
-            .map_err(|source| FSIOError::new(&self.dest_path, source))?;
+        fs::write(&self.path, content).map_err(|source| FSIOError::new(&self.path, source))?;
         Ok(())
     }
 
     pub fn remove_file(&self) -> Result<()> {
-        fs::remove_file(&self.dest_path)
-            .map_err(|source| FSIOError::new(&self.dest_path, source).into())
+        fs::remove_file(&self.path).map_err(|source| FSIOError::new(&self.path, source).into())
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
@@ -119,7 +116,7 @@ impl Media {
     }
 
     fn parent(&self) -> &Path {
-        self.dest_path.parent().unwrap_or(Path::new("/"))
+        self.path.parent().unwrap_or(Path::new("/"))
     }
 
     fn ser_to_ron(&self) -> Result<String> {
