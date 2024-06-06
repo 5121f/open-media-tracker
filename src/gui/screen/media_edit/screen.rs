@@ -12,8 +12,7 @@ use super::{
     message::Message,
 };
 use crate::{
-    episdoe_list::EpisodeList,
-    episode::Episode,
+    episode::{Episode, EpisodeList},
     error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},

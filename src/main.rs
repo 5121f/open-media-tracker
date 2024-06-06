@@ -1,7 +1,6 @@
 #![windows_subsystem = "windows"] // Do not open console window on startup on Windows
 
 mod config;
-mod episdoe_list;
 mod episode;
 mod error;
 mod gui;
