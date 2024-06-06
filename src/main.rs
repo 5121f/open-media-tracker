@@ -10,10 +10,7 @@ mod media_list;
 mod message;
 mod utils;
 
-use std::{
-    fmt::{self, Display},
-    sync::Arc,
-};
+use std::fmt::{self, Display};
 
 use gui::IDialog;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
@@ -52,7 +49,7 @@ struct OpenMediaTracker {
     confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
     error: Dialog<ErrorScreen>,
     loading_dialog: Dialog<LoadingScreen<LoadingKind>>,
-    config: Arc<Config>,
+    config: Config,
 }
 
 impl OpenMediaTracker {
@@ -100,7 +97,7 @@ impl OpenMediaTracker {
 
     fn read_media(&mut self) -> Command<Message> {
         self.add_loading_process(LoadingKind::ReadMedia);
-        let read_media_future = MediaList::read(Arc::clone(&self.config));
+        let read_media_future = MediaList::read(self.config.data_dir.clone());
         Command::perform(read_media_future, Message::MediaLoaded)
     }
 
@@ -172,7 +169,7 @@ impl OpenMediaTracker {
     fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
         match message {
             MainScreenMessage::AddMedia => {
-                let media = Media::new(Arc::clone(&self.config))?;
+                let media = Media::new(self.config.data_dir.clone())?;
                 self.media.push(media);
                 self.change_media_screen(self.media.len() - 1);
             }
@@ -209,7 +206,6 @@ impl OpenMediaTracker {
 
     fn new2() -> Result<(Self, Command<Message>), Error> {
         let config = Config::read().map_err(|kind| Error::critical(kind.into()))?;
-        let config = Arc::new(config);
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,

@@ -1,10 +1,9 @@
 use std::{
     ops::{Deref, DerefMut},
-    sync::Arc,
+    path::Path,
 };
 
 use crate::{
-    config::Config,
     error::FSIOError,
     media::{Media, MediaError},
     utils,
@@ -25,12 +24,12 @@ impl MediaList {
         Ok(())
     }
 
-    pub async fn read(config: Arc<Config>) -> Result<Self> {
-        let dir_content = utils::read_dir(&config.data_dir)?;
+    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref();
+        let dir_content = utils::read_dir(&path)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let config = Arc::clone(&config);
-            let media = Media::read_from_file(entry, config).await?;
+            let media = Media::read_from_file(entry).await?;
             media_list.push(media);
         }
         Ok(media_list.into())

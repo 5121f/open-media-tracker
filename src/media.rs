@@ -2,13 +2,12 @@ use std::{
     fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
-    sync::Arc,
 };
 
 use ron::{de::SpannedError, ser::PrettyConfig};
 use serde::{Deserialize, Serialize};
 
-use crate::{config::Config, error::FSIOError};
+use crate::error::FSIOError;
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
@@ -19,31 +18,34 @@ pub struct Media {
     episode: NonZeroU8,
     chapter_path: PathBuf,
     #[serde(skip)]
-    config: Arc<Config>,
+    dest_path: PathBuf,
 }
 
 impl Media {
-    pub fn new(config: Arc<Config>) -> Result<Self> {
+    pub fn new(dest_path: PathBuf) -> Result<Self> {
         let one = NonZeroU8::MIN;
         let media = Self {
-            name: find_availible_name(&config.data_dir),
+            name: find_availible_name(&dest_path),
             chapter: one,
             episode: one,
             chapter_path: Default::default(),
-            config,
+            dest_path,
         };
         media.save()?;
         Ok(media)
     }
 
-    pub async fn read_from_file(path: impl AsRef<Path>, config: Arc<Config>) -> Result<Self> {
+    pub async fn read_from_file(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
         let file_content = async_fs::read_to_string(path)
             .await
             .map_err(|source| FSIOError::new(path, source))?;
         let media =
             ron::from_str(&file_content).map_err(|source| MediaError::deserialize(path, source))?;
-        let media = Media { config, ..media };
+        let media = Media {
+            dest_path: path.to_owned(),
+            ..media
+        };
         Ok(media)
     }
 
@@ -53,29 +55,31 @@ impl Media {
 
     pub fn rename(&mut self, new_name: String) -> Result<()> {
         if self.name != new_name {
-            let new_path = self.config.data_dir.join(file_name(&new_name));
-            fs::rename(self.path(), new_path)
+            let new_path = self.parent().join(file_name(&new_name));
+            fs::rename(&self.dest_path, &new_path)
                 .map_err(|source| FSIOError::new(self.name.clone(), source))?;
             self.name = new_name;
+            self.dest_path = new_path;
         }
         self.save()?;
         Ok(())
     }
 
     pub fn save(&self) -> Result<()> {
-        let dir = &self.config.data_dir;
         let content = self.ser_to_ron()?;
-        if !dir.exists() {
-            fs::create_dir(&dir).map_err(|source| FSIOError::new(dir, source))?;
+        let parent = self.parent();
+        if !parent.exists() {
+            fs::create_dir(&self.dest_path)
+                .map_err(|source| FSIOError::new(&self.dest_path, source))?;
         }
-        let path = self.path();
-        fs::write(path, content).map_err(|source| FSIOError::new(dir, source))?;
+        fs::write(&self.dest_path, content)
+            .map_err(|source| FSIOError::new(&self.dest_path, source))?;
         Ok(())
     }
 
     pub fn remove_file(&self) -> Result<()> {
-        let path = self.path();
-        fs::remove_file(&path).map_err(|source| FSIOError::new(path, source).into())
+        fs::remove_file(&self.dest_path)
+            .map_err(|source| FSIOError::new(&self.dest_path, source).into())
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
@@ -113,13 +117,13 @@ impl Media {
         &self.name
     }
 
+    fn parent(&self) -> &Path {
+        self.dest_path.parent().unwrap_or(Path::new("/"))
+    }
+
     fn ser_to_ron(&self) -> Result<String> {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
             .map_err(|source| MediaError::serialize(self.name.clone(), source))
-    }
-
-    fn path(&self) -> PathBuf {
-        self.config.data_dir.join(self.file_name())
     }
 }
 
