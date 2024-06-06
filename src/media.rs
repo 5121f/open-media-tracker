@@ -54,13 +54,14 @@ impl Media {
     }
 
     pub fn rename(&mut self, new_name: String) -> Result<()> {
-        if self.name != new_name {
-            let new_path = self.parent().join(file_name(&new_name));
-            fs::rename(&self.dest_path, &new_path)
-                .map_err(|source| FSIOError::new(self.name.clone(), source))?;
-            self.name = new_name;
-            self.dest_path = new_path;
+        if self.name == new_name {
+            return Ok(());
         }
+        let new_path = self.parent().join(file_name(&new_name));
+        fs::rename(&self.dest_path, &new_path)
+            .map_err(|source| FSIOError::new(self.name.clone(), source))?;
+        self.name = new_name;
+        self.dest_path = new_path;
         self.save()?;
         Ok(())
     }
