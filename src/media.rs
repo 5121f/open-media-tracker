@@ -35,17 +35,13 @@ impl Media {
         Ok(media)
     }
 
-    pub async fn read_from_file(path: impl AsRef<Path>) -> Result<Self> {
-        let path = path.as_ref();
-        let file_content = async_fs::read_to_string(path)
+    pub async fn read_from_file(path: PathBuf) -> Result<Self> {
+        let file_content = async_fs::read_to_string(&path)
             .await
-            .map_err(|source| FSIOError::new(path, source))?;
-        let media =
-            ron::from_str(&file_content).map_err(|source| MediaError::deserialize(path, source))?;
-        let media = Media {
-            path: path.to_owned(),
-            ..media
-        };
+            .map_err(|source| FSIOError::new(&path, source))?;
+        let media = ron::from_str(&file_content)
+            .map_err(|source| MediaError::deserialize(&path, source))?;
+        let media = Media { path, ..media };
         Ok(media)
     }
 
