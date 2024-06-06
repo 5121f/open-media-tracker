@@ -22,14 +22,14 @@ pub struct Media {
 }
 
 impl Media {
-    pub fn new(dest_path: PathBuf) -> Result<Self> {
+    pub fn new(path: PathBuf) -> Result<Self> {
         let one = NonZeroU8::MIN;
         let media = Self {
-            name: find_availible_name(&dest_path),
+            name: find_availible_name(&path),
             chapter: one,
             episode: one,
             chapter_path: Default::default(),
-            path: dest_path,
+            path,
         };
         media.save()?;
         Ok(media)
@@ -64,8 +64,7 @@ impl Media {
 
     pub fn save(&self) -> Result<()> {
         let content = self.ser_to_ron()?;
-        let parent = self.parent();
-        if !parent.exists() {
+        if !self.parent().exists() {
             fs::create_dir(&self.path).map_err(|source| FSIOError::new(&self.path, source))?;
         }
         fs::write(&self.path, content).map_err(|source| FSIOError::new(&self.path, source))?;
