@@ -5,7 +5,9 @@ use std::{
 };
 
 use crate::{
-    config::ConfigError, episode::EpisodeError, media::MediaError, media_list::MediaListError,
+    config::ConfigError,
+    episode::EpisodeError,
+    media::{MediaError, MediaListError},
 };
 
 pub struct Error {

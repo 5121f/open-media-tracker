@@ -6,7 +6,6 @@ mod episode;
 mod error;
 mod gui;
 mod media;
-mod media_list;
 mod message;
 mod utils;
 
@@ -27,8 +26,7 @@ use crate::{
         },
         Dialog,
     },
-    media::Media,
-    media_list::MediaList,
+    media::{Media, MediaList},
     message::Message,
 };
 

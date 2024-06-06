@@ -20,8 +20,7 @@ use crate::{
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
-    media::Media,
-    media_list::{MediaList, MediaListError},
+    media::{Media, MediaList, MediaListError},
     utils,
 };
 
