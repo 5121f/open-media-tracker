@@ -58,7 +58,7 @@ impl OpenMediaTracker {
         self.screen = Screens::Main;
     }
 
-    fn error_screen(&mut self, error: Error) {
+    fn error_dialog(&mut self, error: Error) {
         let screen = ErrorScreen::new(error);
         self.error = Dialog::new(screen);
     }
@@ -225,7 +225,7 @@ impl Application for OpenMediaTracker {
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         Self::new2().unwrap_or_else(|error| {
             let mut omt = Self::default();
-            omt.error_screen(error);
+            omt.error_dialog(error);
             (omt, Command::none())
         })
     }
@@ -239,7 +239,7 @@ impl Application for OpenMediaTracker {
 
     fn update(&mut self, message: Self::Message) -> Command<Message> {
         self.update2(message).unwrap_or_else(|error| {
-            self.error_screen(error);
+            self.error_dialog(error);
             Command::none()
         })
     }
