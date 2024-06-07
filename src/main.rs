@@ -77,10 +77,10 @@ impl OpenMediaTracker {
             .title()
             .or_else(|| self.confirm_dialog.title())
             .or_else(|| self.loading_dialog.title())
-            .or_else(|| self.title())
+            .or_else(|| self.scren_title())
     }
 
-    fn title(&self) -> Option<String> {
+    fn scren_title(&self) -> Option<String> {
         match &self.screen {
             Screens::Main => None,
             Screens::MediaChange(screen) => Some(screen.title(&self.media)),
