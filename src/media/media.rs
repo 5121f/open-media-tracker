@@ -41,8 +41,8 @@ impl Media {
         let file_content = async_fs::read_to_string(&path)
             .await
             .map_err(|source| FSIOError::new(&path, source))?;
-        let media = ron::from_str(&file_content)
-            .map_err(|source| MediaError::deserialize(&path, source))?;
+        let media =
+            ron::from_str(&file_content).map_err(|source| Error::deserialize(&path, source))?;
         let media = Media { path, ..media };
         Ok(media)
     }
@@ -81,7 +81,7 @@ impl Media {
         let chapter_dir_name = self
             .chapter_path
             .file_name()
-            .ok_or(MediaError::FailedToFindNextChapterPath)?;
+            .ok_or(Error::FailedToFindNextChapterPath)?;
         let parent = self
             .chapter_path
             .parent()
@@ -96,10 +96,10 @@ impl Media {
             .flat_map(|name| name.to_str())
             .enumerate()
             .find(|(_, file_name)| *file_name == chapter_dir_name)
-            .ok_or(MediaError::FailedToFindNextChapterPath)?;
+            .ok_or(Error::FailedToFindNextChapterPath)?;
         let next_chapter_index = current_dir_index + 1;
         if next_chapter_index >= paths.len() {
-            return Err(MediaError::FailedToFindNextChapterPath);
+            return Err(Error::FailedToFindNextChapterPath);
         }
         let next_dir = paths[next_chapter_index].to_path_buf();
         Ok(next_dir)
@@ -146,7 +146,7 @@ impl Media {
 
     fn ser_to_ron(&self) -> Result<String> {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
-            .map_err(|source| MediaError::serialize(self.name.clone(), source))
+            .map_err(|source| Error::serialize(self.name.clone(), source))
     }
 }
 
@@ -170,7 +170,7 @@ fn find_availible_name(path: impl AsRef<Path>) -> String {
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
-pub enum MediaError {
+pub enum Error {
     #[error("{name}: Serialize error: {source}")]
     Serialize { name: String, source: ron::Error },
     #[error("{path}: file parsing error: {source}")]
@@ -181,7 +181,7 @@ pub enum MediaError {
     FSIO(#[from] FSIOError),
 }
 
-impl MediaError {
+impl Error {
     fn serialize(name: String, source: ron::Error) -> Self {
         Self::Serialize { name, source }
     }
@@ -192,4 +192,4 @@ impl MediaError {
     }
 }
 
-type Result<T> = std::result::Result<T, MediaError>;
+type Result<T> = std::result::Result<T, Error>;

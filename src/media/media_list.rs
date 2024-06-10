@@ -38,7 +38,7 @@ impl MediaList {
     /// Rename media with check on unique
     pub fn rename_media(&mut self, media_id: usize, new_name: String) -> Result<()> {
         if self.name_is_used(&new_name) {
-            return Err(MediaListError::NameIsUsed);
+            return Err(Error::NameIsUsed);
         }
         self.0[media_id].rename(new_name)?;
         Ok(())
@@ -70,7 +70,7 @@ impl From<Vec<Media>> for MediaList {
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
-pub enum MediaListError {
+pub enum Error {
     #[error("Name is used")]
     NameIsUsed,
     #[error(transparent)]
@@ -79,4 +79,4 @@ pub enum MediaListError {
     FSIO(#[from] FSIOError),
 }
 
-type Result<T> = std::result::Result<T, MediaListError>;
+type Result<T> = std::result::Result<T, Error>;
