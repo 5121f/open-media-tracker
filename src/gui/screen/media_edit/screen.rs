@@ -12,7 +12,7 @@ use super::{
     message::Message,
 };
 use crate::{
-    episode::{Episode, EpisodeList},
+    episode::{Episode, EpisodeList, EpisodeListError},
     error::{ErrorKind, FSIOError},
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
@@ -27,7 +27,7 @@ pub struct MediaEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningScreen<WarningKind>>,
     editable_media_id: usize,
-    episodes: Result<EpisodeList, ErrorKind>,
+    episodes: Result<EpisodeList, EpisodeListError>,
     buffer_name: String,
 }
 
@@ -210,7 +210,7 @@ impl MediaEditScreen {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::FSIO(FSIOError { kind, .. })) => {
+            Err(EpisodeListError::FSIO(FSIOError { kind, .. })) => {
                 format!("Chapter path is incorrect: {kind}")
             }
             Err(err) => format!("Chapter path is incorrect: {err}"),
@@ -259,12 +259,12 @@ impl MediaEditScreen {
         &mut media[self.editable_media_id]
     }
 
-    fn episodes(&self) -> Result<&EpisodeList, ErrorKind> {
+    fn episodes(&self) -> Result<&EpisodeList, EpisodeListError> {
         let episodes = self.episodes.as_ref().map_err(Clone::clone)?;
         Ok(episodes)
     }
 
-    fn episode(&self, media: &[Media]) -> Result<&Episode, ErrorKind> {
+    fn episode(&self, media: &[Media]) -> Result<&Episode, EpisodeListError> {
         Ok(&self.episodes()?[self.episode_id(media)])
     }
 

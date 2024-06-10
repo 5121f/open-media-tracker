@@ -47,8 +47,6 @@ pub enum ErrorKind {
     FailedToFindNextChapterPath,
     #[error("Filed to load font")]
     FontLoad,
-    #[error("Episodes didn't found")]
-    EpisodesDidNotFound,
     #[error(transparent)]
     FSIO(#[from] FSIOError),
     #[error(transparent)]
