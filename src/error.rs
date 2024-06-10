@@ -6,7 +6,6 @@ use std::{
 
 use crate::{
     config::ConfigError,
-    episode::EpisodeError,
     media::{MediaError, MediaListError},
 };
 
@@ -53,8 +52,6 @@ pub enum ErrorKind {
     Media(#[from] MediaError),
     #[error(transparent)]
     MediaList(#[from] MediaListError),
-    #[error(transparent)]
-    Episode(#[from] EpisodeError),
 }
 
 impl ErrorKind {
