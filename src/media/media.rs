@@ -22,10 +22,12 @@ pub struct Media {
 }
 
 impl Media {
-    pub fn new(path: PathBuf) -> Result<Self> {
+    pub fn new(media_path: PathBuf) -> Result<Self> {
         let one = NonZeroU8::MIN;
+        let name = find_availible_name(&media_path);
+        let path = media_path.join(&name);
         let media = Self {
-            name: find_availible_name(&path),
+            name,
             chapter: one,
             episode: one,
             chapter_path: Default::default(),
