@@ -335,8 +335,8 @@ impl MediaEditScreen {
         if !media.chapter_path_is_present() {
             return Ok(());
         }
-        let next_dir = utils::next_dir(media.chapter_path())?;
-        self.confirm_switch_to_next_chapter(next_dir);
+        let next_chapter_path = media.next_chapter_path()?;
+        self.confirm_switch_to_next_chapter(next_chapter_path);
         Ok(())
     }
 

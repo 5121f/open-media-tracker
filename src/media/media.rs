@@ -7,7 +7,7 @@ use std::{
 use ron::{de::SpannedError, ser::PrettyConfig};
 use serde::{Deserialize, Serialize};
 
-use crate::error::FSIOError;
+use crate::{error::FSIOError, utils};
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
@@ -75,6 +75,34 @@ impl Media {
 
     pub fn remove_file(&self) -> Result<()> {
         fs::remove_file(&self.path).map_err(|source| FSIOError::new(&self.path, source).into())
+    }
+
+    pub fn next_chapter_path(&self) -> Result<PathBuf> {
+        let chapter_dir_name = self
+            .chapter_path
+            .file_name()
+            .ok_or(MediaError::FailedToFindNextChapterPath)?;
+        let parent = self
+            .chapter_path
+            .parent()
+            .unwrap_or(Path::new("/"))
+            .to_owned();
+        let mut paths = utils::read_dir(parent)?;
+        paths.retain(|path| path.is_dir());
+        paths.sort();
+        let (current_dir_index, _) = paths
+            .iter()
+            .flat_map(|path| path.file_name())
+            .flat_map(|name| name.to_str())
+            .enumerate()
+            .find(|(_, file_name)| *file_name == chapter_dir_name)
+            .ok_or(MediaError::FailedToFindNextChapterPath)?;
+        let next_chapter_index = current_dir_index + 1;
+        if next_chapter_index >= paths.len() {
+            return Err(MediaError::FailedToFindNextChapterPath);
+        }
+        let next_dir = paths[next_chapter_index].to_path_buf();
+        Ok(next_dir)
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
@@ -147,6 +175,8 @@ pub enum MediaError {
     Serialize { name: String, source: ron::Error },
     #[error("{path}: file parsing error: {source}")]
     Deserialize { path: PathBuf, source: SpannedError },
+    #[error("Failed to find next chapter path")]
+    FailedToFindNextChapterPath,
     #[error(transparent)]
     FSIO(#[from] FSIOError),
 }
