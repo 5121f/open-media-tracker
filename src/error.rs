@@ -43,8 +43,6 @@ impl From<ErrorKind> for Error {
 pub enum ErrorKind {
     #[error("{path}: Falied to open default program: {kind}")]
     Open { path: PathBuf, kind: io::ErrorKind },
-    #[error("Failed to find next chapter path")]
-    FailedToFindNextChapterPath,
     #[error("Filed to load font")]
     FontLoad,
     #[error(transparent)]
