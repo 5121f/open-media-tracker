@@ -11,11 +11,11 @@ use std::{
 
 use mime_guess::mime;
 
-use crate::error::{ErrorKind, FSIOError};
+use crate::error::FSIOError;
 
-pub fn open(path: impl AsRef<Path>) -> Result<(), ErrorKind> {
+pub fn open(path: impl AsRef<Path>) -> Result<(), OpenError> {
     let path = path.as_ref();
-    open::that(path).map_err(|source| ErrorKind::open(&path, source.kind()))
+    open::that(path).map_err(|source| OpenError::new(&path, source.kind()))
 }
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, FSIOError> {
@@ -35,4 +35,20 @@ pub fn is_media_file(path: impl AsRef<Path>) -> bool {
     };
     let mtype = mime.type_();
     mtype == mime::VIDEO || mtype == mime::AUDIO
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+#[error("{path}: Falied to open default program: {kind}")]
+pub struct OpenError {
+    path: PathBuf,
+    kind: std::io::ErrorKind,
+}
+
+impl OpenError {
+    fn new(path: impl AsRef<Path>, kind: std::io::ErrorKind) -> Self {
+        Self {
+            path: path.as_ref().to_path_buf(),
+            kind,
+        }
+    }
 }

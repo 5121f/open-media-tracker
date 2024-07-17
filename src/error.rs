@@ -12,7 +12,9 @@ use std::{
 
 use crate::{
     config::ConfigError,
+    gui::screen::media_edit::MediaEditError,
     media::{MediaError, MediaListError},
+    utils::OpenError,
 };
 
 pub struct Error {
@@ -46,10 +48,10 @@ impl From<ErrorKind> for Error {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
-    #[error("{path}: Falied to open default program: {kind}")]
-    Open { path: PathBuf, kind: io::ErrorKind },
     #[error("Filed to load font")]
     FontLoad,
+    #[error(transparent)]
+    Open(#[from] OpenError),
     #[error(transparent)]
     FSIO(#[from] FSIOError),
     #[error(transparent)]
@@ -58,13 +60,8 @@ pub enum ErrorKind {
     Media(#[from] MediaError),
     #[error(transparent)]
     MediaList(#[from] MediaListError),
-}
-
-impl ErrorKind {
-    pub fn open(path: impl AsRef<Path>, kind: io::ErrorKind) -> Self {
-        let path = path.as_ref().to_path_buf();
-        Self::Open { path, kind }
-    }
+    #[error(transparent)]
+    MediaEdit(#[from] MediaEditError),
 }
 
 #[derive(Debug, Clone, thiserror::Error)]

@@ -14,12 +14,13 @@ use iced::{
 use iced_aw::modal;
 
 use super::{
+    error::{Error, Result},
     kind::{ConfirmKind, WarningKind},
     message::Message,
 };
 use crate::{
     episode::{Episode, EpisodeList, EpisodeListError},
-    error::{ErrorKind, FSIOError},
+    error::FSIOError,
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
@@ -33,7 +34,7 @@ pub struct MediaEditScreen {
     confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
     warning: Dialog<WarningScreen<WarningKind>>,
     editable_media_id: usize,
-    episodes: Result<EpisodeList, EpisodeListError>,
+    episodes: Result<EpisodeList>,
     buffer_name: String,
 }
 
@@ -41,7 +42,7 @@ impl MediaEditScreen {
     pub fn new(media: &[Media], editable_media_id: usize) -> Self {
         let editable_media = &media[editable_media_id];
         let editable_episode_name = editable_media.name().to_string();
-        let episodes = EpisodeList::read(editable_media.chapter_path());
+        let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
         Self {
             confirm_screen: Dialog::closed(),
             warning: Dialog::closed(),
@@ -128,11 +129,7 @@ impl MediaEditScreen {
         modal(layout, confirm_screen).into()
     }
 
-    pub fn update(
-        &mut self,
-        media_list: &mut MediaList,
-        message: Message,
-    ) -> Result<(), ErrorKind> {
+    pub fn update(&mut self, media_list: &mut MediaList, message: Message) -> Result<()> {
         match message {
             Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
             Message::NameChanged(value) => {
@@ -228,7 +225,7 @@ impl MediaEditScreen {
         &mut self,
         media: &mut [Media],
         message: ConfirmScreenMessage,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<()> {
         match message {
             ConfirmScreenMessage::Confirm => {
                 if let Some(kind) = self.confirm_screen.kind() {
@@ -240,11 +237,7 @@ impl MediaEditScreen {
         Ok(())
     }
 
-    fn confirm_kind_update(
-        &mut self,
-        media: &mut [Media],
-        kind: ConfirmKind,
-    ) -> Result<(), ErrorKind> {
+    fn confirm_kind_update(&mut self, media: &mut [Media], kind: ConfirmKind) -> Result<()> {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm_screen.close();
@@ -265,12 +258,12 @@ impl MediaEditScreen {
         &mut media[self.editable_media_id]
     }
 
-    fn episodes(&self) -> Result<&EpisodeList, EpisodeListError> {
+    fn episodes(&self) -> Result<&EpisodeList> {
         let episodes = self.episodes.as_ref().map_err(Clone::clone)?;
         Ok(episodes)
     }
 
-    fn episode(&self, media: &[Media]) -> Result<&Episode, Error> {
+    fn episode(&self, media: &[Media]) -> Result<&Episode> {
         self.episodes()?
             .get(self.episode_id(media))
             .ok_or(Error::EpisodeNotFound)
@@ -280,17 +273,13 @@ impl MediaEditScreen {
         (self.editable_media(media).episode().get() - 1) as usize
     }
 
-    fn set_chapter_path(
-        &mut self,
-        media: &mut [Media],
-        chapter_path: PathBuf,
-    ) -> Result<(), ErrorKind> {
+    fn set_chapter_path(&mut self, media: &mut [Media], chapter_path: PathBuf) -> Result<()> {
         self.editable_media_mut(media)
             .set_chapter_path(chapter_path)?;
         self.episodes = {
             let editable_media = self.editable_media(media);
             let media_path = editable_media.chapter_path();
-            EpisodeList::read(media_path)
+            EpisodeList::read(media_path).map_err(Into::into)
         };
         Ok(())
     }
@@ -300,13 +289,13 @@ impl MediaEditScreen {
         self.warning = Dialog::new(screen);
     }
 
-    fn increase_episode(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+    fn increase_episode(&mut self, media_list: &mut [Media]) -> Result<()> {
         let media = self.editable_media(media_list);
         let next_episode = media.episode().saturating_add(1);
         self.set_episode(media_list, next_episode)
     }
 
-    fn set_episode(&mut self, media_list: &mut [Media], value: NonZeroU8) -> Result<(), ErrorKind> {
+    fn set_episode(&mut self, media_list: &mut [Media], value: NonZeroU8) -> Result<()> {
         let media = self.editable_media_mut(media_list);
         if !media.chapter_path_is_present() || value <= media.episode() {
             media.set_episode(value)?;
@@ -329,13 +318,13 @@ impl MediaEditScreen {
         Some(count)
     }
 
-    fn set_episode_to_one(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+    fn set_episode_to_one(&mut self, media_list: &mut [Media]) -> Result<()> {
         let media = self.editable_media_mut(media_list);
         media.set_episode(NonZeroU8::MIN)?;
         Ok(())
     }
 
-    fn increase_chapter(&mut self, media_list: &mut [Media]) -> Result<(), ErrorKind> {
+    fn increase_chapter(&mut self, media_list: &mut [Media]) -> Result<()> {
         self.set_episode_to_one(media_list)?;
         let media = self.editable_media_mut(media_list);
         let next_chapter = media.chapter().saturating_add(1);
@@ -362,12 +351,4 @@ impl MediaEditScreen {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
-}
-
-#[derive(Debug, thiserror::Error)]
-enum Error {
-    #[error("Eisode not found")]
-    EpisodeNotFound,
-    #[error(transparent)]
-    EpisodeList(#[from] EpisodeListError),
 }
