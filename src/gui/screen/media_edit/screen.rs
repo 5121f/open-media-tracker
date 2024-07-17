@@ -216,7 +216,7 @@ impl MediaEditScreen {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(EpisodeListError::FSIO(FSIOError { kind, .. })) => {
+            Err(Error::EpisodeList(EpisodeListError::FSIO(FSIOError { kind, .. }))) => {
                 format!("Chapter path is incorrect: {kind}")
             }
             Err(err) => format!("Chapter path is incorrect: {err}"),
@@ -270,8 +270,10 @@ impl MediaEditScreen {
         Ok(episodes)
     }
 
-    fn episode(&self, media: &[Media]) -> Result<&Episode, EpisodeListError> {
-        Ok(&self.episodes()?[self.episode_id(media)])
+    fn episode(&self, media: &[Media]) -> Result<&Episode, Error> {
+        self.episodes()?
+            .get(self.episode_id(media))
+            .ok_or(Error::EpisodeNotFound)
     }
 
     fn episode_id(&self, media: &[Media]) -> usize {
@@ -360,4 +362,12 @@ impl MediaEditScreen {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+enum Error {
+    #[error("Eisode not found")]
+    EpisodeNotFound,
+    #[error(transparent)]
+    EpisodeList(#[from] EpisodeListError),
 }
