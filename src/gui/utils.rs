@@ -27,7 +27,9 @@ pub fn square_button<M>(content: &str) -> Button<M> {
 
 pub fn link<M>(s: &str) -> Button<M> {
     const CYAN: Color = Color::from_rgb(0., 1., 1.);
-    button(text(s).style(theme::Text::Color(CYAN))).style(theme::Button::Text)
+    button(text(s).style(theme::Text::Color(CYAN)))
+        .padding(0)
+        .style(theme::Button::Text)
 }
 
 pub fn signed_text_input<'a, M, F>(sign: &str, value: &str, on_input: F) -> Row<'a, M>
