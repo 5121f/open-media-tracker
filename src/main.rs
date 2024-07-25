@@ -289,16 +289,16 @@ impl Screens {
     }
 }
 
-#[derive(PartialEq, Eq, Hash)]
-pub enum LoadingKind {
-    Font,
-    ReadMedia,
-}
-
 impl Default for Screens {
     fn default() -> Self {
         Self::Main
     }
+}
+
+#[derive(PartialEq, Eq, Hash)]
+pub enum LoadingKind {
+    Font,
+    ReadMedia,
 }
 
 #[derive(Clone)]

@@ -4,8 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::font;
-
 use crate::{
     gui::screen::{
         ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
@@ -20,7 +18,7 @@ pub enum Message {
     MediaEditScreen(MediaEditScreenMessage),
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
-    FontLoaded(Result<(), font::Error>),
+    FontLoaded(Result<(), iced::font::Error>),
     MediaLoaded(Result<MediaList, MediaListError>),
     LoadingMessage,
 }
@@ -50,7 +48,7 @@ impl From<MainScreenMessage> for Message {
 }
 
 impl From<LoadingMessage> for Message {
-    fn from(_: LoadingMessage) -> Self {
+    fn from(_value: LoadingMessage) -> Self {
         Self::LoadingMessage
     }
 }
