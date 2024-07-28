@@ -37,8 +37,8 @@ where
         self.kinds.remove(&kind);
     }
 
-    pub fn all_complete(&self) -> bool {
-        self.kinds.len() == 0
+    pub fn all_completed(&self) -> bool {
+        self.kinds.is_empty()
     }
 }
 

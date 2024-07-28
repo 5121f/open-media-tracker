@@ -31,7 +31,7 @@ where
             return;
         };
         screen.complete(kind);
-        if screen.all_complete() {
+        if screen.all_completed() {
             self.0.close();
         }
     }
