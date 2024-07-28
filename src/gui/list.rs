@@ -7,10 +7,10 @@
 use iced::{
     theme,
     widget::{button, column, container, scrollable, Button},
-    Border, Color, Element, Length, Theme,
+    Background, Border, Color, Element, Length, Theme,
 };
 
-use super::utils::INDENT;
+use crate::gui::utils::INDENT;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -47,8 +47,9 @@ pub fn list_button(text: &str) -> Button<Message> {
         .width(Length::Fill)
 }
 
-fn background_color() -> Color {
-    Color::from_rgb8(22, 23, 25)
+fn background() -> Background {
+    let background_color = Color::from_rgb8(22, 23, 25);
+    Background::Color(background_color)
 }
 
 struct ListButton;
@@ -59,7 +60,7 @@ impl button::StyleSheet for ListButton {
     fn active(&self, _style: &Self::Style) -> button::Appearance {
         button::Appearance {
             shadow_offset: Default::default(),
-            background: Some(iced::Background::Color(background_color())),
+            background: Some(background()),
             text_color: Color::WHITE,
             border: Border::with_radius(10.),
             shadow: Default::default(),
@@ -67,9 +68,12 @@ impl button::StyleSheet for ListButton {
     }
 
     fn hovered(&self, _style: &Self::Style) -> button::Appearance {
+        let background_color = Color::from_rgb8(40, 42, 46);
+        let background = Background::Color(background_color);
+
         button::Appearance {
             shadow_offset: Default::default(),
-            background: Some(iced::Background::Color(Color::from_rgb8(40, 42, 46))),
+            background: Some(background),
             text_color: Color::WHITE,
             border: Border::with_radius(10.),
             shadow: Default::default(),
@@ -85,7 +89,7 @@ impl container::StyleSheet for List {
     fn appearance(&self, _style: &Self::Style) -> container::Appearance {
         container::Appearance {
             text_color: None,
-            background: Some(iced::Background::Color(background_color())),
+            background: Some(background()),
             border: Border::with_radius(10.),
             shadow: Default::default(),
         }
