@@ -50,7 +50,7 @@ struct OpenMediaTracker {
     screen: Screens,
     confirm_dialog: Dialog<ConfirmScreen>,
     error: Dialog<ErrorScreen>,
-    loading_dialog: Dialog<LoadingScreen>,
+    loading: LoadingDialog,
     config: Config,
 }
 
@@ -81,7 +81,7 @@ impl OpenMediaTracker {
         self.error
             .title()
             .or_else(|| self.confirm_dialog.title())
-            .or_else(|| self.loading_dialog.title())
+            .or_else(|| self.loading.title())
             .or_else(|| self.scren_title())
     }
 
@@ -93,35 +93,14 @@ impl OpenMediaTracker {
     }
 
     fn load_font(&mut self) -> Command<Message> {
-        self.add_loading_process(LoadingKind::Font);
+        self.loading.insert(LoadingKind::Font);
         font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded)
     }
 
     fn read_media(&mut self) -> Command<Message> {
-        self.add_loading_process(LoadingKind::ReadMedia);
+        self.loading.insert(LoadingKind::ReadMedia);
         let read_media_future = MediaList::read(self.config.data_dir.clone());
         Command::perform(read_media_future, Message::MediaLoaded)
-    }
-
-    fn loading_complete(&mut self, kind: LoadingKind) {
-        let Some(loadnig_screen) = self.loading_dialog.as_mut() else {
-            return;
-        };
-        loadnig_screen.complete(kind);
-        if loadnig_screen.all_complete() {
-            self.loading_dialog.close();
-        }
-    }
-
-    fn add_loading_process(&mut self, kind: LoadingKind) {
-        match self.loading_dialog.as_mut() {
-            Some(dialog) => dialog.insert(kind),
-            None => {
-                let mut screen = LoadingScreen::new();
-                screen.insert(kind);
-                self.loading_dialog = Dialog::new(screen);
-            }
-        }
     }
 
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
@@ -195,11 +174,11 @@ impl OpenMediaTracker {
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Message::FontLoaded(res) => {
                 res.map_err(|_| ErrorKind::FontLoad)?;
-                self.loading_complete(LoadingKind::Font);
+                self.loading.complete(LoadingKind::Font);
             }
             Message::MediaLoaded(res) => {
                 self.media = res.map_err(Into::<ErrorKind>::into)?.into();
-                self.loading_complete(LoadingKind::ReadMedia)
+                self.loading.complete(LoadingKind::ReadMedia);
             }
             Message::LoadingMessage => {}
         }
@@ -213,7 +192,7 @@ impl OpenMediaTracker {
             screen: Screens::Main,
             confirm_dialog: Dialog::closed(),
             error: Dialog::closed(),
-            loading_dialog: Dialog::closed(),
+            loading: LoadingDialog::closed(),
             config,
         };
         let command = Command::batch(vec![omt.load_font(), omt.read_media()]);
@@ -264,7 +243,7 @@ impl Application for OpenMediaTracker {
             return modal(screen, dialog).into();
         }
 
-        if let Some(loading_screen) = self.loading_dialog.as_ref() {
+        if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
         }
 
@@ -300,7 +279,7 @@ pub enum LoadingKind {
     ReadMedia,
 }
 
-type LoadingScreen = gui::screen::LoadingScreen<LoadingKind>;
+type LoadingDialog = gui::dialog::LoadingDialog<LoadingKind>;
 
 #[derive(Clone)]
 enum ConfirmKind {
