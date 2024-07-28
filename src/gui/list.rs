@@ -35,7 +35,8 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
             .padding(INDENT),
         )
         .style(theme::Container::Custom(Box::new(List))),
-    );
+    )
+    .height(Length::Fill);
 
     Some(view.into())
 }
@@ -47,7 +48,7 @@ pub fn list_button(text: &str) -> Button<Message> {
 }
 
 fn background_color() -> Color {
-    Color::from_rgb8(26, 27, 30)
+    Color::from_rgb8(22, 23, 25)
 }
 
 struct ListButton;
