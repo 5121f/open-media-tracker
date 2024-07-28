@@ -16,7 +16,6 @@ mod utils;
 
 use std::fmt::{self, Display};
 
-use gui::IDialog;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
@@ -26,10 +25,10 @@ use crate::{
     error::ErrorKind,
     gui::{
         screen::{
-            main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
-            LoadingScreen, MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
+            main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
+            MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
         },
-        Dialog,
+        Dialog, IDialog,
     },
     media::{Media, MediaList},
     message::Message,
@@ -49,9 +48,9 @@ fn main() -> iced::Result {
 struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: Dialog<ConfirmScreen<ConfirmKind>>,
+    confirm_dialog: Dialog<ConfirmScreen>,
     error: Dialog<ErrorScreen>,
-    loading_dialog: Dialog<LoadingScreen<LoadingKind>>,
+    loading_dialog: Dialog<LoadingScreen>,
     config: Config,
 }
 
@@ -301,6 +300,8 @@ pub enum LoadingKind {
     ReadMedia,
 }
 
+type LoadingScreen = gui::screen::LoadingScreen<LoadingKind>;
+
 #[derive(Clone)]
 enum ConfirmKind {
     DeleteMedia { name: String, id: usize },
@@ -318,3 +319,5 @@ impl Display for ConfirmKind {
         }
     }
 }
+
+type ConfirmScreen = gui::screen::ConfirmScreen<ConfirmKind>;
