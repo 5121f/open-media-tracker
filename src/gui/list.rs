@@ -17,12 +17,8 @@ pub enum Message {
     Enter(usize),
 }
 
-pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
-    if buttons.is_empty() {
-        return None;
-    }
-
-    let view = scrollable(
+pub fn list(buttons: Vec<&str>) -> Element<Message> {
+    scrollable(
         container(
             column(
                 buttons
@@ -34,11 +30,11 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
             )
             .padding(INDENT),
         )
+        .width(Length::Fill)
         .style(list_container_style()),
     )
-    .height(Length::Fill);
-
-    Some(view.into())
+    .height(Length::Fill)
+    .into()
 }
 
 pub fn list_button(text: &str) -> Button<Message> {

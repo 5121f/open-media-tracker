@@ -6,7 +6,7 @@
 
 use iced::{
     theme,
-    widget::{button, container, Column},
+    widget::{button, column, container},
     Element, Length,
 };
 
@@ -26,21 +26,17 @@ pub enum Message {
 }
 
 pub fn main_screen_view(media: &[Media]) -> Element<Message> {
-    let mut layout = Column::new().spacing(PADDING).padding(INDENT);
-
-    let add_media_button = container(
-        button("Add media")
-            .style(theme::Button::Positive)
-            .on_press(Message::AddMedia),
-    )
-    .width(Length::Fill)
-    .center_x();
-
-    let media_list = list(media.into_iter().map(Media::name).collect())
-        .map(|list| list.map(Message::MenuButton));
-
-    layout = layout.push(add_media_button);
-    layout = layout.push_maybe(media_list);
-
-    layout.into()
+    column![
+        container(
+            button("Add media")
+                .style(theme::Button::Positive)
+                .on_press(Message::AddMedia),
+        )
+        .width(Length::Fill)
+        .center_x(),
+        list(media.into_iter().map(Media::name).collect()).map(Message::MenuButton)
+    ]
+    .spacing(PADDING)
+    .padding(INDENT)
+    .into()
 }
