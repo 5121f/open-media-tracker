@@ -34,7 +34,7 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
             )
             .padding(INDENT),
         )
-        .style(theme::Container::Custom(Box::new(List))),
+        .style(list_container_style()),
     )
     .height(Length::Fill);
 
@@ -42,9 +42,7 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
 }
 
 pub fn list_button(text: &str) -> Button<Message> {
-    button(text)
-        .style(theme::Button::Custom(Box::new(ListButton)))
-        .width(Length::Fill)
+    button(text).style(list_button_style()).width(Length::Fill)
 }
 
 fn background() -> Background {
@@ -87,6 +85,10 @@ impl button::StyleSheet for ListButton {
     }
 }
 
+fn list_button_style() -> theme::Button {
+    theme::Button::Custom(Box::new(ListButton))
+}
+
 struct List;
 
 impl container::StyleSheet for List {
@@ -100,4 +102,8 @@ impl container::StyleSheet for List {
             shadow: Default::default(),
         }
     }
+}
+
+fn list_container_style() -> theme::Container {
+    theme::Container::Custom(Box::new(List))
 }
