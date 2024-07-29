@@ -16,7 +16,7 @@ use crate::{
         utils::{INDENT, PADDING},
         ListMessage,
     },
-    media::Media,
+    model::media::Media,
 };
 
 #[derive(Debug, Clone)]

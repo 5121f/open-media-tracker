@@ -13,7 +13,7 @@ use std::{
 use ron::{de::SpannedError, ser::PrettyConfig};
 use serde::{Deserialize, Serialize};
 
-use crate::{error::FSIOError, utils};
+use crate::{model::error::FSIOError, utils};
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 

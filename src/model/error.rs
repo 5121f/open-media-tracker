@@ -11,9 +11,11 @@ use std::{
 };
 
 use crate::{
-    config::ConfigError,
     gui::screen::media_edit::MediaEditError,
-    media::{MediaError, MediaListError},
+    model::{
+        config::ConfigError,
+        media::{MediaError, MediaListError},
+    },
     utils::OpenError,
 };
 

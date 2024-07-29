@@ -11,7 +11,7 @@ use iced::{
 
 use crate::{
     gui::IDialog,
-    loading::{LoadingKind, LoadingQueue},
+    model::loading::{LoadingKind, LoadingQueue},
 };
 
 pub struct Message;

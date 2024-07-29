@@ -8,7 +8,7 @@ use std::ops::{Deref, DerefMut};
 
 use crate::{
     gui::{screen::LoadingScreen, Dialog},
-    loading::LoadingKind,
+    model::loading::LoadingKind,
 };
 
 pub struct LoadingDialog<K: LoadingKind>(Dialog<LoadingScreen<K>>);

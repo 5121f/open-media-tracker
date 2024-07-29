@@ -9,7 +9,7 @@ use crate::{
         ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
         MediaEditScreenMessage,
     },
-    media::{MediaList, MediaListError},
+    model::media::{MediaList, MediaListError},
 };
 
 #[derive(Debug, Clone)]

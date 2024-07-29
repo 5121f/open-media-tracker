@@ -4,7 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use crate::{episode::EpisodeListError, media::MediaError, utils::OpenError};
+use crate::{
+    model::{episode::EpisodeListError, media::MediaError},
+    utils::OpenError,
+};
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum Error {

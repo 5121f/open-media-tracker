@@ -6,7 +6,7 @@
 
 use std::{fs, path::PathBuf};
 
-use crate::error::FSIOError;
+use crate::model::error::FSIOError;
 
 #[derive(Debug, Default)]
 pub struct Config {

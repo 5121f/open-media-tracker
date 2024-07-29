@@ -11,7 +11,7 @@ use std::{
 
 use mime_guess::mime;
 
-use crate::error::FSIOError;
+use crate::model::error::FSIOError;
 
 pub fn open(path: impl AsRef<Path>) -> Result<(), OpenError> {
     let path = path.as_ref();

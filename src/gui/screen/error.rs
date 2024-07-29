@@ -12,8 +12,8 @@ use iced::{
 use iced_aw::card;
 
 use crate::{
-    error::Error,
     gui::{utils::INDENT, IDialog},
+    model::error::Error,
 };
 
 #[derive(Debug, Clone)]

@@ -6,13 +6,9 @@
 
 #![windows_subsystem = "windows"] // Do not open console window on startup on Windows
 
-mod config;
-mod episode;
-mod error;
 mod gui;
-mod loading;
-mod media;
 mod message;
+mod model;
 mod utils;
 
 use std::fmt::{self, Display};
@@ -22,9 +18,6 @@ use iced::{executor, font, window, Application, Command, Element, Settings, Size
 use iced_aw::modal;
 
 use crate::{
-    config::Config,
-    error::Error,
-    error::ErrorKind,
     gui::{
         screen::{
             main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
@@ -32,8 +25,13 @@ use crate::{
         },
         Dialog,
     },
-    media::{Media, MediaList},
     message::Message,
+    model::{
+        config::Config,
+        error::Error,
+        error::ErrorKind,
+        media::{Media, MediaList},
+    },
 };
 
 fn main() -> iced::Result {
@@ -281,7 +279,7 @@ pub enum LoadingKind {
     ReadMedia,
 }
 
-impl loading::LoadingKind for LoadingKind {}
+impl model::loading::LoadingKind for LoadingKind {}
 
 type LoadingDialog = gui::dialog::LoadingDialog<LoadingKind>;
 

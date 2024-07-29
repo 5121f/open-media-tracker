@@ -19,14 +19,16 @@ use super::{
     message::Message,
 };
 use crate::{
-    episode::{Episode, EpisodeList, EpisodeListError},
-    error::FSIOError,
     gui::{
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
-    media::{Media, MediaList, MediaListError},
+    model::{
+        episode::{Episode, EpisodeList, EpisodeListError},
+        error::FSIOError,
+        media::{Media, MediaList, MediaListError},
+    },
     utils,
 };
 

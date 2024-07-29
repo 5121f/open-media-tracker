@@ -6,7 +6,10 @@
 
 use std::{ops::Deref, path::Path};
 
-use crate::{episode::Episode, error::FSIOError, utils};
+use crate::{
+    model::{episode::Episode, error::FSIOError},
+    utils,
+};
 
 pub struct EpisodeList(Vec<Episode>);
 

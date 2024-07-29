@@ -10,8 +10,10 @@ use std::{
 };
 
 use crate::{
-    error::FSIOError,
-    media::{Media, MediaError},
+    model::{
+        error::FSIOError,
+        media::{Media, MediaError},
+    },
     utils,
 };
 
