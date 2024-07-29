@@ -53,9 +53,9 @@ impl Media {
         Ok(media)
     }
 
-    pub fn file_name(&self) -> String {
-        file_name(&self.name)
-    }
+    // pub fn file_name(&self) -> String {
+    //     file_name(&self.name)
+    // }
 
     pub fn rename(&mut self, new_name: String) -> Result<()> {
         if self.name == new_name {

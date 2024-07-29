@@ -5,6 +5,7 @@
  */
 
 pub mod dialog;
+pub mod main;
 pub mod screen;
 pub mod utils;
 pub mod warning;
