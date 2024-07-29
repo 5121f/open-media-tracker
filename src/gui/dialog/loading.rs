@@ -4,18 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    hash::Hash,
-    ops::{Deref, DerefMut},
+use std::ops::{Deref, DerefMut};
+
+use crate::{
+    gui::{screen::LoadingScreen, Dialog},
+    loading::LoadingKind,
 };
 
-use crate::gui::{screen::LoadingScreen, Dialog};
-
-pub struct LoadingDialog<K>(Dialog<LoadingScreen<K>>);
+pub struct LoadingDialog<K: LoadingKind>(Dialog<LoadingScreen<K>>);
 
 impl<K> LoadingDialog<K>
 where
-    K: PartialEq + Eq + Hash,
+    K: LoadingKind,
 {
     pub fn closed() -> Self {
         Self(Dialog::closed())
@@ -23,7 +23,7 @@ where
 
     pub fn insert(&mut self, kind: K) {
         let dialog = self.0.get_or_insert(LoadingScreen::new());
-        dialog.insert(kind);
+        dialog.add(kind);
     }
 
     pub fn complete(&mut self, kind: K) {
@@ -31,13 +31,16 @@ where
             return;
         };
         screen.complete(kind);
-        if screen.all_completed() {
+        if screen.completed() {
             self.0.close();
         }
     }
 }
 
-impl<K> Deref for LoadingDialog<K> {
+impl<K> Deref for LoadingDialog<K>
+where
+    K: LoadingKind,
+{
     type Target = Dialog<LoadingScreen<K>>;
 
     fn deref(&self) -> &Self::Target {
@@ -45,7 +48,10 @@ impl<K> Deref for LoadingDialog<K> {
     }
 }
 
-impl<K> Default for LoadingDialog<K> {
+impl<K> Default for LoadingDialog<K>
+where
+    K: LoadingKind,
+{
     fn default() -> Self {
         Self(Default::default())
     }

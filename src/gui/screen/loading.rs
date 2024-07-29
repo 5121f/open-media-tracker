@@ -4,45 +4,24 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{collections::HashSet, hash::Hash};
-
 use iced::{
     widget::{container, text},
     Element, Length,
 };
 
-use crate::gui::IDialog;
+use crate::{
+    gui::IDialog,
+    loading::{LoadingKind, LoadingQueue},
+};
 
 pub struct Message;
 
-pub struct LoadingScreen<T> {
-    kinds: HashSet<T>,
-}
+pub type LoadingScreen<T> = LoadingQueue<T>;
 
-impl<T> LoadingScreen<T>
+impl<T> IDialog for LoadingScreen<T>
 where
-    T: PartialEq + Eq + Hash,
+    T: LoadingKind,
 {
-    pub fn new() -> Self {
-        Self {
-            kinds: HashSet::new(),
-        }
-    }
-
-    pub fn insert(&mut self, kind: T) {
-        self.kinds.insert(kind);
-    }
-
-    pub fn complete(&mut self, kind: T) {
-        self.kinds.remove(&kind);
-    }
-
-    pub fn all_completed(&self) -> bool {
-        self.kinds.is_empty()
-    }
-}
-
-impl<T> IDialog for LoadingScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {

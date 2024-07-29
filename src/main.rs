@@ -10,12 +10,14 @@ mod config;
 mod episode;
 mod error;
 mod gui;
+mod loading;
 mod media;
 mod message;
 mod utils;
 
 use std::fmt::{self, Display};
 
+use gui::IDialog;
 use iced::{executor, font, window, Application, Command, Element, Settings, Size, Theme};
 use iced_aw::modal;
 
@@ -28,7 +30,7 @@ use crate::{
             main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
             MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
         },
-        Dialog, IDialog,
+        Dialog,
     },
     media::{Media, MediaList},
     message::Message,
@@ -278,6 +280,8 @@ pub enum LoadingKind {
     Font,
     ReadMedia,
 }
+
+impl loading::LoadingKind for LoadingKind {}
 
 type LoadingDialog = gui::dialog::LoadingDialog<LoadingKind>;
 
