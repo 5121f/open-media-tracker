@@ -264,7 +264,7 @@ pub enum LoadingKind {
 
 impl model::loading::LoadingKind for LoadingKind {}
 
-type LoadingDialog = dialog::LoadingDialog<LoadingKind>;
+type LoadingDialog = dialog::loading::LoadingDialog<LoadingKind>;
 
 #[derive(Clone)]
 enum ConfirmKind {
