@@ -120,13 +120,14 @@ impl MediaEditScreen {
         .spacing(INDENT);
         let warning = self.warning.view_into();
 
-        let mut layout = Column::new().padding(PADDING).spacing(PADDING);
-
-        layout = layout.push(top);
-        layout = layout.push(watch);
-        layout = layout.push_maybe(watch_sign);
-        layout = layout.push_maybe(warning);
-        layout = layout.push(body);
+        let layout = Column::new()
+            .push(top)
+            .push(watch)
+            .push_maybe(watch_sign)
+            .push_maybe(warning)
+            .push(body)
+            .padding(PADDING)
+            .spacing(PADDING);
 
         modal(layout, confirm_screen).into()
     }
