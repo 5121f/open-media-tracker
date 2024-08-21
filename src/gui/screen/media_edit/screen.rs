@@ -27,7 +27,7 @@ use crate::{
     model::{
         episode::{Episode, EpisodeList, EpisodeListError},
         error::FSIOError,
-        media::{Media, MediaList, MediaListError},
+        media::{MediaHandler, MediaList, MediaListError},
     },
     utils,
 };
@@ -41,7 +41,7 @@ pub struct MediaEditScreen {
 }
 
 impl MediaEditScreen {
-    pub fn new(media: &[Media], editable_media_id: usize) -> Self {
+    pub fn new(media: &[MediaHandler], editable_media_id: usize) -> Self {
         let editable_media = &media[editable_media_id];
         let editable_episode_name = editable_media.name().to_string();
         let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
@@ -54,7 +54,7 @@ impl MediaEditScreen {
         }
     }
 
-    pub fn view(&self, media_list: &[Media]) -> Element<Message> {
+    pub fn view(&self, media_list: &[MediaHandler]) -> Element<Message> {
         let confirm_screen = self.confirm_screen.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().display().to_string();
@@ -206,11 +206,11 @@ impl MediaEditScreen {
         Ok(())
     }
 
-    pub fn title(&self, media: &[Media]) -> String {
+    pub fn title(&self, media: &[MediaHandler]) -> String {
         self.editable_media(media).name().to_string()
     }
 
-    fn watch_sign(&self, media: &[Media]) -> Option<String> {
+    fn watch_sign(&self, media: &[MediaHandler]) -> Option<String> {
         if !self.editable_media(media).chapter_path_is_present() {
             return None;
         }
@@ -226,7 +226,7 @@ impl MediaEditScreen {
 
     fn confirm_screen_update(
         &mut self,
-        media: &mut [Media],
+        media: &mut [MediaHandler],
         message: ConfirmScreenMessage,
     ) -> Result<()> {
         match message {
@@ -240,7 +240,7 @@ impl MediaEditScreen {
         Ok(())
     }
 
-    fn confirm_kind_update(&mut self, media: &mut [Media], kind: ConfirmKind) -> Result<()> {
+    fn confirm_kind_update(&mut self, media: &mut [MediaHandler], kind: ConfirmKind) -> Result<()> {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm_screen.close();
@@ -253,11 +253,11 @@ impl MediaEditScreen {
         }
     }
 
-    fn editable_media<'a>(&'a self, media: &'a [Media]) -> &'a Media {
+    fn editable_media<'a>(&'a self, media: &'a [MediaHandler]) -> &'a MediaHandler {
         &media[self.editable_media_id]
     }
 
-    fn editable_media_mut<'a>(&'a self, media: &'a mut [Media]) -> &'a mut Media {
+    fn editable_media_mut<'a>(&'a self, media: &'a mut [MediaHandler]) -> &'a mut MediaHandler {
         &mut media[self.editable_media_id]
     }
 
@@ -266,17 +266,21 @@ impl MediaEditScreen {
         Ok(episodes)
     }
 
-    fn episode(&self, media: &[Media]) -> Result<&Episode> {
+    fn episode(&self, media: &[MediaHandler]) -> Result<&Episode> {
         self.episodes()?
             .get(self.episode_id(media))
             .ok_or(Error::EpisodeNotFound)
     }
 
-    fn episode_id(&self, media: &[Media]) -> usize {
+    fn episode_id(&self, media: &[MediaHandler]) -> usize {
         (self.editable_media(media).episode().get() - 1) as usize
     }
 
-    fn set_chapter_path(&mut self, media: &mut [Media], chapter_path: PathBuf) -> Result<()> {
+    fn set_chapter_path(
+        &mut self,
+        media: &mut [MediaHandler],
+        chapter_path: PathBuf,
+    ) -> Result<()> {
         self.editable_media_mut(media)
             .set_chapter_path(chapter_path)?;
         self.episodes = {
@@ -292,13 +296,13 @@ impl MediaEditScreen {
         self.warning = Dialog::new(screen);
     }
 
-    fn increase_episode(&mut self, media_list: &mut [Media]) -> Result<()> {
+    fn increase_episode(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
         let media = self.editable_media(media_list);
         let next_episode = media.episode().saturating_add(1);
         self.set_episode(media_list, next_episode)
     }
 
-    fn set_episode(&mut self, media_list: &mut [Media], value: NonZeroU8) -> Result<()> {
+    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: NonZeroU8) -> Result<()> {
         let media = self.editable_media_mut(media_list);
         if !media.chapter_path_is_present() || value <= media.episode() {
             media.set_episode(value)?;
@@ -321,13 +325,13 @@ impl MediaEditScreen {
         Some(count)
     }
 
-    fn set_episode_to_one(&mut self, media_list: &mut [Media]) -> Result<()> {
+    fn set_episode_to_one(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
         let media = self.editable_media_mut(media_list);
         media.set_episode(NonZeroU8::MIN)?;
         Ok(())
     }
 
-    fn increase_chapter(&mut self, media_list: &mut [Media]) -> Result<()> {
+    fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
         self.set_episode_to_one(media_list)?;
         let media = self.editable_media_mut(media_list);
         let next_chapter = media.chapter().saturating_add(1);

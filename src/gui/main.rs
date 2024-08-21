@@ -22,9 +22,8 @@ use crate::{
     model::{
         self,
         config::Config,
-        error::Error,
-        error::ErrorKind,
-        media::{Media, MediaList},
+        error::{Error, ErrorKind},
+        media::{MediaHandler, MediaList},
     },
     utils,
 };
@@ -135,7 +134,8 @@ impl OpenMediaTracker {
     fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
         match message {
             MainScreenMessage::AddMedia => {
-                let media = Media::new(self.config.data_dir.clone())?;
+                let path = self.config.data_dir.clone();
+                let media = MediaHandler::with_default_name(path);
                 self.media.push(media);
                 self.change_media_screen(self.media.len() - 1);
             }
@@ -244,7 +244,7 @@ pub enum Screens {
 }
 
 impl Screens {
-    fn change_media(media: &[Media], id: usize) -> Self {
+    fn change_media(media: &[MediaHandler], id: usize) -> Self {
         let screen = MediaEditScreen::new(media, id);
         Self::MediaChange(screen)
     }

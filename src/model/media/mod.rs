@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+mod handler;
 mod media;
 mod media_list;
 
-pub use media::{Error as MediaError, Media};
+pub use handler::{Error as MediaHandlerError, MediaHandler};
+pub use media::{Media, Error as MediaError};
 pub use media_list::{Error as MediaListError, MediaList};

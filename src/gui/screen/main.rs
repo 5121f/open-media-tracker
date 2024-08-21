@@ -16,7 +16,7 @@ use crate::{
         utils::{INDENT, PADDING},
         ListMessage,
     },
-    model::media::Media,
+    model::media::MediaHandler,
 };
 
 #[derive(Debug, Clone)]
@@ -25,7 +25,7 @@ pub enum Message {
     MenuButton(ListMessage),
 }
 
-pub fn main_screen_view(media: &[Media]) -> Element<Message> {
+pub fn main_screen_view(media: &[MediaHandler]) -> Element<Message> {
     column![
         container(
             button("Add media")
@@ -34,7 +34,7 @@ pub fn main_screen_view(media: &[Media]) -> Element<Message> {
         )
         .width(Length::Fill)
         .center_x(),
-        list(media.into_iter().map(Media::name).collect()).map(Message::MenuButton)
+        list(media.into_iter().map(MediaHandler::name).collect()).map(Message::MenuButton)
     ]
     .spacing(PADDING)
     .padding(INDENT)

@@ -12,13 +12,13 @@ use std::{
 use crate::{
     model::{
         error::FSIOError,
-        media::{Media, MediaError},
+        media::{MediaHandler, MediaHandlerError},
     },
     utils,
 };
 
 #[derive(Debug, Clone, Default)]
-pub struct MediaList(Vec<Media>);
+pub struct MediaList(Vec<MediaHandler>);
 
 impl MediaList {
     pub fn new() -> Self {
@@ -37,7 +37,7 @@ impl MediaList {
         let dir_content = utils::read_dir(&path)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let media = Media::read_from_file(entry).await?;
+            let media = MediaHandler::from_file(entry).await?;
             media_list.push(media);
         }
         Ok(media_list.into())
@@ -53,12 +53,12 @@ impl MediaList {
     }
 
     fn name_is_used(&self, name: &str) -> bool {
-        self.0.iter().any(|s| s.name() == name)
+        self.0.iter().any(|s| s.media.name == name)
     }
 }
 
 impl Deref for MediaList {
-    type Target = Vec<Media>;
+    type Target = Vec<MediaHandler>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -71,8 +71,8 @@ impl DerefMut for MediaList {
     }
 }
 
-impl From<Vec<Media>> for MediaList {
-    fn from(value: Vec<Media>) -> Self {
+impl From<Vec<MediaHandler>> for MediaList {
+    fn from(value: Vec<MediaHandler>) -> Self {
         Self(value)
     }
 }
@@ -82,7 +82,7 @@ pub enum Error {
     #[error("Name is used")]
     NameIsUsed,
     #[error(transparent)]
-    MediaError(#[from] MediaError),
+    MediaError(#[from] MediaHandlerError),
     #[error(transparent)]
     FSIO(#[from] FSIOError),
 }

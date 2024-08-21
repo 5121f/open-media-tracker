@@ -5,7 +5,7 @@
  */
 
 use crate::{
-    model::{episode::EpisodeListError, media::MediaError},
+    model::{episode::EpisodeListError, media::MediaHandlerError},
     utils::OpenError,
 };
 
@@ -16,7 +16,7 @@ pub enum Error {
     #[error(transparent)]
     EpisodeList(#[from] EpisodeListError),
     #[error(transparent)]
-    Media(#[from] MediaError),
+    MediaHandler(#[from] MediaHandlerError),
     #[error(transparent)]
     Open(#[from] OpenError),
 }
