@@ -62,7 +62,7 @@ pub enum ErrorKind {
     #[error(transparent)]
     Open(#[from] OpenError),
     #[error(transparent)]
-    FSIO(#[from] FSIOError),
+    Fsio(#[from] FSIOError),
 }
 
 impl ErrorKind {

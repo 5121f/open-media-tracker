@@ -12,7 +12,7 @@ use std::{
 use crate::{
     model::{
         error::{ErrorKind, Result},
-        media::MediaHandler,
+        MediaHandler,
     },
     utils,
 };

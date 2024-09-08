@@ -213,7 +213,7 @@ impl MediaEditScreen {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::FSIO(FSIOError { kind, .. })) => {
+            Err(ErrorKind::Fsio(FSIOError { kind, .. })) => {
                 format!("Chapter path is incorrect: {kind}")
             }
             Err(err) => format!("Chapter path is incorrect: {err}"),
