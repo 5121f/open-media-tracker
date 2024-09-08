@@ -23,9 +23,7 @@ use crate::{
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
     },
-    model::{
-        Episode, EpisodeList, ErrorKind, FSIOError, Result, {MediaHandler, MediaList},
-    },
+    model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     utils,
 };
 
