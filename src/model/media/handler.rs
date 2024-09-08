@@ -30,7 +30,7 @@ impl MediaHandler {
     }
 
     pub fn with_default_name(save_folder: PathBuf) -> Self {
-        let name = find_availible_name(&save_folder);
+        let name = find_available_name(&save_folder);
         Self::new(save_folder, name)
     }
 
@@ -114,7 +114,7 @@ pub fn file_name(name: &str) -> String {
     format!("{name}.ron")
 }
 
-fn find_availible_name(path: impl AsRef<Path>) -> String {
+fn find_available_name(path: impl AsRef<Path>) -> String {
     let path = path.as_ref();
     let mut i = 1;
     let mut potential_name = DEFAULT_MEDIA_NAME.to_string();

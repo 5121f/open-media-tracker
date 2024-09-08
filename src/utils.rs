@@ -38,7 +38,7 @@ pub fn is_media_file(path: impl AsRef<Path>) -> bool {
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
-#[error("{path}: Falied to open default program: {kind}")]
+#[error("{path}: Failed to open default program: {kind}")]
 pub struct OpenError {
     path: PathBuf,
     kind: std::io::ErrorKind,
