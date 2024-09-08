@@ -42,7 +42,7 @@ impl MediaHandler {
     pub async fn from_file(path: PathBuf) -> Result<MediaHandler> {
         Ok(MediaHandler {
             media: Media::from_file(&path).await?,
-            save_folder: path.parent().unwrap_or(&Path::new("/")).to_path_buf(),
+            save_folder: path.parent().unwrap_or(Path::new("/")).to_path_buf(),
         })
     }
 
@@ -51,15 +51,15 @@ impl MediaHandler {
             return Ok(());
         }
         let new_path = self.save_folder.join(file_name(&new_name));
-        fs::rename(&self.path(), &new_path)
-            .map_err(|source| FSIOError::new(self.media.name.to_string(), source))?;
+        fs::rename(self.path(), &new_path)
+            .map_err(|source| FSIOError::new(&self.media.name, source))?;
         self.media.name = new_name;
         self.save()?;
         Ok(())
     }
 
     pub fn remove_file(&self) -> Result<()> {
-        fs::remove_file(&self.path()).map_err(|source| FSIOError::new(&self.path(), source).into())
+        fs::remove_file(self.path()).map_err(|source| FSIOError::new(self.path(), source).into())
     }
 
     pub fn name(&self) -> &str {

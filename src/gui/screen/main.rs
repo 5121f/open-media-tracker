@@ -37,7 +37,7 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Message> {
             .center_x(),
         )
         .push_maybe(
-            list(media.into_iter().map(MediaHandler::name).collect())
+            list(media.iter().map(MediaHandler::name).collect())
                 .map(|v| v.map(Message::MenuButton)),
         )
         .spacing(PADDING)

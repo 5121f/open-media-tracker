@@ -15,7 +15,7 @@ use crate::model::error::FSIOError;
 
 pub fn open(path: impl AsRef<Path>) -> Result<(), OpenError> {
     let path = path.as_ref();
-    open::that(path).map_err(|source| OpenError::new(&path, source.kind()))
+    open::that(path).map_err(|source| OpenError::new(path, source.kind()))
 }
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, FSIOError> {

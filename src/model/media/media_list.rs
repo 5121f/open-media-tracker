@@ -34,7 +34,7 @@ impl MediaList {
 
     pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
-        let dir_content = utils::read_dir(&path)?;
+        let dir_content = utils::read_dir(path)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
             let media = MediaHandler::from_file(entry).await?;

@@ -160,7 +160,7 @@ impl OpenMediaTracker {
                 self.loading.complete(LoadingKind::Font);
             }
             Message::MediaLoaded(res) => {
-                self.media = res.map_err(Into::<ErrorKind>::into)?.into();
+                self.media = res.map_err(Into::<ErrorKind>::into)?;
                 self.loading.complete(LoadingKind::ReadMedia);
             }
             Message::LoadingMessage => {}
@@ -241,8 +241,8 @@ pub enum Screens {
 impl Screens {
     fn view<'a>(&'a self, media: &'a MediaList) -> Element<Message> {
         match self {
-            Self::Main => main_screen_view(&media).map(Into::into),
-            Self::MediaChange(screen) => screen.view(&media).map(Into::into),
+            Self::Main => main_screen_view(media).map(Into::into),
+            Self::MediaChange(screen) => screen.view(media).map(Into::into),
         }
     }
 
