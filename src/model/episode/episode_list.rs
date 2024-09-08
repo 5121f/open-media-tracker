@@ -7,7 +7,10 @@
 use std::{ops::Deref, path::Path};
 
 use crate::{
-    model::{episode::Episode, error::FSIOError},
+    model::{
+        episode::Episode,
+        error::{ErrorKind, Result},
+    },
     utils,
 };
 
@@ -22,7 +25,7 @@ impl EpisodeList {
             .flat_map(|path| Episode::new(path).ok())
             .collect();
         if episodes.is_empty() {
-            return Err(Error::EpisodesDidNotFound);
+            return Err(ErrorKind::EpisodeNotFound);
         }
         episodes.sort();
         Ok(Self(episodes))
@@ -36,13 +39,3 @@ impl Deref for EpisodeList {
         &self.0
     }
 }
-
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
-    #[error("Episodes didn't found")]
-    EpisodesDidNotFound,
-    #[error(transparent)]
-    FSIO(#[from] FSIOError),
-}
-
-type Result<T> = std::result::Result<T, Error>;

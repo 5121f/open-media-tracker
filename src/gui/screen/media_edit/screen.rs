@@ -14,7 +14,6 @@ use iced::{
 use iced_aw::modal;
 
 use super::{
-    error::{Error, Result},
     kind::{ConfirmKind, WarningKind},
     message::Message,
 };
@@ -25,9 +24,9 @@ use crate::{
         Dialog, WarningMessage, WarningScreen,
     },
     model::{
-        episode::{Episode, EpisodeList, EpisodeListError},
-        error::FSIOError,
-        media::{MediaHandler, MediaList, MediaListError},
+        episode::{Episode, EpisodeList},
+        error::{ErrorKind, FSIOError, Result},
+        media::{MediaHandler, MediaList},
     },
     utils,
 };
@@ -138,7 +137,7 @@ impl MediaEditScreen {
             Message::NameChanged(value) => {
                 self.buffer_name = value.clone();
                 let rename_res = media_list.rename_media(self.editable_media_id, value);
-                if matches!(rename_res, Err(MediaListError::NameIsUsed)) {
+                if matches!(rename_res, Err(ErrorKind::MediaNameIsUsed { .. })) {
                     self.warning(WarningKind::NameUsed);
                     return Ok(());
                 }
@@ -216,7 +215,7 @@ impl MediaEditScreen {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(Error::EpisodeList(EpisodeListError::FSIO(FSIOError { kind, .. }))) => {
+            Err(ErrorKind::FSIO(FSIOError { kind, .. })) => {
                 format!("Chapter path is incorrect: {kind}")
             }
             Err(err) => format!("Chapter path is incorrect: {err}"),
@@ -269,7 +268,7 @@ impl MediaEditScreen {
     fn episode(&self, media: &[MediaHandler]) -> Result<&Episode> {
         self.episodes()?
             .get(self.episode_id(media))
-            .ok_or(Error::EpisodeNotFound)
+            .ok_or(ErrorKind::EpisodeNotFound)
     }
 
     fn episode_id(&self, media: &[MediaHandler]) -> usize {

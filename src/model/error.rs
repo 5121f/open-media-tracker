@@ -10,14 +10,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{
-    gui::screen::media_edit::MediaEditError,
-    model::{
-        config::ConfigError,
-        media::{MediaError, MediaListError},
-    },
-    utils::OpenError,
-};
+use ron::de::SpannedError;
+
+use crate::utils::OpenError;
 
 pub struct Error {
     pub kind: ErrorKind,
@@ -52,21 +47,43 @@ impl From<ErrorKind> for Error {
 pub enum ErrorKind {
     #[error("Filed to load font")]
     FontLoad,
+    #[error("Failed to found user's data directory")]
+    UserDataDirNotFound,
+    #[error("{name}: Serialize error: {source}")]
+    Serialize { name: String, source: ron::Error },
+    #[error("{path}: file parsing error: {source}")]
+    Deserialize { path: PathBuf, source: SpannedError },
+    #[error("Failed to find next chapter path")]
+    FindNextChapterPath,
+    #[error("Name \"{name}\" is used")]
+    MediaNameIsUsed { name: String },
+    #[error("Eisode not found")]
+    EpisodeNotFound,
     #[error(transparent)]
     Open(#[from] OpenError),
     #[error(transparent)]
     FSIO(#[from] FSIOError),
-    #[error(transparent)]
-    Config(#[from] ConfigError),
-    #[error(transparent)]
-    Media(#[from] MediaError),
-    #[error(transparent)]
-    MediaList(#[from] MediaListError),
-    #[error(transparent)]
-    MediaEdit(#[from] MediaEditError),
+}
+
+impl ErrorKind {
+    pub fn serialize(name: String, source: ron::Error) -> Self {
+        Self::Serialize { name, source }
+    }
+
+    pub fn deserialize(path: impl AsRef<Path>, source: SpannedError) -> Self {
+        let path = path.as_ref().to_path_buf();
+        Self::Deserialize { path, source }
+    }
+
+    pub fn media_name_is_used(name: &str) -> Self {
+        Self::MediaNameIsUsed {
+            name: name.to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
+#[error("{path}: I/O error: {kind}")]
 pub struct FSIOError {
     pub path: PathBuf,
     pub kind: io::ErrorKind,
@@ -80,8 +97,4 @@ impl FSIOError {
     }
 }
 
-impl Display for FSIOError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: I/O error: {}", self.path.display(), self.kind)
-    }
-}
+pub type Result<T> = std::result::Result<T, ErrorKind>;

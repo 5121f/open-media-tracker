@@ -11,8 +11,8 @@ use std::{
 
 use crate::{
     model::{
-        error::FSIOError,
-        media::{MediaHandler, MediaHandlerError},
+        error::{ErrorKind, Result},
+        media::MediaHandler,
     },
     utils,
 };
@@ -46,7 +46,7 @@ impl MediaList {
     /// Rename media with check on unique
     pub fn rename_media(&mut self, media_id: usize, new_name: String) -> Result<()> {
         if self.name_is_used(&new_name) {
-            return Err(Error::NameIsUsed);
+            return Err(ErrorKind::media_name_is_used(&new_name));
         }
         self.0[media_id].rename(new_name)?;
         Ok(())
@@ -76,15 +76,3 @@ impl From<Vec<MediaHandler>> for MediaList {
         Self(value)
     }
 }
-
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
-    #[error("Name is used")]
-    NameIsUsed,
-    #[error(transparent)]
-    Media(#[from] MediaHandlerError),
-    #[error(transparent)]
-    FSIO(#[from] FSIOError),
-}
-
-type Result<T> = std::result::Result<T, Error>;

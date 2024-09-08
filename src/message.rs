@@ -9,7 +9,7 @@ use crate::{
         ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
         MediaEditScreenMessage,
     },
-    model::media::{MediaList, MediaListError},
+    model::{error::ErrorKind, media::MediaList},
 };
 
 #[derive(Debug, Clone)]
@@ -19,7 +19,7 @@ pub enum Message {
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), iced::font::Error>),
-    MediaLoaded(Result<MediaList, MediaListError>),
+    MediaLoaded(Result<MediaList, ErrorKind>),
     Loading,
 }
 

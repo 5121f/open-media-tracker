@@ -11,8 +11,8 @@ use std::{
 };
 
 use crate::model::{
-    error::FSIOError,
-    media::{Media, MediaError},
+    error::{FSIOError, Result},
+    media::Media,
 };
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
@@ -128,13 +128,3 @@ fn find_available_name(path: impl AsRef<Path>) -> String {
         i += 1;
     }
 }
-
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
-    #[error(transparent)]
-    Media(#[from] MediaError),
-    #[error(transparent)]
-    FSIO(#[from] FSIOError),
-}
-
-type Result<T> = std::result::Result<T, Error>;

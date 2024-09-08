@@ -169,7 +169,7 @@ impl OpenMediaTracker {
     }
 
     fn new2() -> Result<(Self, Command<Message>), Error> {
-        let config = Config::read().map_err(|kind| Error::critical(kind.into()))?;
+        let config = Config::read().map_err(Error::critical)?;
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,

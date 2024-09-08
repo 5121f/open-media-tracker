@@ -8,6 +8,6 @@ mod handler;
 mod media;
 mod media_list;
 
-pub use handler::{Error as MediaHandlerError, MediaHandler};
-pub use media::{Media, Error as MediaError};
-pub use media_list::{Error as MediaListError, MediaList};
+pub use handler::MediaHandler;
+pub use media::Media;
+pub use media_list::MediaList;

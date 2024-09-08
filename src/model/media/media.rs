@@ -10,10 +10,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ron::{de::SpannedError, ser::PrettyConfig};
+use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{model::error::FSIOError, utils};
+use crate::{
+    model::error::{ErrorKind, FSIOError, Result},
+    utils,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
@@ -39,7 +42,7 @@ impl Media {
             .await
             .map_err(|source| FSIOError::new(path, source))?;
         let media =
-            ron::from_str(&file_content).map_err(|source| Error::deserialize(path, source))?;
+            ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
     }
 
@@ -60,7 +63,7 @@ impl Media {
         let chapter_dir_name = self
             .chapter_path
             .file_name()
-            .ok_or(Error::FailedToFindNextChapterPath)?;
+            .ok_or(ErrorKind::FindNextChapterPath)?;
         let parent = self
             .chapter_path
             .parent()
@@ -75,10 +78,10 @@ impl Media {
             .flat_map(|name| name.to_str())
             .enumerate()
             .find(|(_, file_name)| *file_name == chapter_dir_name)
-            .ok_or(Error::FailedToFindNextChapterPath)?;
+            .ok_or(ErrorKind::FindNextChapterPath)?;
         let next_chapter_index = current_dir_index + 1;
         if next_chapter_index >= paths.len() {
-            return Err(Error::FailedToFindNextChapterPath);
+            return Err(ErrorKind::FindNextChapterPath);
         }
         let next_dir = paths[next_chapter_index].to_path_buf();
         Ok(next_dir)
@@ -86,31 +89,6 @@ impl Media {
 
     fn ser_to_ron(&self) -> Result<String> {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
-            .map_err(|source| Error::serialize(self.name.clone(), source))
+            .map_err(|source| ErrorKind::serialize(self.name.clone(), source))
     }
 }
-
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
-    #[error("{name}: Serialize error: {source}")]
-    Serialize { name: String, source: ron::Error },
-    #[error("{path}: file parsing error: {source}")]
-    Deserialize { path: PathBuf, source: SpannedError },
-    #[error("Failed to find next chapter path")]
-    FailedToFindNextChapterPath,
-    #[error(transparent)]
-    FSIO(#[from] FSIOError),
-}
-
-impl Error {
-    fn serialize(name: String, source: ron::Error) -> Self {
-        Self::Serialize { name, source }
-    }
-
-    fn deserialize(path: impl AsRef<Path>, source: SpannedError) -> Self {
-        let path = path.as_ref().to_path_buf();
-        Self::Deserialize { path, source }
-    }
-}
-
-type Result<T> = std::result::Result<T, Error>;

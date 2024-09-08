@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod episode_list;
 mod episode;
+mod episode_list;
 
-pub use episode_list::{EpisodeList, Error as EpisodeListError};
 pub use episode::Episode;
+pub use episode_list::EpisodeList;
