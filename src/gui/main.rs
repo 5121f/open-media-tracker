@@ -163,7 +163,7 @@ impl OpenMediaTracker {
                 self.media = res.map_err(Into::<ErrorKind>::into)?;
                 self.loading.complete(LoadingKind::ReadMedia);
             }
-            Message::LoadingMessage => {}
+            Message::Loading => {}
         }
         Ok(Command::none())
     }

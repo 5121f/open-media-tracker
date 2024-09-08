@@ -82,7 +82,7 @@ pub enum Error {
     #[error("Name is used")]
     NameIsUsed,
     #[error(transparent)]
-    MediaError(#[from] MediaHandlerError),
+    Media(#[from] MediaHandlerError),
     #[error(transparent)]
     FSIO(#[from] FSIOError),
 }

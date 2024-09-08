@@ -20,7 +20,7 @@ pub enum Message {
     ErrorScreen(ErrorScreenMessage),
     FontLoaded(Result<(), iced::font::Error>),
     MediaLoaded(Result<MediaList, MediaListError>),
-    LoadingMessage,
+    Loading,
 }
 
 impl From<ConfirmScreenMessage> for Message {
@@ -49,6 +49,6 @@ impl From<MainScreenMessage> for Message {
 
 impl From<LoadingMessage> for Message {
     fn from(_value: LoadingMessage) -> Self {
-        Self::LoadingMessage
+        Self::Loading
     }
 }
