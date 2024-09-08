@@ -13,7 +13,7 @@ use iced_aw::card;
 
 use crate::{
     gui::{utils::INDENT, IDialog},
-    model::error::Error,
+    model::Error,
 };
 
 #[derive(Debug, Clone)]

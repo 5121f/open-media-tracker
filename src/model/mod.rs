@@ -4,8 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-pub mod config;
-pub mod episode;
-pub mod error;
-pub mod loading;
-pub mod media;
+mod config;
+mod episode;
+mod episode_list;
+mod error;
+mod loading;
+mod media;
+
+pub use config::Config;
+pub use episode::Episode;
+pub use episode_list::EpisodeList;
+pub use error::{Error, ErrorKind, FSIOError, Result};
+pub use loading::{LoadingKind, LoadingQueue};
+pub use media::{Media, MediaHandler, MediaList};

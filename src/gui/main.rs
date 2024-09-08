@@ -11,7 +11,6 @@ use iced_aw::modal;
 
 use crate::{
     gui::{
-        dialog,
         screen::{
             self, main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
             MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
@@ -19,12 +18,7 @@ use crate::{
         Dialog, IDialog, ListMessage,
     },
     message::Message,
-    model::{
-        self,
-        config::Config,
-        error::{Error, ErrorKind},
-        media::{MediaHandler, MediaList},
-    },
+    model::{self, Config, Error, ErrorKind, MediaHandler, MediaList},
     utils,
 };
 
@@ -264,9 +258,9 @@ pub enum LoadingKind {
     ReadMedia,
 }
 
-impl model::loading::LoadingKind for LoadingKind {}
+impl model::LoadingKind for LoadingKind {}
 
-type LoadingDialog = dialog::loading::LoadingDialog<LoadingKind>;
+type LoadingDialog = super::loading::LoadingDialog<LoadingKind>;
 
 #[derive(Clone)]
 enum ConfirmKind {

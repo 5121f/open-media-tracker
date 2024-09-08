@@ -11,6 +11,7 @@ pub mod utils;
 pub mod warning;
 
 mod list;
+mod loading;
 
 pub use dialog::{Dialog, IDialog};
 pub use list::Message as ListMessage;

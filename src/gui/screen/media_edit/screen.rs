@@ -24,9 +24,7 @@ use crate::{
         Dialog, WarningMessage, WarningScreen,
     },
     model::{
-        episode::{Episode, EpisodeList},
-        error::{ErrorKind, FSIOError, Result},
-        media::{MediaHandler, MediaList},
+        Episode, EpisodeList, ErrorKind, FSIOError, Result, {MediaHandler, MediaList},
     },
     utils,
 };
