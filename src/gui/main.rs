@@ -217,20 +217,15 @@ impl Application for OpenMediaTracker {
             .view_into()
             .or_else(|| self.confirm_dialog.view_into());
 
-        let screen = match &self.screen {
-            Screens::Main => main_screen_view(&self.media).map(Into::into),
-            Screens::MediaChange(screen) => screen.view(&self.media).map(Into::into),
-        };
-
         if dialog.is_some() {
-            return modal(screen, dialog).into();
+            return modal(self.screen.view(&self.media), dialog).into();
         }
 
         if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
         }
 
-        screen
+        self.screen.view(&self.media)
     }
 
     fn theme(&self) -> Theme {
@@ -244,6 +239,13 @@ pub enum Screens {
 }
 
 impl Screens {
+    fn view<'a>(&'a self, media: &'a MediaList) -> Element<Message> {
+        match self {
+            Self::Main => main_screen_view(&media).map(Into::into),
+            Self::MediaChange(screen) => screen.view(&media).map(Into::into),
+        }
+    }
+
     fn change_media(media: &[MediaHandler], id: usize) -> Self {
         let screen = MediaEditScreen::new(media, id);
         Self::MediaChange(screen)
