@@ -22,8 +22,8 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
         return None;
     }
 
-    let view = scrollable(
-        container(
+    let view = container(
+        scrollable(
             column(
                 buttons
                     .into_iter()
@@ -34,10 +34,10 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
             )
             .padding(INDENT),
         )
-        .width(Length::Fill)
-        .style(list_container_style()),
+        .height(Length::Fill),
     )
-    .height(Length::Fill);
+    .width(Length::Fill)
+    .style(list_container_style());
 
     Some(view.into())
 }
