@@ -51,10 +51,8 @@ fn background() -> Background {
     Background::Color(background_color)
 }
 
-const BUTTON_BORDER_RADIUS: f32 = 10.;
-
 fn button_border() -> Border {
-    Border::with_radius(BUTTON_BORDER_RADIUS)
+    Border::with_radius(10.)
 }
 
 struct ListButton;
@@ -64,11 +62,10 @@ impl button::StyleSheet for ListButton {
 
     fn active(&self, _style: &Self::Style) -> button::Appearance {
         button::Appearance {
-            shadow_offset: Default::default(),
             background: Some(background()),
             text_color: Color::WHITE,
             border: button_border(),
-            shadow: Default::default(),
+            ..Default::default()
         }
     }
 
@@ -77,17 +74,16 @@ impl button::StyleSheet for ListButton {
         let background = Background::Color(background_color);
 
         button::Appearance {
-            shadow_offset: Default::default(),
             background: Some(background),
             text_color: Color::WHITE,
             border: button_border(),
-            shadow: Default::default(),
+            ..Default::default()
         }
     }
 }
 
 fn list_button_style() -> theme::Button {
-    theme::Button::Custom(Box::new(ListButton))
+    theme::Button::custom(ListButton)
 }
 
 struct List;
@@ -100,7 +96,7 @@ impl container::StyleSheet for List {
             text_color: None,
             background: Some(background()),
             border: button_border(),
-            shadow: Default::default(),
+            ..Default::default()
         }
     }
 }
