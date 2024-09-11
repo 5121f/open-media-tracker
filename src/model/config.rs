@@ -23,4 +23,8 @@ impl Config {
         }
         Ok(Self { data_dir })
     }
+
+    pub fn path_to_media(&self, file_name: &str) -> PathBuf {
+        self.data_dir.join(file_name)
+    }
 }

@@ -8,6 +8,7 @@ use std::{
     fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
 use crate::model::{
@@ -15,23 +16,25 @@ use crate::model::{
     media::Media,
 };
 
+use super::Config;
+
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
 #[derive(Debug, Clone)]
 pub struct MediaHandler {
     pub media: Media,
-    pub save_folder: PathBuf,
+    config: Arc<Config>,
 }
 
 impl MediaHandler {
-    pub fn new(save_folder: PathBuf, media_name: String) -> Self {
+    pub fn new(media_name: String, config: Arc<Config>) -> Self {
         let media = Media::new(media_name);
-        Self { media, save_folder }
+        Self { media, config }
     }
 
-    pub fn with_default_name(save_folder: PathBuf) -> Self {
-        let name = find_available_name(&save_folder);
-        Self::new(save_folder, name)
+    pub fn with_default_name(config: Arc<Config>) -> Self {
+        let name = find_available_name(&config.data_dir);
+        Self::new(name, config)
     }
 
     fn save(&self) -> Result<()> {
@@ -39,18 +42,21 @@ impl MediaHandler {
         Ok(())
     }
 
-    pub async fn from_file(path: PathBuf) -> Result<MediaHandler> {
-        Ok(MediaHandler {
+    pub async fn from_file(file_name: &str, config: Arc<Config>) -> Result<MediaHandler> {
+        let path = config.path_to_media(file_name);
+        let media = MediaHandler {
             media: Media::from_file(&path).await?,
-            save_folder: path.parent().unwrap_or(Path::new("/")).to_path_buf(),
-        })
+            config,
+        };
+        Ok(media)
     }
 
     pub fn rename(&mut self, new_name: String) -> Result<()> {
         if self.media.name == new_name {
             return Ok(());
         }
-        let new_path = self.save_folder.join(file_name(&new_name));
+        let new_file_name = file_name(&new_name);
+        let new_path = self.config.path_to_media(&new_file_name);
         fs::rename(self.path(), &new_path)
             .map_err(|source| FSIOError::new(&self.media.name, source))?;
         self.media.name = new_name;
@@ -106,7 +112,7 @@ impl MediaHandler {
     }
 
     fn path(&self) -> PathBuf {
-        self.save_folder.join(self.file_name())
+        self.config.path_to_media(&self.file_name())
     }
 }
 

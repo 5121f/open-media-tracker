@@ -4,7 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::fmt::{self, Display};
+use std::{
+    fmt::{self, Display},
+    sync::Arc,
+};
 
 use iced::{executor, font, window, Application, Command, Element, Theme};
 use iced_aw::modal;
@@ -29,7 +32,7 @@ pub struct OpenMediaTracker {
     confirm_dialog: Dialog<ConfirmScreen>,
     error: Dialog<ErrorScreen>,
     loading: LoadingDialog,
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl OpenMediaTracker {
@@ -77,7 +80,8 @@ impl OpenMediaTracker {
 
     fn read_media(&mut self) -> Command<Message> {
         self.loading.insert(LoadingKind::ReadMedia);
-        let read_media_future = MediaList::read(self.config.data_dir.clone());
+        let config = self.config.clone();
+        let read_media_future = MediaList::read(config);
         Command::perform(read_media_future, Message::MediaLoaded)
     }
 
@@ -128,8 +132,8 @@ impl OpenMediaTracker {
     fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
         match message {
             MainScreenMessage::AddMedia => {
-                let path = self.config.data_dir.clone();
-                let media = MediaHandler::with_default_name(path);
+                let config = self.config.clone();
+                let media = MediaHandler::with_default_name(config);
                 self.media.push(media);
                 self.change_media_screen(self.media.len() - 1);
             }
@@ -163,7 +167,7 @@ impl OpenMediaTracker {
     }
 
     fn new2() -> Result<(Self, Command<Message>), Error> {
-        let config = Config::read().map_err(Error::critical)?;
+        let config = Config::read().map(Arc::new).map_err(Error::critical)?;
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,

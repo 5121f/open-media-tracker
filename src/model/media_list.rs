@@ -6,7 +6,7 @@
 
 use std::{
     ops::{Deref, DerefMut},
-    path::Path,
+    sync::Arc,
 };
 
 use crate::{
@@ -16,6 +16,8 @@ use crate::{
     },
     utils,
 };
+
+use super::Config;
 
 #[derive(Debug, Clone, Default)]
 pub struct MediaList(Vec<MediaHandler>);
@@ -32,12 +34,16 @@ impl MediaList {
         Ok(())
     }
 
-    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
-        let path = path.as_ref();
-        let dir_content = utils::read_dir(path)?;
+    pub async fn read(config: Arc<Config>) -> Result<Self> {
+        let dir_content = utils::read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let media = MediaHandler::from_file(entry).await?;
+            let name = entry
+                .file_name()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default();
+            let media = MediaHandler::from_file(name, config.clone()).await?;
             media_list.push(media);
         }
         Ok(media_list.into())
