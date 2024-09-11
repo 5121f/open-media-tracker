@@ -14,3 +14,7 @@ $ cd open-media-tracker
 $ cargo build --release
 $ target/release/open_media_tracker
 ```
+
+## About me
+
+I'm a amateur programmer and English is not my native language so I will be glad to get any corrections and feedback from you.
