@@ -37,7 +37,7 @@ impl Media {
         }
     }
 
-    pub async fn from_file(path: impl AsRef<Path>) -> Result<Self> {
+    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path)
             .await
             .map_err(|source| FSIOError::new(&path, source))?;

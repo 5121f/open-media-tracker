@@ -42,9 +42,9 @@ impl MediaHandler {
         Ok(())
     }
 
-    pub async fn from_file(path: impl AsRef<Path>, config: Arc<Config>) -> Result<MediaHandler> {
+    pub async fn read(path: impl AsRef<Path>, config: Arc<Config>) -> Result<MediaHandler> {
         let media = MediaHandler {
-            media: Media::from_file(&path).await?,
+            media: Media::read(&path).await?,
             config,
         };
         Ok(media)
