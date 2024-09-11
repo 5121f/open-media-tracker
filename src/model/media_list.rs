@@ -38,12 +38,7 @@ impl MediaList {
         let dir_content = utils::read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let name = entry
-                .file_name()
-                .unwrap_or_default()
-                .to_str()
-                .unwrap_or_default();
-            let media = MediaHandler::from_file(name, config.clone()).await?;
+            let media = MediaHandler::from_file(&entry, config.clone()).await?;
             media_list.push(media);
         }
         Ok(media_list.into())
