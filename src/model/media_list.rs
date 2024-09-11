@@ -54,7 +54,7 @@ impl MediaList {
     }
 
     fn name_is_used(&self, name: &str) -> bool {
-        self.0.iter().any(|s| s.media.name == name)
+        self.0.iter().any(|s| s.name == name)
     }
 }
 

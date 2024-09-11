@@ -7,6 +7,7 @@
 use std::{
     fs,
     num::NonZeroU8,
+    ops::Deref,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -22,7 +23,7 @@ const DEFAULT_MEDIA_NAME: &str = "New media";
 
 #[derive(Debug, Clone)]
 pub struct MediaHandler {
-    pub media: Media,
+    media: Media,
     config: Arc<Config>,
 }
 
@@ -112,6 +113,14 @@ impl MediaHandler {
 
     fn path(&self) -> PathBuf {
         self.config.path_to_media(&self.file_name())
+    }
+}
+
+impl Deref for MediaHandler {
+    type Target = Media;
+
+    fn deref(&self) -> &Self::Target {
+        &self.media
     }
 }
 
