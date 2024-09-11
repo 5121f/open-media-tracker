@@ -37,21 +37,21 @@ impl Media {
         }
     }
 
-    pub async fn from_file(path: &Path) -> Result<Self> {
+    pub async fn from_file(path: impl AsRef<Path>) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path)
             .await
-            .map_err(|source| FSIOError::new(path, source))?;
+            .map_err(|source| FSIOError::new(&path, source))?;
         let media =
-            ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
+            ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(&path, source))?;
         Ok(media)
     }
 
-    pub fn save(&self, path: &Path) -> Result<()> {
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
         let content = self.ser_to_ron()?;
-        if !path.parent().unwrap_or(Path::new("/")).exists() {
-            fs::create_dir(path).map_err(|source| FSIOError::new(path, source))?;
+        if !path.as_ref().parent().unwrap_or(Path::new("/")).exists() {
+            fs::create_dir(&path).map_err(|source| FSIOError::new(&path, source))?;
         }
-        fs::write(path, content).map_err(|source| FSIOError::new(path, source))?;
+        fs::write(&path, content).map_err(|source| FSIOError::new(path, source))?;
         Ok(())
     }
 

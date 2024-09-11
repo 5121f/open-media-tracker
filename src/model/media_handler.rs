@@ -35,7 +35,7 @@ impl MediaHandler {
     }
 
     fn save(&self) -> Result<()> {
-        self.media.save(&self.path())?;
+        self.media.save(self.path())?;
         Ok(())
     }
 
