@@ -12,6 +12,7 @@ mod model;
 mod utils;
 
 use gui::main::OpenMediaTracker;
+use iced::Size;
 
 fn main() -> iced::Result {
     iced::application(
@@ -20,5 +21,6 @@ fn main() -> iced::Result {
         OpenMediaTracker::view,
     )
     .theme(OpenMediaTracker::theme)
+    .window_size(Size::new(550., 400.))
     .run_with(OpenMediaTracker::new)
 }
