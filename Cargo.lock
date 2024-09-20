@@ -2266,6 +2266,7 @@ dependencies = [
  "dirs 5.0.1",
  "iced",
  "iced_aw",
+ "iced_fonts",
  "mime_guess",
  "open",
  "rfd",
