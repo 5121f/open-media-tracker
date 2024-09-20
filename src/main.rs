@@ -19,5 +19,5 @@ fn main() -> iced::Result {
         OpenMediaTracker::update,
         OpenMediaTracker::view,
     )
-    .run()
+    .run_with(OpenMediaTracker::new)
 }
