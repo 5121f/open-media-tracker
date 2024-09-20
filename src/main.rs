@@ -19,5 +19,6 @@ fn main() -> iced::Result {
         OpenMediaTracker::update,
         OpenMediaTracker::view,
     )
+    .theme(OpenMediaTracker::theme)
     .run_with(OpenMediaTracker::new)
 }

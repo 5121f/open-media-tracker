@@ -213,7 +213,7 @@ impl OpenMediaTracker {
         self.screen.view(&self.media)
     }
 
-    fn theme(&self) -> Theme {
+    pub fn theme(&self) -> Theme {
         Theme::Dark
     }
 }
