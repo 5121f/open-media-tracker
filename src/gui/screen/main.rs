@@ -5,7 +5,7 @@
  */
 
 use iced::{
-    theme,
+    alignment,
     widget::{button, container, Column},
     Element, Length,
 };
@@ -30,11 +30,11 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Message> {
         .push(
             container(
                 button("Add media")
-                    .style(theme::Button::Positive)
+                    .style(button::success)
                     .on_press(Message::AddMedia),
             )
             .width(Length::Fill)
-            .center_x(),
+            .align_x(alignment::Horizontal::Center),
         )
         .push_maybe(
             list(media.iter().map(MediaHandler::name).collect())

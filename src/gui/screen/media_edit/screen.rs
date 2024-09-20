@@ -7,11 +7,10 @@
 use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
-    alignment, theme,
-    widget::{button, column, container, row, text, Column},
+    alignment::{self, Horizontal},
+    widget::{button, column, container, row, stack, text, Column},
     Element, Length,
 };
-use iced_aw::modal;
 
 use super::{
     kind::{ConfirmKind, WarningKind},
@@ -49,7 +48,7 @@ impl MediaEditScreen {
         }
     }
 
-    pub fn view(&self, media_list: &[MediaHandler]) -> Element<Message> {
+    pub fn view<'a, 'b: 'a>(&'a self, media_list: &'b [MediaHandler]) -> Element<Message> {
         let confirm_screen = self.confirm_screen.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().display().to_string();
@@ -58,7 +57,7 @@ impl MediaEditScreen {
             text(media.name()),
             container(
                 button("Delete")
-                    .style(theme::Button::Destructive)
+                    .style(button::danger)
                     .on_press(Message::Delete(self.editable_media_id))
             )
             .width(Length::Fill)
@@ -69,19 +68,15 @@ impl MediaEditScreen {
         });
         let watch = container(
             button("Watch")
-                .style(theme::Button::Positive)
+                .style(button::success)
                 .on_press_maybe(watch_message),
         )
         .width(Length::Fill)
-        .center_x();
+        .align_x(Horizontal::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(
-                text(watch_sign)
-                    .size(13)
-                    .style(theme::Text::Color(GRAY_TEXT)),
-            )
-            .width(Length::Fill)
-            .center_x()
+            container(text(watch_sign).size(13).color(GRAY_TEXT))
+                .width(Length::Fill)
+                .align_x(Horizontal::Center)
         });
         let body = column![
             signed_text_input("Name", &self.buffer_name, Message::NameChanged),
@@ -124,7 +119,11 @@ impl MediaEditScreen {
             .padding(PADDING)
             .spacing(PADDING);
 
-        modal(layout, confirm_screen).into()
+        if let Some(confirm_screen) = confirm_screen {
+            return stack![layout, confirm_screen].into();
+        }
+
+        layout.into()
     }
 
     pub fn update(&mut self, media_list: &mut MediaList, message: Message) -> Result<()> {

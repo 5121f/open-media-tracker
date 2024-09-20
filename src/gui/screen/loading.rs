@@ -5,6 +5,7 @@
  */
 
 use iced::{
+    alignment,
     widget::{container, text},
     Element, Length,
 };
@@ -32,8 +33,8 @@ where
         container(text("Loading..."))
             .width(Length::Fill)
             .height(Length::Fill)
-            .center_x()
-            .center_y()
+            .align_x(alignment::Horizontal::Center)
+            .align_y(alignment::Vertical::Center)
             .into()
     }
 }

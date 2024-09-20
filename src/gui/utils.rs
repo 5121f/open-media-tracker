@@ -5,9 +5,9 @@
  */
 
 use iced::{
-    alignment, theme,
+    alignment,
     widget::{button, row, text, text_input, Button, Row},
-    Alignment, Color,
+    Color, Theme,
 };
 
 pub const INDENT: u16 = 5;
@@ -17,7 +17,7 @@ pub const GRAY_TEXT: Color = Color::from_rgb(0.6, 0.6, 0.6);
 pub fn square_button<M>(content: &str) -> Button<M> {
     button(
         text(content)
-            .horizontal_alignment(alignment::Horizontal::Center)
+            .align_x(alignment::Horizontal::Center)
             .line_height(1.0)
             .size(20),
     )
@@ -27,17 +27,23 @@ pub fn square_button<M>(content: &str) -> Button<M> {
 
 pub fn link<M>(s: &str) -> Button<M> {
     const CYAN: Color = Color::from_rgb(0., 1., 1.);
-    button(text(s).style(theme::Text::Color(CYAN)))
+    button(text(s).color(CYAN))
         .padding(0)
-        .style(theme::Button::Text)
+        .style(link_button_style)
 }
 
-pub fn signed_text_input<'a, M, F>(sign: &str, value: &str, on_input: F) -> Row<'a, M>
+fn link_button_style(_theme: &Theme, _status: button::Status) -> button::Style {
+    button::Style {
+        background: None,
+        ..Default::default()
+    }
+}
+
+pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
 where
     M: Clone + 'a,
     F: 'a + Fn(String) -> M,
 {
-    row![text(sign), text_input(sign, value).on_input(on_input)]
-        .spacing(INDENT)
-        .align_items(Alignment::Center)
+    row![text(sign), text_input(sign, value).on_input(on_input)].spacing(INDENT)
+    // .align_items(Alignment::Center)
 }

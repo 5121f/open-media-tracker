@@ -7,7 +7,7 @@
 use std::fmt::Display;
 
 use iced::{
-    theme,
+    alignment::Vertical,
     widget::{button, column, container, horizontal_space, row, text, Space},
     Element, Length,
 };
@@ -44,14 +44,14 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
             card(
                 text(self.title()),
                 column![
-                    text(&self.kind),
+                    text(self.kind.to_string()),
                     row![
                         button("Cancel")
-                            .style(theme::Button::Destructive)
+                            .style(button::danger)
                             .on_press(Message::Cancel),
                         horizontal_space(),
                         button("Confirm")
-                            .style(theme::Button::Positive)
+                            .style(button::success)
                             .on_press(Message::Confirm)
                     ]
                 ]
@@ -62,7 +62,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
             .on_close(Message::Cancel),
             Space::with_width(Length::FillPortion(1))
         ])
-        .center_y()
+        .align_y(Vertical::Center)
         .into()
     }
 }

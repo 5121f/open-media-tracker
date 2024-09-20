@@ -5,7 +5,6 @@
  */
 
 use iced::{
-    theme,
     widget::{button, column, container, scrollable, Button},
     Background, Border, Color, Element, Length, Theme,
 };
@@ -37,13 +36,40 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
         .height(Length::Fill),
     )
     .width(Length::Fill)
-    .style(list_container_style());
+    .style(list_container_style);
 
     Some(view.into())
 }
 
+fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
+    match statsus {
+        button::Status::Active => button::Style {
+            background: Some(background()),
+            text_color: Color::WHITE,
+            border: button_border(),
+            ..Default::default()
+        },
+        button::Status::Hovered => button::Style {
+            background: Some(background()),
+            text_color: Color::WHITE,
+            border: button_border(),
+            ..Default::default()
+        },
+        _ => Default::default(),
+    }
+}
+
+fn list_container_style(_theme: &Theme) -> container::Style {
+    container::Style {
+        text_color: None,
+        background: Some(background()),
+        border: button_border(),
+        ..Default::default()
+    }
+}
+
 pub fn list_button(text: &str) -> Button<Message> {
-    button(text).style(list_button_style()).width(Length::Fill)
+    button(text).style(list_button_style).width(Length::Fill)
 }
 
 fn background() -> Background {
@@ -52,55 +78,5 @@ fn background() -> Background {
 }
 
 fn button_border() -> Border {
-    Border::with_radius(10.)
-}
-
-struct ListButton;
-
-impl button::StyleSheet for ListButton {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> button::Appearance {
-        button::Appearance {
-            background: Some(background()),
-            text_color: Color::WHITE,
-            border: button_border(),
-            ..Default::default()
-        }
-    }
-
-    fn hovered(&self, _style: &Self::Style) -> button::Appearance {
-        let background_color = Color::from_rgb8(40, 42, 46);
-        let background = Background::Color(background_color);
-
-        button::Appearance {
-            background: Some(background),
-            text_color: Color::WHITE,
-            border: button_border(),
-            ..Default::default()
-        }
-    }
-}
-
-fn list_button_style() -> theme::Button {
-    theme::Button::custom(ListButton)
-}
-
-struct List;
-
-impl container::StyleSheet for List {
-    type Style = Theme;
-
-    fn appearance(&self, _style: &Self::Style) -> container::Appearance {
-        container::Appearance {
-            text_color: None,
-            background: Some(background()),
-            border: button_border(),
-            ..Default::default()
-        }
-    }
-}
-
-fn list_container_style() -> theme::Container {
-    theme::Container::Custom(Box::new(List))
+    Border::default().rounded(10.)
 }

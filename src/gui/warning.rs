@@ -34,9 +34,9 @@ impl<T: Display> IDialog for WarningScreen<T> {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        card(text(self.title()), text(&self.kind))
+        card(text(self.title()), text(self.kind.to_string()))
             .close_size(25.)
-            .style(iced_aw::style::CardStyles::Warning)
+            .style(iced_aw::style::card::warning)
             .on_close(Message::Close)
             .into()
     }

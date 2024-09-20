@@ -9,8 +9,7 @@ use std::{
     sync::Arc,
 };
 
-use iced::{executor, font, window, Application, Command, Element, Theme};
-use iced_aw::modal;
+use iced::{widget::stack, window, Element, Task, Theme};
 
 use crate::{
     gui::{
@@ -54,8 +53,8 @@ impl OpenMediaTracker {
         self.confirm_dialog = Dialog::new(screen);
     }
 
-    fn close_app(&self) -> Command<Message> {
-        window::close(window::Id::MAIN)
+    fn close_app(&self) -> Task<Message> {
+        window::get_latest().and_then(window::close)
     }
 
     fn sub_title(&self) -> Option<String> {
@@ -73,16 +72,11 @@ impl OpenMediaTracker {
         }
     }
 
-    fn load_font(&mut self) -> Command<Message> {
-        self.loading.insert(LoadingKind::Font);
-        font::load(iced_aw::BOOTSTRAP_FONT_BYTES).map(Message::FontLoaded)
-    }
-
-    fn read_media(&mut self) -> Command<Message> {
+    fn read_media(&mut self) -> Task<Message> {
         self.loading.insert(LoadingKind::ReadMedia);
         let config = self.config.clone();
         let read_media_future = MediaList::read(config);
-        Command::perform(read_media_future, Message::MediaLoaded)
+        Task::perform(read_media_future, Message::MediaLoaded)
     }
 
     fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
@@ -142,7 +136,7 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn update2(&mut self, message: Message) -> Result<Command<Message>, Error> {
+    fn update2(&mut self, message: Message) -> Result<Task<Message>, Error> {
         match message {
             Message::MainScreen(message) => self.main_screen_update(message)?,
             Message::MediaEditScreen(message) => self.media_edit_screen_update(message)?,
@@ -163,10 +157,10 @@ impl OpenMediaTracker {
             }
             Message::Loading => {}
         }
-        Ok(Command::none())
+        Ok(Task::none())
     }
 
-    fn new2() -> Result<(Self, Command<Message>), Error> {
+    fn new2() -> Result<(Self, Task<Message>), Error> {
         let config = Config::read().map(Arc::new).map_err(Error::critical)?;
         let mut omt = Self {
             media: MediaList::new(),
@@ -176,47 +170,40 @@ impl OpenMediaTracker {
             loading: LoadingDialog::closed(),
             config,
         };
-        let command = Command::batch(vec![omt.load_font(), omt.read_media()]);
+        let command = Task::batch(vec![omt.read_media()]);
         Ok((omt, command))
     }
-}
 
-impl Application for OpenMediaTracker {
-    type Executor = executor::Default;
-    type Theme = Theme;
-    type Flags = ();
-    type Message = Message;
-
-    fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
+    pub fn new() -> (Self, Task<Message>) {
         Self::new2().unwrap_or_else(|error| {
             let mut omt = Self::default();
             omt.error_dialog(error);
-            (omt, Command::none())
+            (omt, Task::none())
         })
     }
 
-    fn title(&self) -> String {
+    pub fn title(&self) -> String {
         let program_name = "Open Media Tracker";
         self.sub_title()
             .map(|sub_title| format!("{program_name} - {sub_title}"))
             .unwrap_or_else(|| String::from(program_name))
     }
 
-    fn update(&mut self, message: Self::Message) -> Command<Message> {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         self.update2(message).unwrap_or_else(|error| {
             self.error_dialog(error);
-            Command::none()
+            Task::none()
         })
     }
 
-    fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         let dialog = self
             .error
             .view_into()
             .or_else(|| self.confirm_dialog.view_into());
 
-        if dialog.is_some() {
-            return modal(self.screen.view(&self.media), dialog).into();
+        if let Some(dialog) = dialog {
+            return stack!(self.screen.view(&self.media), dialog).into();
         }
 
         if let Some(loading_screen) = self.loading.as_ref() {

@@ -5,7 +5,7 @@
  */
 
 use iced::{
-    theme,
+    alignment,
     widget::{button, column, container, horizontal_space, row, text, Space},
     Element, Length,
 };
@@ -36,9 +36,9 @@ impl IDialog for ErrorScreen {
 
     fn view(&self) -> Element<Message> {
         let ok_button_style = if self.error.critical {
-            theme::Button::Destructive
+            button::danger
         } else {
-            theme::Button::Primary
+            button::success
         };
 
         container(row![
@@ -46,7 +46,7 @@ impl IDialog for ErrorScreen {
             card(
                 text(self.title()),
                 column![
-                    text(&self.error),
+                    text(self.error.to_string()),
                     row![
                         horizontal_space(),
                         button("Ok").style(ok_button_style).on_press(Message::Ok {
@@ -56,11 +56,11 @@ impl IDialog for ErrorScreen {
                 ]
                 .spacing(INDENT)
             )
-            .style(iced_aw::style::card::CardStyles::Danger)
+            .style(iced_aw::style::card::danger)
             .width(Length::FillPortion(15)),
             Space::with_width(Length::FillPortion(1))
         ])
-        .center_y()
+        .align_y(alignment::Vertical::Center)
         .into()
     }
 

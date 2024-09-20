@@ -11,16 +11,13 @@ mod message;
 mod model;
 mod utils;
 
-use iced::{window, Application, Settings, Size};
-
 use gui::main::OpenMediaTracker;
 
 fn main() -> iced::Result {
-    OpenMediaTracker::run(Settings {
-        window: window::Settings {
-            size: Size::new(550., 400.),
-            ..window::Settings::default()
-        },
-        ..Settings::default()
-    })
+    iced::application(
+        OpenMediaTracker::title,
+        OpenMediaTracker::update,
+        OpenMediaTracker::view,
+    )
+    .run()
 }
