@@ -147,10 +147,6 @@ impl OpenMediaTracker {
                 self.error.close();
             }
             Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
-            Message::FontLoaded(res) => {
-                res.map_err(|_| ErrorKind::FontLoad)?;
-                self.loading.complete(LoadingKind::Font);
-            }
             Message::MediaLoaded(res) => {
                 self.media = res.map_err(Into::<ErrorKind>::into)?;
                 self.loading.complete(LoadingKind::ReadMedia);
@@ -245,7 +241,6 @@ impl Default for Screens {
 
 #[derive(PartialEq, Eq, Hash)]
 pub enum LoadingKind {
-    Font,
     ReadMedia,
 }
 

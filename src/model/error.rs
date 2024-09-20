@@ -45,8 +45,6 @@ impl From<ErrorKind> for Error {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
-    #[error("Filed to load font")]
-    FontLoad,
     #[error("Failed to found user's data directory")]
     UserDataDirNotFound,
     #[error("{name}: Serialize error: {source}")]

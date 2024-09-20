@@ -18,7 +18,6 @@ pub enum Message {
     MediaEditScreen(MediaEditScreenMessage),
     ConfirmScreen(ConfirmScreenMessage),
     ErrorScreen(ErrorScreenMessage),
-    FontLoaded(Result<(), iced::font::Error>),
     MediaLoaded(Result<MediaList, ErrorKind>),
     Loading,
 }
