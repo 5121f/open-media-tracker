@@ -49,12 +49,17 @@ fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
             border: button_border(),
             ..Default::default()
         },
-        button::Status::Hovered => button::Style {
-            background: Some(background()),
-            text_color: Color::WHITE,
-            border: button_border(),
-            ..Default::default()
-        },
+        button::Status::Hovered => {
+            let background_color = Color::from_rgb8(40, 42, 46);
+            let background = Background::Color(background_color);
+
+            button::Style {
+                background: Some(background),
+                text_color: Color::WHITE,
+                border: button_border(),
+                ..Default::default()
+            }
+        }
         _ => Default::default(),
     }
 }
