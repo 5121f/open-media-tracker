@@ -62,6 +62,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
             .on_close(Message::Cancel),
             Space::with_width(Length::FillPortion(1))
         ])
+        .height(Length::Fill)
         .align_y(Vertical::Center)
         .into()
     }
