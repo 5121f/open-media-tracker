@@ -8,6 +8,8 @@ use std::{fs, path::PathBuf};
 
 use crate::model::error::{ErrorKind, FSIOError, Result};
 
+use super::Placeholder;
+
 const DATA_DIR_NAME: &str = "open media tracker";
 
 #[derive(Debug)]
@@ -31,8 +33,8 @@ impl Config {
     }
 }
 
-impl Default for Config {
-    fn default() -> Self {
+impl Placeholder for Config {
+    fn placeholder() -> Self {
         Self {
             data_dir: dirs::data_dir()
                 .map(|d| d.join(DATA_DIR_NAME))

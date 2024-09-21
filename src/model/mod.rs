@@ -12,6 +12,7 @@ mod loading;
 mod media;
 mod media_handler;
 mod media_list;
+mod placeholder;
 
 pub use config::Config;
 pub use episode::Episode;
@@ -20,3 +21,4 @@ pub use error::{Error, ErrorKind, FSIOError, Result};
 pub use loading::{LoadingKind, LoadingQueue};
 pub use media_handler::MediaHandler;
 pub use media_list::MediaList;
+pub use placeholder::Placeholder;

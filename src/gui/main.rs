@@ -20,11 +20,10 @@ use crate::{
         Dialog, IDialog, ListMessage,
     },
     message::Message,
-    model::{self, Config, Error, ErrorKind, MediaHandler, MediaList},
+    model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
     utils,
 };
 
-#[derive(Default)]
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
@@ -172,7 +171,7 @@ impl OpenMediaTracker {
 
     pub fn new() -> (Self, Task<Message>) {
         Self::new2().unwrap_or_else(|error| {
-            let mut omt = Self::default();
+            let mut omt = Self::placeholder();
             omt.error_dialog(error);
             (omt, Task::none())
         })
@@ -211,6 +210,19 @@ impl OpenMediaTracker {
 
     pub fn theme(&self) -> Theme {
         Theme::Dark
+    }
+}
+
+impl Placeholder for OpenMediaTracker {
+    fn placeholder() -> Self {
+        Self {
+            media: MediaList::placeholder(),
+            screen: Screens::Main,
+            confirm_dialog: Dialog::closed(),
+            error: Dialog::closed(),
+            loading: LoadingDialog::closed(),
+            config: Config::placeholder().into(),
+        }
     }
 }
 
