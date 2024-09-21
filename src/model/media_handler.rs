@@ -28,12 +28,14 @@ pub struct MediaHandler {
 }
 
 impl MediaHandler {
-    pub fn new(media_name: String, config: Arc<Config>) -> Self {
+    pub fn new(media_name: String, config: Arc<Config>) -> Result<Self> {
         let media = Media::new(media_name);
-        Self { media, config }
+        let handler = Self { media, config };
+        handler.save()?;
+        Ok(handler)
     }
 
-    pub fn with_default_name(config: Arc<Config>) -> Self {
+    pub fn with_default_name(config: Arc<Config>) -> Result<Self> {
         let name = find_available_name(&config.data_dir);
         Self::new(name, config)
     }

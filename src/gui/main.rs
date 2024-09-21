@@ -127,7 +127,7 @@ impl OpenMediaTracker {
         match message {
             MainScreenMessage::AddMedia => {
                 let config = self.config.clone();
-                let media = MediaHandler::with_default_name(config);
+                let media = MediaHandler::with_default_name(config)?;
                 self.media.push(media);
                 self.change_media_screen(self.media.len() - 1);
             }
