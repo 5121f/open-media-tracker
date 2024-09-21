@@ -5,8 +5,7 @@
  */
 
 use iced::{
-    alignment,
-    widget::{container, text},
+    widget::{center, text},
     Element, Length,
 };
 
@@ -30,11 +29,9 @@ where
     }
 
     fn view(&self) -> Element<Self::Message> {
-        container(text("Loading..."))
+        center(text("Loading..."))
             .width(Length::Fill)
             .height(Length::Fill)
-            .align_x(alignment::Horizontal::Center)
-            .align_y(alignment::Vertical::Center)
             .into()
     }
 }
