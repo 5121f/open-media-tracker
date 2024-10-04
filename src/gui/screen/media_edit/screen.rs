@@ -18,6 +18,7 @@ use super::{
 };
 use crate::{
     gui::{
+        icon::{self, Icon},
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Dialog, WarningMessage, WarningScreen,
@@ -102,8 +103,8 @@ impl MediaEditScreen {
             .spacing(INDENT),
             row![
                 signed_text_input("Chapter path", &chapter_path, Message::ChapterPathChanged),
-                square_button(">").on_press(Message::OpenChapterDirectory),
-                square_button("...").on_press(Message::ChapterPathSelect),
+                icon::button(Icon::open_folder()).on_press(Message::OpenChapterDirectory),
+                icon::button(Icon::triple_dot()).on_press(Message::ChapterPathSelect),
             ]
             .spacing(INDENT)
         ]

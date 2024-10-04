@@ -10,6 +10,7 @@ pub mod screen;
 pub mod utils;
 pub mod warning;
 
+mod icon;
 mod list;
 mod loading;
 

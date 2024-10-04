@@ -23,5 +23,6 @@ fn main() -> iced::Result {
     .theme(OpenMediaTracker::theme)
     .window_size(Size::new(550., 400.))
     .font(iced_fonts::REQUIRED_FONT_BYTES)
+    .font(include_bytes!("../assets/fonts/open_media_tracker.ttf"))
     .run_with(OpenMediaTracker::new)
 }
