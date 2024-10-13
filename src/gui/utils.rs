@@ -44,6 +44,7 @@ where
     M: Clone + 'a,
     F: 'a + Fn(String) -> M,
 {
-    row![text(sign), text_input(sign, value).on_input(on_input)].spacing(INDENT)
-    // .align_items(Alignment::Center)
+    row![text(sign), text_input(sign, value).on_input(on_input)]
+        .spacing(INDENT)
+        .align_y(alignment::Vertical::Center)
 }
