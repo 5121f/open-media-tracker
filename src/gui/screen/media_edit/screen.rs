@@ -18,7 +18,7 @@ use super::{
 };
 use crate::{
     gui::{
-        alias::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
+        alias::{link, signed_text_input, square_button, GRAY, INDENT, PADDING},
         icon::{self, Icon},
         screen::{ConfirmScreen, ConfirmScreenMessage},
         Closable, WarningMessage, WarningScreen,
@@ -75,7 +75,7 @@ impl MediaEditScreen {
         .width(Length::Fill)
         .align_x(Horizontal::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(text(watch_sign).size(13).color(GRAY_TEXT))
+            container(text(watch_sign).size(13).color(GRAY))
                 .width(Length::Fill)
                 .align_x(Horizontal::Center)
         });
