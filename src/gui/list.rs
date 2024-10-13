@@ -9,7 +9,7 @@ use iced::{
     Background, Border, Color, Element, Length, Theme,
 };
 
-use crate::gui::utils::INDENT;
+use crate::gui::alias::INDENT;
 
 #[derive(Debug, Clone)]
 pub enum Message {

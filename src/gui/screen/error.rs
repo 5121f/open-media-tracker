@@ -12,7 +12,7 @@ use iced::{
 use iced_aw::card;
 
 use crate::{
-    gui::{utils::INDENT, Dialog},
+    gui::{alias::INDENT, Dialog},
     model::Error,
 };
 

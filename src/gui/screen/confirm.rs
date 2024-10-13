@@ -13,7 +13,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::{dialog::HaveKind, utils::INDENT, Dialog};
+use crate::gui::{alias::INDENT, dialog::HaveKind, Dialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {

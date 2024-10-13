@@ -18,9 +18,9 @@ use super::{
 };
 use crate::{
     gui::{
+        alias::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         icon::{self, Icon},
         screen::{ConfirmScreen, ConfirmScreenMessage},
-        utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
         Closable, WarningMessage, WarningScreen,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},

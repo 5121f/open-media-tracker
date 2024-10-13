@@ -12,8 +12,8 @@ use iced::{
 
 use crate::{
     gui::{
+        alias::{INDENT, PADDING},
         list::list,
-        utils::{INDENT, PADDING},
         ListMessage,
     },
     model::MediaHandler,

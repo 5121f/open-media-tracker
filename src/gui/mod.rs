@@ -4,10 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod alias;
 pub mod dialog;
 pub mod main;
 pub mod screen;
-pub mod utils;
 pub mod warning;
 
 mod icon;
