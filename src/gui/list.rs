@@ -60,6 +60,10 @@ fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
                 ..Default::default()
             }
         }
+        button::Status::Pressed => button::Style {
+            text_color: Color::WHITE,
+            ..Default::default()
+        },
         _ => Default::default(),
     }
 }
