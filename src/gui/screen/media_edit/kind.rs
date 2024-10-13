@@ -28,12 +28,12 @@ impl ConfirmKind {
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ConfirmKind::SwitchToNextChapter {
+            Self::SwitchToNextChapter {
                 path: next_chapter_path,
             } => {
                 write!(f, "Proposed path to next chapter: {:?}", next_chapter_path)
             }
-            ConfirmKind::EpisodesOverflow { episodes_on_disk } => write!(
+            Self::EpisodesOverflow { episodes_on_disk } => write!(
                 f,
                 "Seems like {} episode is a last of it chapter. Switch to the next chapter?",
                 episodes_on_disk
@@ -50,8 +50,8 @@ pub enum WarningKind {
 impl Display for WarningKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            WarningKind::NameUsed => write!(f, "Name must be unique"),
-            WarningKind::WrongChapterPath => write!(f, "Wrong chapter path"),
+            Self::NameUsed => write!(f, "Name must be unique"),
+            Self::WrongChapterPath => write!(f, "Wrong chapter path"),
         }
     }
 }
