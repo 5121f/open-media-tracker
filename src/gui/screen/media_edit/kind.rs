@@ -43,8 +43,6 @@ impl Display for ConfirmKind {
 }
 
 pub enum WarningKind {
-    ChapterCanNotBeZero,
-    EpisodeCanNotBeZero,
     NameUsed,
     WrongChapterPath,
 }
@@ -52,8 +50,6 @@ pub enum WarningKind {
 impl Display for WarningKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            WarningKind::ChapterCanNotBeZero => write!(f, "Chapter can not be zero"),
-            WarningKind::EpisodeCanNotBeZero => write!(f, "Episode can not be zero"),
             WarningKind::NameUsed => write!(f, "Name must be unique"),
             WarningKind::WrongChapterPath => write!(f, "Wrong chapter path"),
         }

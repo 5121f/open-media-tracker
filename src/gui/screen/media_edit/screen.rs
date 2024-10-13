@@ -163,20 +163,16 @@ impl MediaEditScreen {
             Message::ChapterDec => {
                 let media = self.editable_media_mut(media_list);
                 let new_value = media.chapter().get() - 1;
-                let new_value = NonZeroU8::new(new_value);
-                match new_value {
-                    Some(number) => media.set_chapter(number)?,
-                    None => self.warning(WarningKind::ChapterCanNotBeZero),
+                if let Some(number) = NonZeroU8::new(new_value) {
+                    media.set_chapter(number)?;
                 }
             }
             Message::EpisodeInc => self.increase_episode(media_list)?,
             Message::EpisodeDec => {
                 let media = self.editable_media_mut(media_list);
                 let new_value = media.episode().get() - 1;
-                let new_value = NonZeroU8::new(new_value);
-                match new_value {
-                    Some(number) => self.editable_media_mut(media_list).set_episode(number)?,
-                    None => self.warning(WarningKind::EpisodeCanNotBeZero),
+                if let Some(number) = NonZeroU8::new(new_value) {
+                    self.editable_media_mut(media_list).set_episode(number)?;
                 }
             }
             Message::ChapterPathChanged(value) => {
