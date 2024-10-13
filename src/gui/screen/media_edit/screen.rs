@@ -21,15 +21,15 @@ use crate::{
         icon::{self, Icon},
         screen::{ConfirmScreen, ConfirmScreenMessage},
         utils::{link, signed_text_input, square_button, GRAY_TEXT, INDENT, PADDING},
-        Dialog, WarningMessage, WarningScreen,
+        Closable, WarningMessage, WarningScreen,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     utils,
 };
 
 pub struct MediaEditScreen {
-    confirm_screen: Dialog<ConfirmScreen<ConfirmKind>>,
-    warning: Dialog<WarningScreen<WarningKind>>,
+    confirm_screen: Closable<ConfirmScreen<ConfirmKind>>,
+    warning: Closable<WarningScreen<WarningKind>>,
     editable_media_id: usize,
     episodes: Result<EpisodeList>,
     buffer_name: String,
@@ -41,8 +41,8 @@ impl MediaEditScreen {
         let editable_episode_name = editable_media.name().to_string();
         let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
         Self {
-            confirm_screen: Dialog::closed(),
-            warning: Dialog::closed(),
+            confirm_screen: Closable::closed(),
+            warning: Closable::closed(),
             editable_media_id,
             episodes,
             buffer_name: editable_episode_name,
@@ -288,7 +288,7 @@ impl MediaEditScreen {
 
     fn warning(&mut self, kind: WarningKind) {
         let screen = WarningScreen::new(kind);
-        self.warning = Dialog::new(screen);
+        self.warning = Closable::new(screen);
     }
 
     fn increase_episode(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
@@ -341,7 +341,7 @@ impl MediaEditScreen {
 
     fn confirm(&mut self, kind: ConfirmKind) {
         let confirm = ConfirmScreen::new(kind);
-        self.confirm_screen = Dialog::new(confirm);
+        self.confirm_screen = Closable::new(confirm);
     }
 
     fn confirm_switch_to_next_chapter(&mut self, next_chapter_path: PathBuf) {

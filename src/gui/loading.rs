@@ -7,18 +7,18 @@
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    gui::{screen::LoadingScreen, Dialog},
+    gui::{screen::LoadingScreen, Closable},
     model::LoadingKind,
 };
 
-pub struct LoadingDialog<K: LoadingKind>(Dialog<LoadingScreen<K>>);
+pub struct LoadingDialog<K: LoadingKind>(Closable<LoadingScreen<K>>);
 
 impl<K> LoadingDialog<K>
 where
     K: LoadingKind,
 {
     pub fn closed() -> Self {
-        Self(Dialog::closed())
+        Self(Closable::closed())
     }
 
     pub fn insert(&mut self, kind: K) {
@@ -41,7 +41,7 @@ impl<K> Deref for LoadingDialog<K>
 where
     K: LoadingKind,
 {
-    type Target = Dialog<LoadingScreen<K>>;
+    type Target = Closable<LoadingScreen<K>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0

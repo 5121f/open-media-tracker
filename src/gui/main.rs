@@ -17,7 +17,7 @@ use crate::{
             self, main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
             MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
         },
-        Dialog, IDialog, ListMessage,
+        Closable, Dialog, ListMessage,
     },
     message::Message,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
@@ -27,8 +27,8 @@ use crate::{
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: Dialog<ConfirmScreen>,
-    error: Dialog<ErrorScreen>,
+    confirm_dialog: Closable<ConfirmScreen>,
+    error: Closable<ErrorScreen>,
     loading: LoadingDialog,
     config: Arc<Config>,
 }
@@ -44,12 +44,12 @@ impl OpenMediaTracker {
 
     fn error_dialog(&mut self, error: Error) {
         let screen = ErrorScreen::new(error);
-        self.error = Dialog::new(screen);
+        self.error = Closable::new(screen);
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
         let screen = ConfirmScreen::new(kind);
-        self.confirm_dialog = Dialog::new(screen);
+        self.confirm_dialog = Closable::new(screen);
     }
 
     fn close_app(&self) -> Task<Message> {
@@ -160,8 +160,8 @@ impl OpenMediaTracker {
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,
-            confirm_dialog: Dialog::closed(),
-            error: Dialog::closed(),
+            confirm_dialog: Closable::closed(),
+            error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config,
         };
@@ -218,8 +218,8 @@ impl Placeholder for OpenMediaTracker {
         Self {
             media: MediaList::placeholder(),
             screen: Screens::Main,
-            confirm_dialog: Dialog::closed(),
-            error: Dialog::closed(),
+            confirm_dialog: Closable::closed(),
+            error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config: Config::placeholder().into(),
         }

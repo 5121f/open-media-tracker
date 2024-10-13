@@ -9,7 +9,7 @@ use std::fmt::Display;
 use iced::{widget::text, Element};
 use iced_aw::card;
 
-use super::{dialog::IHaveKind, IDialog};
+use super::{dialog::HaveKind, Dialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -26,7 +26,7 @@ impl<T> WarningScreen<T> {
     }
 }
 
-impl<T: Display> IDialog for WarningScreen<T> {
+impl<T: Display> Dialog for WarningScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {
@@ -42,7 +42,7 @@ impl<T: Display> IDialog for WarningScreen<T> {
     }
 }
 
-impl<T> IHaveKind for WarningScreen<T> {
+impl<T> HaveKind for WarningScreen<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {

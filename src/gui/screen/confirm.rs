@@ -13,7 +13,7 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::{dialog::IHaveKind, utils::INDENT, IDialog};
+use crate::gui::{dialog::HaveKind, utils::INDENT, Dialog};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -31,7 +31,7 @@ impl<T> ConfirmScreen<T> {
     }
 }
 
-impl<T: Display> IDialog for ConfirmScreen<T> {
+impl<T: Display> Dialog for ConfirmScreen<T> {
     type Message = Message;
 
     fn title(&self) -> String {
@@ -68,7 +68,7 @@ impl<T: Display> IDialog for ConfirmScreen<T> {
     }
 }
 
-impl<T> IHaveKind for ConfirmScreen<T> {
+impl<T> HaveKind for ConfirmScreen<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {
