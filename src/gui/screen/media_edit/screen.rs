@@ -125,9 +125,13 @@ impl MediaEditScrn {
             Msg::NameChanged(value) => {
                 self.buffer_name = value.clone();
                 let rename_res = media_list.rename_media(self.editable_media_id, value);
-                if matches!(rename_res, Err(ErrorKind::MediaNameIsUsed { .. })) {
-                    self.warning(WarningKind::NameUsed);
-                    return Ok(());
+                match rename_res {
+                    Ok(()) => {}
+                    Err(ErrorKind::MediaNameIsUsed { .. }) => {
+                        self.warning(WarningKind::NameUsed);
+                        return Ok(());
+                    }
+                    Err(err) => return Err(err),
                 }
                 if matches!(self.warning.kind(), Some(WarningKind::NameUsed)) {
                     self.warning.close();
