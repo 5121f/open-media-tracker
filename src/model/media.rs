@@ -80,7 +80,6 @@ impl Media {
         let (current_dir_index, _) = paths
             .iter()
             .flat_map(|path| path.file_name())
-            .flat_map(|name| name.to_str())
             .enumerate()
             .find(|(_, file_name)| *file_name == chapter_dir_name)
             .ok_or(ErrorKind::FindNextChapterPath)?;
