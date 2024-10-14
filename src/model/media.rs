@@ -95,4 +95,12 @@ impl Media {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
             .map_err(|source| ErrorKind::serialize(self.name.clone(), source))
     }
+
+    pub fn set_chapter_to_one(&mut self) {
+        self.chapter = NonZeroU8::MIN;
+    }
+
+    pub fn set_episode_to_one(&mut self) {
+        self.episode = NonZeroU8::MIN;
+    }
 }

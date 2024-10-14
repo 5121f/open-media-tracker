@@ -139,8 +139,7 @@ impl MediaEditScrn {
             }
             Msg::ChapterChanged(value) => {
                 if value.is_empty() {
-                    self.editable_media_mut(media_list)
-                        .set_chapter(NonZeroU8::MIN)?;
+                    self.editable_media_mut(media_list).set_chapter_to_one();
                     return Ok(());
                 }
                 if let Ok(number) = value.parse() {
@@ -314,7 +313,7 @@ impl MediaEditScrn {
 
     fn set_episode_to_one(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
         let media = self.editable_media_mut(media_list);
-        media.set_episode(NonZeroU8::MIN)?;
+        media.set_episode_to_one();
         Ok(())
     }
 

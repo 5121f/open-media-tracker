@@ -7,7 +7,7 @@
 use std::{
     fs,
     num::NonZeroU8,
-    ops::Deref,
+    ops::{Deref, DerefMut},
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -123,6 +123,12 @@ impl Deref for MediaHandler {
 
     fn deref(&self) -> &Self::Target {
         &self.media
+    }
+}
+
+impl DerefMut for MediaHandler {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.media
     }
 }
 
