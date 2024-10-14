@@ -7,7 +7,7 @@
 use std::{
     fmt::{self, Display},
     io,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use ron::de::SpannedError;
@@ -68,15 +68,13 @@ impl ErrorKind {
         Self::Serialize { name, source }
     }
 
-    pub fn deserialize(path: impl AsRef<Path>, source: SpannedError) -> Self {
-        let path = path.as_ref().to_path_buf();
+    pub fn deserialize(path: impl Into<PathBuf>, source: SpannedError) -> Self {
+        let path = path.into();
         Self::Deserialize { path, source }
     }
 
-    pub fn media_name_is_used(name: &str) -> Self {
-        Self::MediaNameIsUsed {
-            name: name.to_string(),
-        }
+    pub fn media_name_is_used(name: impl Into<String>) -> Self {
+        Self::MediaNameIsUsed { name: name.into() }
     }
 }
 
