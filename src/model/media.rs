@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     model::error::{ErrorKind, FSIOError, Result},
-    utils,
+    read_dir,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -69,7 +69,7 @@ impl Media {
             .parent()
             .unwrap_or(Path::new("/"))
             .to_owned();
-        let mut paths = utils::read_dir(parent)?;
+        let mut paths = read_dir(parent)?;
         paths.retain(|path| path.is_dir());
         paths.sort();
         let (current_dir_index, _) = paths

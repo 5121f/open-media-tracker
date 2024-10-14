@@ -14,7 +14,7 @@ use crate::{
         error::{ErrorKind, Result},
         MediaHandler,
     },
-    utils,
+    read_dir,
 };
 
 use super::{Config, Placeholder};
@@ -35,7 +35,7 @@ impl MediaList {
     }
 
     pub async fn read(config: Arc<Config>) -> Result<Self> {
-        let dir_content = utils::read_dir(&config.data_dir)?;
+        let dir_content = read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
             let media = MediaHandler::read(&entry, config.clone()).await?;

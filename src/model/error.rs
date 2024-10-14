@@ -12,7 +12,7 @@ use std::{
 
 use ron::de::SpannedError;
 
-use crate::utils::OpenError;
+use crate::open::OpenError;
 
 pub struct Error {
     pub kind: ErrorKind,

@@ -9,10 +9,14 @@
 mod gui;
 mod message;
 mod model;
-mod utils;
+mod open;
+mod read_dir;
+
+use iced::Size;
 
 use gui::main::OpenMediaTracker;
-use iced::Size;
+use open::open;
+use read_dir::read_dir;
 
 fn main() -> iced::Result {
     iced::application(

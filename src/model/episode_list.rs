@@ -11,7 +11,7 @@ use crate::{
         episode::Episode,
         error::{ErrorKind, Result},
     },
-    utils,
+    read_dir,
 };
 
 pub struct EpisodeList(Vec<Episode>);
@@ -19,7 +19,7 @@ pub struct EpisodeList(Vec<Episode>);
 impl EpisodeList {
     pub fn read(path: impl AsRef<Path>) -> Result<Self> {
         let media_path = path.as_ref();
-        let episode_paths = utils::read_dir(media_path)?;
+        let episode_paths = read_dir(media_path)?;
         let mut episodes: Vec<_> = episode_paths
             .into_iter()
             .flat_map(|path| Episode::new(path).ok())

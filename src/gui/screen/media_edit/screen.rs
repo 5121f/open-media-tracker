@@ -24,7 +24,7 @@ use crate::{
         Closable, WarningMsg, WarningScreen,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
-    utils,
+    open,
 };
 
 pub struct MediaEditScrn {
@@ -183,7 +183,7 @@ impl MediaEditScrn {
                     self.warning(WarningKind::WrongChapterPath);
                     return Ok(());
                 }
-                utils::open(chapter_path)?;
+                open(chapter_path)?;
             }
         }
         Ok(())

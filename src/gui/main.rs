@@ -21,7 +21,6 @@ use crate::{
     },
     message::Msg,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
-    utils,
 };
 
 pub struct OpenMediaTracker {
@@ -109,7 +108,7 @@ impl OpenMediaTracker {
                 self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
             MediaEditScrnMsg::Back => self.main_screen(),
-            MediaEditScrnMsg::Watch { path } => utils::open(path)?,
+            MediaEditScrnMsg::Watch { path } => crate::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
                     dialog.update(&mut self.media, message)?;

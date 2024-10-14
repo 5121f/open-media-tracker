@@ -6,7 +6,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::utils;
+use mime_guess::mime;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Episode {
@@ -15,7 +15,7 @@ pub struct Episode {
 
 impl Episode {
     pub fn new(path: PathBuf) -> Result<Self> {
-        if !utils::is_media_file(&path) {
+        if !is_media_file(&path) {
             return Err(Error::MustBeAMediaFile);
         }
         Ok(Self { path })
@@ -32,6 +32,15 @@ impl Episode {
             .to_string_lossy()
             .to_string()
     }
+}
+
+fn is_media_file(path: impl AsRef<Path>) -> bool {
+    let mime = mime_guess::from_path(path);
+    let Some(mime) = mime.first() else {
+        return false;
+    };
+    let mtype = mime.type_();
+    mtype == mime::VIDEO || mtype == mime::AUDIO
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
