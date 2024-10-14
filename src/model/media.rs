@@ -73,7 +73,7 @@ impl Media {
         let parent = self
             .chapter_path
             .parent()
-            .unwrap_or(Path::new("/"))
+            .ok_or_else(|| ErrorKind::find_parent_dir(&self.chapter_path))?
             .to_owned();
         let mut paths = read_dir::read_dir_for_dirs(parent)?;
         paths.sort();
