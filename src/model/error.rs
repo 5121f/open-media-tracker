@@ -88,8 +88,8 @@ pub struct FSIOError {
 }
 
 impl FSIOError {
-    pub fn new(path: impl AsRef<Path>, source: io::Error) -> Self {
-        let path = path.as_ref().to_path_buf();
+    pub fn new(path: impl Into<PathBuf>, source: io::Error) -> Self {
+        let path = path.into();
         let kind = source.kind();
         Self { path, kind }
     }

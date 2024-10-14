@@ -37,7 +37,7 @@ impl Media {
         }
     }
 
-    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
+    async fn _read(path: &Path) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path)
             .await
             .map_err(|source| FSIOError::new(&path, source))?;
@@ -45,14 +45,20 @@ impl Media {
             ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(&path, source))?;
         Ok(media)
     }
+    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
+        Self::_read(path.as_ref()).await
+    }
 
-    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
+    fn _save(&self, path: &Path) -> Result<()> {
         let content = self.ser_to_ron()?;
-        if !path.as_ref().parent().unwrap_or(Path::new("/")).exists() {
-            fs::create_dir(&path).map_err(|source| FSIOError::new(&path, source))?;
+        if !path.parent().unwrap_or(Path::new("/")).exists() {
+            fs::create_dir(&path).map_err(|source| FSIOError::new(path, source))?;
         }
         fs::write(&path, content).map_err(|source| FSIOError::new(path, source))?;
         Ok(())
+    }
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
+        self._save(path.as_ref())
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
