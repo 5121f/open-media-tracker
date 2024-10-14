@@ -14,10 +14,10 @@ use iced::{widget::stack, window, Element, Task, Theme};
 use crate::{
     gui::{
         screen::{
-            self, main_screen_view, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
+            main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
             MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
         },
-        Closable, Dialog, ListMessage,
+        Closable, Dialog, ListMessage, LoadingDialog,
     },
     message::Message,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
@@ -27,9 +27,9 @@ use crate::{
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: Closable<ConfirmScreen>,
+    confirm_dialog: Closable<ConfirmScreen<ConfirmKind>>,
     error: Closable<ErrorScreen>,
-    loading: LoadingDialog,
+    loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
 }
 
@@ -258,8 +258,6 @@ pub enum LoadingKind {
 
 impl model::LoadingKind for LoadingKind {}
 
-type LoadingDialog = super::loading::LoadingDialog<LoadingKind>;
-
 #[derive(Clone)]
 enum ConfirmKind {
     DeleteMedia { name: String, id: usize },
@@ -277,5 +275,3 @@ impl Display for ConfirmKind {
         }
     }
 }
-
-type ConfirmScreen = screen::ConfirmScreen<ConfirmKind>;
