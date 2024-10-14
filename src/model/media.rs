@@ -69,8 +69,7 @@ impl Media {
             .parent()
             .unwrap_or(Path::new("/"))
             .to_owned();
-        let mut paths = read_dir(parent)?;
-        paths.retain(|path| path.is_dir());
+        let mut paths = read_dir::read_dir_for_dirs(parent)?;
         paths.sort();
         let (current_dir_index, _) = paths
             .iter()
