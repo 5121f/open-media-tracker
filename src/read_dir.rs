@@ -13,12 +13,12 @@ use crate::model::FSIOError;
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, FSIOError> {
     let read_dir = fs::read_dir(&path).map_err(|source| FSIOError::new(&path, source))?;
-    let mut files = Vec::new();
+    let mut paths = Vec::new();
     for entry in read_dir {
         let entry = entry.map_err(|source| FSIOError::new(&path, source))?;
-        files.push(entry.path());
+        paths.push(entry.path());
     }
-    Ok(files)
+    Ok(paths)
 }
 
 pub fn read_dir_for_dirs(path: impl AsRef<Path>) -> Result<Vec<PathBuf>, FSIOError> {
