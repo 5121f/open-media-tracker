@@ -8,5 +8,5 @@ mod kind;
 mod message;
 mod screen;
 
-pub use message::Message;
-pub use screen::MediaEditScreen;
+pub use message::Msg;
+pub use screen::MediaEditScrn;

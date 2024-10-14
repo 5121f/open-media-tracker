@@ -17,24 +17,24 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub enum Message {
+pub enum Msg {
     Ok { critical: bool },
 }
 
-pub struct ErrorScreen {
+pub struct ErrorScrn {
     error: Error,
 }
 
-impl ErrorScreen {
+impl ErrorScrn {
     pub fn new(error: Error) -> Self {
         Self { error }
     }
 }
 
-impl Dialog for ErrorScreen {
-    type Message = Message;
+impl Dialog for ErrorScrn {
+    type Message = Msg;
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<Msg> {
         let ok_button_style = if self.error.critical {
             button::danger
         } else {
@@ -49,7 +49,7 @@ impl Dialog for ErrorScreen {
                     text(self.error.to_string()),
                     row![
                         horizontal_space(),
-                        button("Ok").style(ok_button_style).on_press(Message::Ok {
+                        button("Ok").style(ok_button_style).on_press(Msg::Ok {
                             critical: self.error.critical
                         })
                     ],

@@ -14,31 +14,30 @@ use crate::{
     gui::{
         alias::{INDENT, PADDING},
         list::list,
-        ListMessage,
+        ListMsg,
     },
     model::MediaHandler,
 };
 
 #[derive(Debug, Clone)]
-pub enum Message {
+pub enum Msg {
     AddMedia,
-    MenuButton(ListMessage),
+    MenuButton(ListMsg),
 }
 
-pub fn main_screen_view(media: &[MediaHandler]) -> Element<Message> {
+pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
     Column::new()
         .push(
             container(
                 button("Add media")
                     .style(button::success)
-                    .on_press(Message::AddMedia),
+                    .on_press(Msg::AddMedia),
             )
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Center),
         )
         .push_maybe(
-            list(media.iter().map(MediaHandler::name).collect())
-                .map(|v| v.map(Message::MenuButton)),
+            list(media.iter().map(MediaHandler::name).collect()).map(|v| v.map(Msg::MenuButton)),
         )
         .spacing(PADDING)
         .padding(INDENT)

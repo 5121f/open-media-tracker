@@ -15,6 +15,6 @@ mod list;
 mod loading;
 
 pub use dialog::{Closable, Dialog};
-pub use list::Message as ListMessage;
+pub use list::Message as ListMsg;
 pub use loading::LoadingDialog;
-pub use warning::{Message as WarningMessage, WarningScreen};
+pub use warning::{Message as WarningMsg, WarningScreen};

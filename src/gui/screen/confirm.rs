@@ -16,29 +16,29 @@ use iced_aw::card;
 use crate::gui::{alias::INDENT, dialog::HaveKind, Dialog};
 
 #[derive(Debug, Clone)]
-pub enum Message {
+pub enum Msg {
     Confirm,
     Cancel,
 }
 
-pub struct ConfirmScreen<T> {
+pub struct ConfirmScrn<T> {
     kind: T,
 }
 
-impl<T> ConfirmScreen<T> {
+impl<T> ConfirmScrn<T> {
     pub fn new(kind: T) -> Self {
         Self { kind }
     }
 }
 
-impl<T: Display> Dialog for ConfirmScreen<T> {
-    type Message = Message;
+impl<T: Display> Dialog for ConfirmScrn<T> {
+    type Message = Msg;
 
     fn title(&self) -> String {
         String::from("Confirm")
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<Msg> {
         container(row![
             Space::with_width(Length::FillPortion(1)),
             card(
@@ -46,20 +46,18 @@ impl<T: Display> Dialog for ConfirmScreen<T> {
                 column![
                     text(self.kind.to_string()),
                     row![
-                        button("Cancel")
-                            .style(button::danger)
-                            .on_press(Message::Cancel),
+                        button("Cancel").style(button::danger).on_press(Msg::Cancel),
                         horizontal_space(),
                         button("Confirm")
                             .style(button::success)
-                            .on_press(Message::Confirm)
+                            .on_press(Msg::Confirm)
                     ]
                 ]
                 .spacing(INDENT)
             )
             .close_size(25.)
             .width(Length::FillPortion(15))
-            .on_close(Message::Cancel),
+            .on_close(Msg::Cancel),
             Space::with_width(Length::FillPortion(1))
         ])
         .height(Length::Fill)
@@ -68,7 +66,7 @@ impl<T: Display> Dialog for ConfirmScreen<T> {
     }
 }
 
-impl<T> HaveKind for ConfirmScreen<T> {
+impl<T> HaveKind for ConfirmScrn<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {

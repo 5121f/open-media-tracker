@@ -14,28 +14,28 @@ use iced::{
 
 use super::{
     kind::{ConfirmKind, WarningKind},
-    message::Message,
+    message::Msg,
 };
 use crate::{
     gui::{
         alias::{link, signed_text_input, square_button, GRAY, INDENT, PADDING},
         icon::{self, Icon},
-        screen::{ConfirmScreen, ConfirmScreenMessage},
-        Closable, WarningMessage, WarningScreen,
+        screen::{ConfirmScrn, ConfirmScrnMsg},
+        Closable, WarningMsg, WarningScreen,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     utils,
 };
 
-pub struct MediaEditScreen {
-    confirm_screen: Closable<ConfirmScreen<ConfirmKind>>,
+pub struct MediaEditScrn {
+    confirm_screen: Closable<ConfirmScrn<ConfirmKind>>,
     warning: Closable<WarningScreen<WarningKind>>,
     editable_media_id: usize,
     episodes: Result<EpisodeList>,
     buffer_name: String,
 }
 
-impl MediaEditScreen {
+impl MediaEditScrn {
     pub fn new(media: &[MediaHandler], editable_media_id: usize) -> Self {
         let editable_media = &media[editable_media_id];
         let editable_episode_name = editable_media.name().to_string();
@@ -49,22 +49,22 @@ impl MediaEditScreen {
         }
     }
 
-    pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<Message> {
+    pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<Msg> {
         let confirm_screen = self.confirm_screen.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().display().to_string();
         let top = row![
-            container(link("< Back").on_press(Message::Back)).width(Length::Fill),
+            container(link("< Back").on_press(Msg::Back)).width(Length::Fill),
             text(media.name()),
             container(
                 button("Delete")
                     .style(button::danger)
-                    .on_press(Message::Delete(self.editable_media_id))
+                    .on_press(Msg::Delete(self.editable_media_id))
             )
             .width(Length::Fill)
             .align_x(alignment::Horizontal::Right),
         ];
-        let watch_message = self.episode(media_list).ok().map(|episode| Message::Watch {
+        let watch_message = self.episode(media_list).ok().map(|episode| Msg::Watch {
             path: episode.path().to_owned(),
         });
         let watch = container(
@@ -80,31 +80,23 @@ impl MediaEditScreen {
                 .align_x(Horizontal::Center)
         });
         let body = column![
-            signed_text_input("Name", &self.buffer_name, Message::NameChanged),
+            signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
             row![
-                signed_text_input(
-                    "Chapter",
-                    &media.chapter().to_string(),
-                    Message::ChapterChanged
-                ),
-                square_button("-").on_press(Message::ChapterDec),
-                square_button("+").on_press(Message::ChapterInc)
+                signed_text_input("Chapter", &media.chapter().to_string(), Msg::ChapterChanged),
+                square_button("-").on_press(Msg::ChapterDec),
+                square_button("+").on_press(Msg::ChapterInc)
             ]
             .spacing(INDENT),
             row![
-                signed_text_input(
-                    "Episode",
-                    &media.episode().to_string(),
-                    Message::EpisodeChanged
-                ),
-                square_button("-").on_press(Message::EpisodeDec),
-                square_button("+").on_press(Message::EpisodeInc)
+                signed_text_input("Episode", &media.episode().to_string(), Msg::EpisodeChanged),
+                square_button("-").on_press(Msg::EpisodeDec),
+                square_button("+").on_press(Msg::EpisodeInc)
             ]
             .spacing(INDENT),
             row![
-                signed_text_input("Chapter path", &chapter_path, Message::ChapterPathChanged),
-                icon::button(Icon::open_folder()).on_press(Message::OpenChapterDirectory),
-                icon::button(Icon::triple_dot()).on_press(Message::ChapterPathSelect),
+                signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
+                icon::button(Icon::open_folder()).on_press(Msg::OpenChapterDirectory),
+                icon::button(Icon::triple_dot()).on_press(Msg::ChapterPathSelect),
             ]
             .spacing(INDENT)
         ]
@@ -127,10 +119,10 @@ impl MediaEditScreen {
         layout.into()
     }
 
-    pub fn update(&mut self, media_list: &mut MediaList, message: Message) -> Result<()> {
+    pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {
         match message {
-            Message::Back | Message::Delete(_) | Message::Watch { .. } => {}
-            Message::NameChanged(value) => {
+            Msg::Back | Msg::Delete(_) | Msg::Watch { .. } => {}
+            Msg::NameChanged(value) => {
                 self.buffer_name = value.clone();
                 let rename_res = media_list.rename_media(self.editable_media_id, value);
                 if matches!(rename_res, Err(ErrorKind::MediaNameIsUsed { .. })) {
@@ -141,7 +133,7 @@ impl MediaEditScreen {
                     self.warning.close();
                 }
             }
-            Message::ChapterChanged(value) => {
+            Msg::ChapterChanged(value) => {
                 if value.is_empty() {
                     self.editable_media_mut(media_list)
                         .set_chapter(NonZeroU8::MIN)?;
@@ -151,7 +143,7 @@ impl MediaEditScreen {
                     self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
-            Message::EpisodeChanged(value) => {
+            Msg::EpisodeChanged(value) => {
                 if value.is_empty() {
                     return self.set_episode_to_one(media_list);
                 }
@@ -159,33 +151,33 @@ impl MediaEditScreen {
                     self.set_episode(media_list, number)?;
                 }
             }
-            Message::ChapterInc => self.increase_chapter(media_list)?,
-            Message::ChapterDec => {
+            Msg::ChapterInc => self.increase_chapter(media_list)?,
+            Msg::ChapterDec => {
                 let media = self.editable_media_mut(media_list);
                 let new_value = media.chapter().get() - 1;
                 if let Some(number) = NonZeroU8::new(new_value) {
                     media.set_chapter(number)?;
                 }
             }
-            Message::EpisodeInc => self.increase_episode(media_list)?,
-            Message::EpisodeDec => {
+            Msg::EpisodeInc => self.increase_episode(media_list)?,
+            Msg::EpisodeDec => {
                 let media = self.editable_media_mut(media_list);
                 let new_value = media.episode().get() - 1;
                 if let Some(number) = NonZeroU8::new(new_value) {
                     self.editable_media_mut(media_list).set_episode(number)?;
                 }
             }
-            Message::ChapterPathChanged(value) => {
+            Msg::ChapterPathChanged(value) => {
                 self.set_chapter_path(media_list, PathBuf::from(value))?
             }
-            Message::ConfirmScreen(message) => self.confirm_screen_update(media_list, message)?,
-            Message::ChapterPathSelect => {
+            Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, message)?,
+            Msg::ChapterPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
                     self.set_chapter_path(media_list, folder)?;
                 }
             }
-            Message::Warning(WarningMessage::Close) => self.warning.close(),
-            Message::OpenChapterDirectory => {
+            Msg::Warning(WarningMsg::Close) => self.warning.close(),
+            Msg::OpenChapterDirectory => {
                 let chapter_path = self.editable_media(media_list).chapter_path();
                 if !chapter_path.is_dir() {
                     self.warning(WarningKind::WrongChapterPath);
@@ -218,15 +210,15 @@ impl MediaEditScreen {
     fn confirm_screen_update(
         &mut self,
         media: &mut [MediaHandler],
-        message: ConfirmScreenMessage,
+        message: ConfirmScrnMsg,
     ) -> Result<()> {
         match message {
-            ConfirmScreenMessage::Confirm => {
+            ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm_screen.kind() {
                     self.confirm_kind_update(media, kind.clone())?
                 }
             }
-            ConfirmScreenMessage::Cancel => self.confirm_screen.close(),
+            ConfirmScrnMsg::Cancel => self.confirm_screen.close(),
         }
         Ok(())
     }
@@ -336,7 +328,7 @@ impl MediaEditScreen {
     }
 
     fn confirm(&mut self, kind: ConfirmKind) {
-        let confirm = ConfirmScreen::new(kind);
+        let confirm = ConfirmScrn::new(kind);
         self.confirm_screen = Closable::new(confirm);
     }
 

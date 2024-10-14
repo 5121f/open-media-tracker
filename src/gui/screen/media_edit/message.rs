@@ -6,10 +6,10 @@
 
 use std::path::PathBuf;
 
-use crate::gui::{screen::ConfirmScreenMessage, WarningMessage};
+use crate::gui::{screen::ConfirmScrnMsg, WarningMsg};
 
 #[derive(Debug, Clone)]
-pub enum Message {
+pub enum Msg {
     Back,
     Delete(usize),
     Watch { path: PathBuf },
@@ -23,18 +23,18 @@ pub enum Message {
     ChapterDec,
     EpisodeInc,
     EpisodeDec,
-    ConfirmScreen(ConfirmScreenMessage),
-    Warning(WarningMessage),
+    ConfirmScreen(ConfirmScrnMsg),
+    Warning(WarningMsg),
 }
 
-impl From<ConfirmScreenMessage> for Message {
-    fn from(value: ConfirmScreenMessage) -> Self {
+impl From<ConfirmScrnMsg> for Msg {
+    fn from(value: ConfirmScrnMsg) -> Self {
         Self::ConfirmScreen(value)
     }
 }
 
-impl From<WarningMessage> for Message {
-    fn from(value: WarningMessage) -> Self {
+impl From<WarningMsg> for Msg {
+    fn from(value: WarningMsg) -> Self {
         Self::Warning(value)
     }
 }

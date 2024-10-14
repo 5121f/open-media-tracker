@@ -14,12 +14,12 @@ use iced::{widget::stack, window, Element, Task, Theme};
 use crate::{
     gui::{
         screen::{
-            main_screen_view, ConfirmScreen, ConfirmScreenMessage, ErrorScreen, ErrorScreenMessage,
-            MainScreenMessage, MediaEditScreen, MediaEditScreenMessage,
+            main_screen_view, ConfirmScrn, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg,
+            MediaEditScrn, MediaEditScrnMsg,
         },
-        Closable, Dialog, ListMessage, LoadingDialog,
+        Closable, Dialog, ListMsg, LoadingDialog,
     },
-    message::Message,
+    message::Msg,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
     utils,
 };
@@ -27,8 +27,8 @@ use crate::{
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: Closable<ConfirmScreen<ConfirmKind>>,
-    error: Closable<ErrorScreen>,
+    confirm_dialog: Closable<ConfirmScrn<ConfirmKind>>,
+    error: Closable<ErrorScrn>,
     loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
 }
@@ -43,16 +43,16 @@ impl OpenMediaTracker {
     }
 
     fn error_dialog(&mut self, error: Error) {
-        let screen = ErrorScreen::new(error);
+        let screen = ErrorScrn::new(error);
         self.error = Closable::new(screen);
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
-        let screen = ConfirmScreen::new(kind);
+        let screen = ConfirmScrn::new(kind);
         self.confirm_dialog = Closable::new(screen);
     }
 
-    fn close_app(&self) -> Task<Message> {
+    fn close_app(&self) -> Task<Msg> {
         window::get_latest().and_then(window::close)
     }
 
@@ -71,21 +71,21 @@ impl OpenMediaTracker {
         }
     }
 
-    fn read_media(&mut self) -> Task<Message> {
+    fn read_media(&mut self) -> Task<Msg> {
         self.loading.insert(LoadingKind::ReadMedia);
         let config = self.config.clone();
         let read_media_future = MediaList::read(config);
-        Task::perform(read_media_future, Message::MediaLoaded)
+        Task::perform(read_media_future, Msg::MediaLoaded)
     }
 
-    fn confirm_screen_update(&mut self, message: ConfirmScreenMessage) -> Result<(), ErrorKind> {
+    fn confirm_screen_update(&mut self, message: ConfirmScrnMsg) -> Result<(), ErrorKind> {
         match message {
-            ConfirmScreenMessage::Confirm => {
+            ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm_dialog.kind() {
                     self.confirm_kind_update(kind.clone())?;
                 }
             }
-            ConfirmScreenMessage::Cancel => self.confirm_dialog.close(),
+            ConfirmScrnMsg::Cancel => self.confirm_dialog.close(),
         }
         Ok(())
     }
@@ -101,18 +101,15 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn media_edit_screen_update(
-        &mut self,
-        message: MediaEditScreenMessage,
-    ) -> Result<(), ErrorKind> {
+    fn media_edit_screen_update(&mut self, message: MediaEditScrnMsg) -> Result<(), ErrorKind> {
         match message {
-            MediaEditScreenMessage::Delete(id) => {
+            MediaEditScrnMsg::Delete(id) => {
                 let media = &self.media[id];
                 let name = media.name().to_string();
                 self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
-            MediaEditScreenMessage::Back => self.main_screen(),
-            MediaEditScreenMessage::Watch { path } => utils::open(path)?,
+            MediaEditScrnMsg::Back => self.main_screen(),
+            MediaEditScrnMsg::Watch { path } => utils::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
                     dialog.update(&mut self.media, message)?;
@@ -122,40 +119,40 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn main_screen_update(&mut self, message: MainScreenMessage) -> Result<(), ErrorKind> {
+    fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<(), ErrorKind> {
         match message {
-            MainScreenMessage::AddMedia => {
+            MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
                 let media = MediaHandler::with_default_name(config)?;
                 self.media.push(media);
                 self.change_media_screen(self.media.len() - 1);
             }
-            MainScreenMessage::MenuButton(ListMessage::Enter(id)) => self.change_media_screen(id),
+            MainScrnMsg::MenuButton(ListMsg::Enter(id)) => self.change_media_screen(id),
         }
         Ok(())
     }
 
-    fn update2(&mut self, message: Message) -> Result<Task<Message>, Error> {
+    fn update2(&mut self, message: Msg) -> Result<Task<Msg>, Error> {
         match message {
-            Message::MainScreen(message) => self.main_screen_update(message)?,
-            Message::MediaEditScreen(message) => self.media_edit_screen_update(message)?,
-            Message::ErrorScreen(ErrorScreenMessage::Ok { critical }) => {
+            Msg::MainScreen(message) => self.main_screen_update(message)?,
+            Msg::MediaEditScreen(message) => self.media_edit_screen_update(message)?,
+            Msg::ErrorScreen(ErrorScrnMsg::Ok { critical }) => {
                 if critical {
                     return Ok(self.close_app());
                 }
                 self.error.close();
             }
-            Message::ConfirmScreen(message) => self.confirm_screen_update(message)?,
-            Message::MediaLoaded(res) => {
+            Msg::ConfirmScreen(message) => self.confirm_screen_update(message)?,
+            Msg::MediaLoaded(res) => {
                 self.media = res.map_err(Into::<ErrorKind>::into)?;
                 self.loading.complete(LoadingKind::ReadMedia);
             }
-            Message::Loading => {}
+            Msg::Loading => {}
         }
         Ok(Task::none())
     }
 
-    fn new2() -> Result<(Self, Task<Message>), Error> {
+    fn new2() -> Result<(Self, Task<Msg>), Error> {
         let config = Config::read().map(Arc::new).map_err(Error::critical)?;
         let mut omt = Self {
             media: MediaList::new(),
@@ -169,7 +166,7 @@ impl OpenMediaTracker {
         Ok((omt, command))
     }
 
-    pub fn new() -> (Self, Task<Message>) {
+    pub fn new() -> (Self, Task<Msg>) {
         Self::new2().unwrap_or_else(|error| {
             let mut omt = Self::placeholder();
             omt.error_dialog(error);
@@ -184,14 +181,14 @@ impl OpenMediaTracker {
             .unwrap_or_else(|| String::from(program_name))
     }
 
-    pub fn update(&mut self, message: Message) -> Task<Message> {
+    pub fn update(&mut self, message: Msg) -> Task<Msg> {
         self.update2(message).unwrap_or_else(|error| {
             self.error_dialog(error);
             Task::none()
         })
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<Msg> {
         let dialog = self
             .error
             .view_into()
@@ -228,11 +225,11 @@ impl Placeholder for OpenMediaTracker {
 
 pub enum Screens {
     Main,
-    MediaChange(MediaEditScreen),
+    MediaChange(MediaEditScrn),
 }
 
 impl Screens {
-    fn view<'a>(&'a self, media: &'a MediaList) -> Element<Message> {
+    fn view<'a>(&'a self, media: &'a MediaList) -> Element<Msg> {
         match self {
             Self::Main => main_screen_view(media).map(Into::into),
             Self::MediaChange(screen) => screen.view(media).map(Into::into),
@@ -240,7 +237,7 @@ impl Screens {
     }
 
     fn change_media(media: &[MediaHandler], id: usize) -> Self {
-        let screen = MediaEditScreen::new(media, id);
+        let screen = MediaEditScrn::new(media, id);
         Self::MediaChange(screen)
     }
 }

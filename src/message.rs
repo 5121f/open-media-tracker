@@ -5,49 +5,46 @@
  */
 
 use crate::{
-    gui::screen::{
-        ConfirmScreenMessage, ErrorScreenMessage, LoadingMessage, MainScreenMessage,
-        MediaEditScreenMessage,
-    },
+    gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg},
     model::{ErrorKind, MediaList},
 };
 
 #[derive(Debug, Clone)]
-pub enum Message {
-    MainScreen(MainScreenMessage),
-    MediaEditScreen(MediaEditScreenMessage),
-    ConfirmScreen(ConfirmScreenMessage),
-    ErrorScreen(ErrorScreenMessage),
+pub enum Msg {
+    MainScreen(MainScrnMsg),
+    MediaEditScreen(MediaEditScrnMsg),
+    ConfirmScreen(ConfirmScrnMsg),
+    ErrorScreen(ErrorScrnMsg),
     MediaLoaded(Result<MediaList, ErrorKind>),
     Loading,
 }
 
-impl From<ConfirmScreenMessage> for Message {
-    fn from(value: ConfirmScreenMessage) -> Self {
+impl From<ConfirmScrnMsg> for Msg {
+    fn from(value: ConfirmScrnMsg) -> Self {
         Self::ConfirmScreen(value)
     }
 }
 
-impl From<ErrorScreenMessage> for Message {
-    fn from(value: ErrorScreenMessage) -> Self {
+impl From<ErrorScrnMsg> for Msg {
+    fn from(value: ErrorScrnMsg) -> Self {
         Self::ErrorScreen(value)
     }
 }
 
-impl From<MediaEditScreenMessage> for Message {
-    fn from(value: MediaEditScreenMessage) -> Self {
+impl From<MediaEditScrnMsg> for Msg {
+    fn from(value: MediaEditScrnMsg) -> Self {
         Self::MediaEditScreen(value)
     }
 }
 
-impl From<MainScreenMessage> for Message {
-    fn from(value: MainScreenMessage) -> Self {
+impl From<MainScrnMsg> for Msg {
+    fn from(value: MainScrnMsg) -> Self {
         Self::MainScreen(value)
     }
 }
 
-impl From<LoadingMessage> for Message {
-    fn from(_value: LoadingMessage) -> Self {
+impl From<LoadingMsg> for Msg {
+    fn from(_value: LoadingMsg) -> Self {
         Self::Loading
     }
 }

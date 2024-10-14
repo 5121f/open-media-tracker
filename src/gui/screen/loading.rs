@@ -14,15 +14,15 @@ use crate::{
     model::{LoadingKind, LoadingQueue},
 };
 
-pub struct Message;
+pub struct Msg;
 
-pub type LoadingScreen<T> = LoadingQueue<T>;
+pub type LoadingScrn<T> = LoadingQueue<T>;
 
-impl<T> Dialog for LoadingScreen<T>
+impl<T> Dialog for LoadingScrn<T>
 where
     T: LoadingKind,
 {
-    type Message = Message;
+    type Message = Msg;
 
     fn title(&self) -> String {
         String::from("Loading")
