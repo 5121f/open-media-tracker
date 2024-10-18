@@ -15,7 +15,7 @@ pub const LONG_INDENT: u16 = 10;
 pub const GRAY: Color = Color::from_rgb(0.6, 0.6, 0.6);
 pub const CYAN: Color = Color::from_rgb(0., 1., 1.);
 
-pub fn square_button<M>(content: &str) -> Button<M> {
+pub fn square_button<'a, M>(content: impl IntoFragment<'a>) -> Button<'a, M> {
     button(
         text(content)
             .align_x(alignment::Horizontal::Center)
