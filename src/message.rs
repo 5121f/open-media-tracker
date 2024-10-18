@@ -44,7 +44,12 @@ impl From<MainScrnMsg> for Msg {
 }
 
 impl From<LoadingMsg> for Msg {
-    fn from(_value: LoadingMsg) -> Self {
+    fn from(value: LoadingMsg) -> Self {
+        // We want to get a warning if LoadingMsg changes
+        match value {
+            LoadingMsg {} => {}
+        }
+
         Self::Loading
     }
 }
