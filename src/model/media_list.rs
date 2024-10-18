@@ -53,6 +53,13 @@ impl MediaList {
         Ok(())
     }
 
+    /// Insert media to the `MediaList` and return his index
+    pub fn insert(&mut self, media: MediaHandler) -> usize {
+        let index = self.0.len();
+        self.0.insert(index, media);
+        index
+    }
+
     fn name_is_used(&self, name: &str) -> bool {
         self.0.iter().any(|s| s.name == name)
     }

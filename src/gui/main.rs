@@ -123,8 +123,8 @@ impl OpenMediaTracker {
             MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
                 let media = MediaHandler::with_default_name(config)?;
-                self.media.push(media);
-                self.change_media_screen(self.media.len() - 1);
+                let new_media_index = self.media.insert(media);
+                self.change_media_screen(new_media_index);
             }
             MainScrnMsg::MenuButton(ListMsg::Enter(id)) => self.change_media_screen(id),
         }
