@@ -6,7 +6,7 @@
 
 use iced::{
     alignment,
-    widget::{button, row, text, text_input, Button, Row},
+    widget::{button, row, text, text::IntoFragment, text_input, Button, Row},
     Color,
 };
 
@@ -25,7 +25,7 @@ pub fn square_button<M>(content: &str) -> Button<M> {
     .width(30)
 }
 
-pub fn link<M>(s: &str) -> Button<M> {
+pub fn link<'a, M>(s: impl IntoFragment<'a>) -> Button<'a, M> {
     const CYAN: Color = Color::from_rgb(0., 1., 1.);
     button(text(s).color(CYAN)).padding(0).style(button::text)
 }
