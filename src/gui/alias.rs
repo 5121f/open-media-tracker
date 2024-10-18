@@ -7,7 +7,7 @@
 use iced::{
     alignment,
     widget::{button, row, text, text_input, Button, Row},
-    Color, Theme,
+    Color,
 };
 
 pub const INDENT: u16 = 5;
@@ -27,16 +27,7 @@ pub fn square_button<M>(content: &str) -> Button<M> {
 
 pub fn link<M>(s: &str) -> Button<M> {
     const CYAN: Color = Color::from_rgb(0., 1., 1.);
-    button(text(s).color(CYAN))
-        .padding(0)
-        .style(link_button_style)
-}
-
-fn link_button_style(_theme: &Theme, _status: button::Status) -> button::Style {
-    button::Style {
-        background: None,
-        ..Default::default()
-    }
+    button(text(s).color(CYAN)).padding(0).style(button::text)
 }
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
