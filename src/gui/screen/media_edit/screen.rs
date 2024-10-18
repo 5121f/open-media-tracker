@@ -18,7 +18,7 @@ use super::{
 };
 use crate::{
     gui::{
-        alias::{link, signed_text_input, square_button, GRAY, INDENT, PADDING},
+        alias::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
         icon::{self, Icon},
         screen::{ConfirmScrn, ConfirmScrnMsg},
         Closable, WarningMsg, WarningScreen,
@@ -109,8 +109,8 @@ impl MediaEditScrn {
             .push_maybe(watch_sign)
             .push_maybe(warning)
             .push(body)
-            .padding(PADDING)
-            .spacing(PADDING);
+            .padding(LONG_INDENT)
+            .spacing(LONG_INDENT);
 
         if let Some(confirm_screen) = confirm_screen {
             return stack![layout, confirm_screen].into();

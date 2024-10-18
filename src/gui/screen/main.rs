@@ -12,7 +12,7 @@ use iced::{
 
 use crate::{
     gui::{
-        alias::{INDENT, PADDING},
+        alias::{INDENT, LONG_INDENT},
         list::list,
         ListMsg,
     },
@@ -39,7 +39,7 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
         .push_maybe(
             list(media.iter().map(MediaHandler::name).collect()).map(|v| v.map(Msg::MenuButton)),
         )
-        .spacing(PADDING)
+        .spacing(LONG_INDENT)
         .padding(INDENT)
         .into()
 }
