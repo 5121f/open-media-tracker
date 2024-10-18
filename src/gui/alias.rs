@@ -13,6 +13,7 @@ use iced::{
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;
 pub const GRAY: Color = Color::from_rgb(0.6, 0.6, 0.6);
+pub const CYAN: Color = Color::from_rgb(0., 1., 1.);
 
 pub fn square_button<M>(content: &str) -> Button<M> {
     button(
@@ -26,7 +27,6 @@ pub fn square_button<M>(content: &str) -> Button<M> {
 }
 
 pub fn link<'a, M>(s: impl IntoFragment<'a>) -> Button<'a, M> {
-    const CYAN: Color = Color::from_rgb(0., 1., 1.);
     button(text(s).color(CYAN)).padding(0).style(button::text)
 }
 
