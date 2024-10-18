@@ -19,10 +19,8 @@ pub struct OpenError {
 }
 
 impl OpenError {
-    fn new(path: impl AsRef<Path>, kind: std::io::ErrorKind) -> Self {
-        Self {
-            path: path.as_ref().to_path_buf(),
-            kind,
-        }
+    fn new(path: impl Into<PathBuf>, kind: std::io::ErrorKind) -> Self {
+        let path = path.into();
+        Self { path, kind }
     }
 }
