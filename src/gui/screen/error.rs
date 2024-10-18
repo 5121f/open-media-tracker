@@ -5,9 +5,8 @@
  */
 
 use iced::{
-    alignment,
     widget::{button, column, container, horizontal_space, row, text, Space},
-    Element, Length,
+    Alignment, Element, Length,
 };
 use iced_aw::card;
 
@@ -60,7 +59,7 @@ impl Dialog for ErrorScrn {
             .width(Length::FillPortion(15)),
             Space::with_width(Length::FillPortion(1))
         ])
-        .align_y(alignment::Vertical::Center)
+        .align_y(Alignment::Center)
         .into()
     }
 

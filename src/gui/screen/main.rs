@@ -5,9 +5,8 @@
  */
 
 use iced::{
-    alignment,
     widget::{button, container, Column},
-    Element, Length,
+    Alignment, Element, Length,
 };
 
 use crate::{
@@ -34,7 +33,7 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
                     .on_press(Msg::AddMedia),
             )
             .width(Length::Fill)
-            .align_x(alignment::Horizontal::Center),
+            .align_x(Alignment::Center),
         )
         .push_maybe(
             list(media.iter().map(MediaHandler::name).collect()).map(|v| v.map(Msg::MenuButton)),

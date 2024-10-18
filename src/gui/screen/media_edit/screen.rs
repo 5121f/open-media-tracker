@@ -7,9 +7,8 @@
 use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
-    alignment::{self, Horizontal},
     widget::{button, column, container, row, stack, text, Column},
-    Element, Length,
+    Alignment, Element, Length,
 };
 
 use super::{
@@ -62,7 +61,7 @@ impl MediaEditScrn {
                     .on_press(Msg::Delete(self.editable_media_id))
             )
             .width(Length::Fill)
-            .align_x(alignment::Horizontal::Right),
+            .align_x(Alignment::End),
         ];
         let watch_message = self.episode(media_list).ok().map(|episode| Msg::Watch {
             path: episode.path().to_owned(),
@@ -73,11 +72,11 @@ impl MediaEditScrn {
                 .on_press_maybe(watch_message),
         )
         .width(Length::Fill)
-        .align_x(Horizontal::Center);
+        .align_x(Alignment::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
             container(text(watch_sign).size(13).color(GRAY))
                 .width(Length::Fill)
-                .align_x(Horizontal::Center)
+                .align_x(Alignment::Center)
         });
         let body = column![
             signed_text_input("Name", &self.buffer_name, Msg::NameChanged),

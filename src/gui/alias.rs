@@ -5,9 +5,8 @@
  */
 
 use iced::{
-    alignment,
     widget::{button, row, text, text::IntoFragment, text_input, Button, Row},
-    Color,
+    Alignment, Color,
 };
 
 pub const INDENT: u16 = 5;
@@ -18,7 +17,7 @@ pub const CYAN: Color = Color::from_rgb(0., 1., 1.);
 pub fn square_button<'a, M>(content: impl IntoFragment<'a>) -> Button<'a, M> {
     button(
         text(content)
-            .align_x(alignment::Horizontal::Center)
+            .align_x(Alignment::Center)
             .line_height(1.0)
             .size(20),
     )
@@ -37,5 +36,5 @@ where
 {
     row![text(sign), text_input(sign, value).on_input(on_input)]
         .spacing(INDENT)
-        .align_y(alignment::Vertical::Center)
+        .align_y(Alignment::Center)
 }

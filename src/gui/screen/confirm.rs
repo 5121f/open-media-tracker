@@ -7,9 +7,8 @@
 use std::fmt::Display;
 
 use iced::{
-    alignment::Vertical,
     widget::{button, column, container, horizontal_space, row, text, Space},
-    Element, Length,
+    Alignment, Element, Length,
 };
 use iced_aw::card;
 
@@ -61,7 +60,7 @@ impl<T: Display> Dialog for ConfirmScrn<T> {
             Space::with_width(Length::FillPortion(1))
         ])
         .height(Length::Fill)
-        .align_y(Vertical::Center)
+        .align_y(Alignment::Center)
         .into()
     }
 }

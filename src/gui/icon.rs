@@ -1,7 +1,6 @@
 use iced::{
-    alignment,
     widget::{Button, Text},
-    Font,
+    Alignment, Font,
 };
 
 const ICON_FONT: Font = Font::with_name("open_media_tracker");
@@ -26,5 +25,5 @@ where
 }
 
 pub fn button<'a, Message>(icon: Icon) -> Button<'a, Message> {
-    Button::new(text(icon).align_x(alignment::Horizontal::Center)).width(30)
+    Button::new(text(icon).align_x(Alignment::Center)).width(30)
 }
