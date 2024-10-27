@@ -44,6 +44,7 @@ impl From<MainScrnMsg> for Msg {
 }
 
 impl From<LoadingMsg> for Msg {
+    #[allow(clippy::match_single_binding)]
     fn from(value: LoadingMsg) -> Self {
         // We want to get a warning if LoadingMsg changes
         match value {
