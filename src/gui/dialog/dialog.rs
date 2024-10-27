@@ -4,21 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod dialog_with_kind;
-
-pub use dialog_with_kind::DialogWithKind;
-
 use std::ops::{Deref, DerefMut};
 
-use crate::gui::Screen;
+use crate::gui::{dialog::HaveKind, Screen};
 
 use iced::Element;
-
-pub trait HaveKind {
-    type Kind;
-
-    fn kind(&self) -> &Self::Kind;
-}
 
 pub struct Dialog<T>(Option<T>);
 
