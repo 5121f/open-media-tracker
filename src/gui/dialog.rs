@@ -18,9 +18,9 @@ pub trait HaveKind {
     fn kind(&self) -> &Self::Kind;
 }
 
-pub struct Closable<T>(Option<T>);
+pub struct Dialog<T>(Option<T>);
 
-impl<T> Closable<T> {
+impl<T> Dialog<T> {
     pub fn new(dialog: T) -> Self {
         Self(Some(dialog))
     }
@@ -34,7 +34,7 @@ impl<T> Closable<T> {
     }
 }
 
-impl<T: Screen> Closable<T> {
+impl<T: Screen> Dialog<T> {
     pub fn title(&self) -> Option<String> {
         self.0.as_ref().map(Screen::title)
     }
@@ -58,13 +58,13 @@ impl<T: Screen> Closable<T> {
     }
 }
 
-impl<T: HaveKind> Closable<T> {
+impl<T: HaveKind> Dialog<T> {
     pub fn kind(&self) -> Option<&T::Kind> {
         self.0.as_ref().map(T::kind)
     }
 }
 
-impl<T> Deref for Closable<T> {
+impl<T> Deref for Dialog<T> {
     type Target = Option<T>;
 
     fn deref(&self) -> &Self::Target {
@@ -72,13 +72,13 @@ impl<T> Deref for Closable<T> {
     }
 }
 
-impl<T> DerefMut for Closable<T> {
+impl<T> DerefMut for Dialog<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl<T> Default for Closable<T> {
+impl<T> Default for Dialog<T> {
     fn default() -> Self {
         Self::closed()
     }

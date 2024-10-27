@@ -17,7 +17,7 @@ use crate::{
             main_screen_view, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrn,
             MediaEditScrnMsg,
         },
-        Closable, ListMsg, LoadingDialog, Screen,
+        Dialog, ListMsg, LoadingDialog, Screen,
     },
     message::Msg,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
@@ -29,7 +29,7 @@ pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
     confirm: ConfirmDlg<ConfirmKind>,
-    error: Closable<ErrorScrn>,
+    error: Dialog<ErrorScrn>,
     loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
 }
@@ -45,7 +45,7 @@ impl OpenMediaTracker {
 
     fn error_dialog(&mut self, error: Error) {
         let screen = ErrorScrn::new(error);
-        self.error = Closable::new(screen);
+        self.error = Dialog::new(screen);
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
@@ -158,7 +158,7 @@ impl OpenMediaTracker {
             media: MediaList::new(),
             screen: Screens::Main,
             confirm: ConfirmDlg::closed(),
-            error: Closable::closed(),
+            error: Dialog::closed(),
             loading: LoadingDialog::closed(),
             config,
         };
@@ -213,7 +213,7 @@ impl Placeholder for OpenMediaTracker {
             media: MediaList::placeholder(),
             screen: Screens::Main,
             confirm: ConfirmDlg::closed(),
-            error: Closable::closed(),
+            error: Dialog::closed(),
             loading: LoadingDialog::closed(),
             config: Config::placeholder().into(),
         }

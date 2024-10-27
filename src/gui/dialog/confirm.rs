@@ -8,24 +8,24 @@ use std::ops::{Deref, DerefMut};
 
 use crate::gui::screen::ConfirmScrn;
 
-use super::Closable;
+use super::Dialog;
 
-pub struct ConfirmDlg<T>(Closable<ConfirmScrn<T>>);
+pub struct ConfirmDlg<T>(Dialog<ConfirmScrn<T>>);
 
 impl<T> ConfirmDlg<T> {
     pub fn from_kind(kind: T) -> Self {
         let screen = ConfirmScrn::new(kind);
-        let closable = Closable::new(screen);
+        let closable = Dialog::new(screen);
         Self(closable)
     }
 
     pub fn closed() -> Self {
-        Self(Closable::closed())
+        Self(Dialog::closed())
     }
 }
 
 impl<T> Deref for ConfirmDlg<T> {
-    type Target = Closable<ConfirmScrn<T>>;
+    type Target = Dialog<ConfirmScrn<T>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
