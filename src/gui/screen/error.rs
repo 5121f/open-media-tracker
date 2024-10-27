@@ -59,6 +59,7 @@ impl Dialog for ErrorScrn {
             .width(Length::FillPortion(15)),
             Space::with_width(Length::FillPortion(1))
         ])
+        .height(Length::Fill)
         .align_y(Alignment::Center)
         .into()
     }
