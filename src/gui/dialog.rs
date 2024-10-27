@@ -10,7 +10,7 @@ use std::ops::{Deref, DerefMut};
 
 use iced::Element;
 
-pub trait Dialog {
+pub trait Screen {
     type Message;
 
     fn title(&self) -> String;
@@ -51,13 +51,13 @@ impl<T> Closable<T> {
     }
 }
 
-impl<T: Dialog> Closable<T> {
+impl<T: Screen> Closable<T> {
     pub fn title(&self) -> Option<String> {
-        self.0.as_ref().map(Dialog::title)
+        self.0.as_ref().map(Screen::title)
     }
 
     pub fn view(&self) -> Option<Element<T::Message>> {
-        self.0.as_ref().map(Dialog::view)
+        self.0.as_ref().map(Screen::view)
     }
 
     pub fn view_map<'a, B: 'a>(

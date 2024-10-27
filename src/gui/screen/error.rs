@@ -11,7 +11,7 @@ use iced::{
 use iced_aw::card;
 
 use crate::{
-    gui::{alias::INDENT, Dialog},
+    gui::{alias::INDENT, Screen},
     model::Error,
 };
 
@@ -30,7 +30,7 @@ impl ErrorScrn {
     }
 }
 
-impl Dialog for ErrorScrn {
+impl Screen for ErrorScrn {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {

@@ -14,7 +14,7 @@ mod icon;
 mod list;
 mod loading;
 
-pub use dialog::{Closable, Dialog};
+pub use dialog::{Closable, Screen};
 pub use list::Message as ListMsg;
 pub use loading::LoadingDialog;
 pub use warning::{Message as WarningMsg, WarningScreen};

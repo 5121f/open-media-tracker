@@ -10,7 +10,7 @@ use iced::{
 };
 
 use crate::{
-    gui::Dialog,
+    gui::Screen,
     model::{LoadingKind, LoadingQueue},
 };
 
@@ -18,7 +18,7 @@ pub struct Msg;
 
 pub type LoadingScrn<T> = LoadingQueue<T>;
 
-impl<T> Dialog for LoadingScrn<T>
+impl<T> Screen for LoadingScrn<T>
 where
     T: LoadingKind,
 {

@@ -17,7 +17,7 @@ use crate::{
             main_screen_view, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrn,
             MediaEditScrnMsg,
         },
-        Closable, Dialog, ListMsg, LoadingDialog,
+        Closable, ListMsg, LoadingDialog, Screen,
     },
     message::Msg,
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
@@ -28,7 +28,7 @@ use super::dialog::confirm::ConfirmDlg;
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: ConfirmDlg<ConfirmKind>,
+    confirm: ConfirmDlg<ConfirmKind>,
     error: Closable<ErrorScrn>,
     loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
@@ -49,7 +49,7 @@ impl OpenMediaTracker {
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
-        self.confirm_dialog = ConfirmDlg::from_kind(kind);
+        self.confirm = ConfirmDlg::from_kind(kind);
     }
 
     fn close_app(&self) -> Task<Msg> {
@@ -59,7 +59,7 @@ impl OpenMediaTracker {
     fn sub_title(&self) -> Option<String> {
         self.error
             .title()
-            .or_else(|| self.confirm_dialog.title())
+            .or_else(|| self.confirm.title())
             .or_else(|| self.loading.title())
             .or_else(|| self.screen_title())
     }
@@ -81,11 +81,11 @@ impl OpenMediaTracker {
     fn confirm_screen_update(&mut self, message: ConfirmScrnMsg) -> Result<(), ErrorKind> {
         match message {
             ConfirmScrnMsg::Confirm => {
-                if let Some(kind) = self.confirm_dialog.kind() {
+                if let Some(kind) = self.confirm.kind() {
                     self.confirm_kind_update(kind.clone())?;
                 }
             }
-            ConfirmScrnMsg::Cancel => self.confirm_dialog.close(),
+            ConfirmScrnMsg::Cancel => self.confirm.close(),
         }
         Ok(())
     }
@@ -94,7 +94,7 @@ impl OpenMediaTracker {
         match kind {
             ConfirmKind::DeleteMedia { id, .. } => {
                 self.media.remove(id)?;
-                self.confirm_dialog.close();
+                self.confirm.close();
                 self.main_screen();
             }
         }
@@ -157,7 +157,7 @@ impl OpenMediaTracker {
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,
-            confirm_dialog: ConfirmDlg::closed(),
+            confirm: ConfirmDlg::closed(),
             error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config,
@@ -189,10 +189,7 @@ impl OpenMediaTracker {
     }
 
     pub fn view(&self) -> Element<Msg> {
-        let dialog = self
-            .error
-            .view_into()
-            .or_else(|| self.confirm_dialog.view_into());
+        let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
 
         if let Some(dialog) = dialog {
             return stack!(self.screen.view(&self.media), dialog).into();
@@ -215,7 +212,7 @@ impl Placeholder for OpenMediaTracker {
         Self {
             media: MediaList::placeholder(),
             screen: Screens::Main,
-            confirm_dialog: ConfirmDlg::closed(),
+            confirm: ConfirmDlg::closed(),
             error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config: Config::placeholder().into(),
