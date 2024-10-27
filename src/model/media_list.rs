@@ -23,7 +23,7 @@ use super::{Config, Placeholder};
 pub struct MediaList(Vec<MediaHandler>);
 
 impl MediaList {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self(Vec::new())
     }
 
@@ -38,7 +38,7 @@ impl MediaList {
         let dir_content = read_dir(&config.data_dir)?;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let media = MediaHandler::read(&entry, config.clone()).await?;
+            let media = MediaHandler::read(entry, config.clone()).await?;
             media_list.push(media);
         }
         Ok(media_list.into())

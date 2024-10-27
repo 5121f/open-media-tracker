@@ -45,13 +45,13 @@ impl Media {
             ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
     }
-    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
+    pub async fn read(path: PathBuf) -> Result<Self> {
         Self::_read(path.as_ref()).await
     }
 
     fn _save(&self, path: &Path) -> Result<()> {
         let content = self.ser_to_ron()?;
-        if !path.parent().unwrap_or(Path::new("/")).exists() {
+        if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
             fs::create_dir(path).map_err(|source| FSIOError::new(path, source))?;
         }
         fs::write(path, content).map_err(|source| FSIOError::new(path, source))?;

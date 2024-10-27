@@ -237,7 +237,7 @@ impl MediaEditScrn {
         }
     }
 
-    fn editable_media<'a>(&'a self, media: &'a [MediaHandler]) -> &'a MediaHandler {
+    const fn editable_media<'a>(&'a self, media: &'a [MediaHandler]) -> &'a MediaHandler {
         &media[self.editable_media_id]
     }
 
@@ -256,7 +256,7 @@ impl MediaEditScrn {
             .ok_or(ErrorKind::EpisodeNotFound)
     }
 
-    fn episode_id(&self, media: &[MediaHandler]) -> usize {
+    const fn episode_id(&self, media: &[MediaHandler]) -> usize {
         (self.editable_media(media).episode().get() - 1) as usize
     }
 
@@ -308,7 +308,7 @@ impl MediaEditScrn {
         Some(count)
     }
 
-    fn set_episode_to_one(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
+    fn set_episode_to_one(&self, media_list: &mut [MediaHandler]) -> Result<()> {
         let media = self.editable_media_mut(media_list);
         media.set_episode_to_one();
         Ok(())

@@ -20,12 +20,12 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn critical(kind: ErrorKind) -> Self {
+    pub const fn critical(kind: ErrorKind) -> Self {
         let critical = true;
         Self { kind, critical }
     }
 
-    pub fn common(kind: ErrorKind) -> Self {
+    pub const fn common(kind: ErrorKind) -> Self {
         let critical = false;
         Self { kind, critical }
     }
@@ -39,7 +39,7 @@ impl Display for Error {
 
 impl From<ErrorKind> for Error {
     fn from(value: ErrorKind) -> Self {
-        Error::common(value)
+        Self::common(value)
     }
 }
 
@@ -66,7 +66,7 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub fn serialize(name: String, source: ron::Error) -> Self {
+    pub const fn serialize(name: String, source: ron::Error) -> Self {
         Self::Serialize { name, source }
     }
 

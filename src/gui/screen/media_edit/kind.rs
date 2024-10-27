@@ -16,11 +16,11 @@ pub enum ConfirmKind {
 }
 
 impl ConfirmKind {
-    pub fn switch_to_next_chapter(path: PathBuf) -> Self {
+    pub const fn switch_to_next_chapter(path: PathBuf) -> Self {
         Self::SwitchToNextChapter { path }
     }
 
-    pub fn episode_overflow(episodes_on_disk: usize) -> Self {
+    pub const fn episode_overflow(episodes_on_disk: usize) -> Self {
         Self::EpisodesOverflow { episodes_on_disk }
     }
 }

@@ -24,7 +24,7 @@ where
         Self(closable)
     }
 
-    pub fn closed() -> Self {
+    pub const fn closed() -> Self {
         Self(Dialog::closed())
     }
 }

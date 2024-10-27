@@ -13,11 +13,11 @@ use iced::Element;
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
-    pub fn new(dialog: T) -> Self {
+    pub const fn new(dialog: T) -> Self {
         Self(Some(dialog))
     }
 
-    pub fn closed() -> Self {
+    pub const fn closed() -> Self {
         Self(None)
     }
 

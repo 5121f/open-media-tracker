@@ -45,9 +45,9 @@ impl MediaHandler {
         Ok(())
     }
 
-    pub async fn read(path: impl AsRef<Path>, config: Arc<Config>) -> Result<MediaHandler> {
-        let media = MediaHandler {
-            media: Media::read(&path).await?,
+    pub async fn read(path: PathBuf, config: Arc<Config>) -> Result<Self> {
+        let media = Self {
+            media: Media::read(path).await?,
             config,
         };
         Ok(media)
@@ -74,11 +74,11 @@ impl MediaHandler {
         &self.media.name
     }
 
-    pub fn chapter(&self) -> NonZeroU8 {
+    pub const fn chapter(&self) -> NonZeroU8 {
         self.media.chapter
     }
 
-    pub fn episode(&self) -> NonZeroU8 {
+    pub const fn episode(&self) -> NonZeroU8 {
         self.media.episode
     }
 

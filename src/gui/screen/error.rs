@@ -25,7 +25,7 @@ pub struct ErrorScrn {
 }
 
 impl ErrorScrn {
-    pub fn new(error: Error) -> Self {
+    pub const fn new(error: Error) -> Self {
         Self { error }
     }
 }

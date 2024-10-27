@@ -28,8 +28,7 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
                     .into_iter()
                     .enumerate()
                     .map(|(id, text)| list_button(text).on_press(Message::Enter(id)))
-                    .map(Into::into)
-                    .collect::<Vec<_>>(),
+                    .map(Into::into),
             )
             .padding(INDENT),
         )

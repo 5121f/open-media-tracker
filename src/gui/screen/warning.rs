@@ -24,7 +24,7 @@ pub struct WarningScrn<T> {
 }
 
 impl<T> WarningScrn<T> {
-    pub fn new(kind: T) -> Self {
+    pub const fn new(kind: T) -> Self {
         Self { kind }
     }
 }

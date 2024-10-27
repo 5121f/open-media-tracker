@@ -17,7 +17,7 @@ impl<K> LoadingDialog<K>
 where
     K: LoadingKind,
 {
-    pub fn closed() -> Self {
+    pub const fn closed() -> Self {
         Self(Dialog::closed())
     }
 

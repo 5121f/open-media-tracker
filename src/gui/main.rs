@@ -202,7 +202,7 @@ impl OpenMediaTracker {
         self.screen.view(&self.media)
     }
 
-    pub fn theme(&self) -> Theme {
+    pub const fn theme(&self) -> Theme {
         Theme::Dark
     }
 }
@@ -260,7 +260,7 @@ enum ConfirmKind {
 impl Display for ConfirmKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ConfirmKind::DeleteMedia { name, .. } => {
+            Self::DeleteMedia { name, .. } => {
                 write!(
                     f,
                     "You actually want to delete media \"{name}\" from the list?",

@@ -8,11 +8,11 @@ const ICON_FONT: Font = Font::with_name("open_media_tracker");
 pub struct Icon(char);
 
 impl Icon {
-    pub fn triple_dot() -> Self {
+    pub const fn triple_dot() -> Self {
         Self('\u{E800}')
     }
 
-    pub fn open_folder() -> Self {
+    pub const fn open_folder() -> Self {
         Self('\u{F115}')
     }
 }

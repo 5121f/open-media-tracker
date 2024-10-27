@@ -29,7 +29,7 @@ pub struct ConfirmScrn<T> {
 }
 
 impl<T> ConfirmScrn<T> {
-    pub fn new(kind: T) -> Self {
+    pub const fn new(kind: T) -> Self {
         Self { kind }
     }
 }
