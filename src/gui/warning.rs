@@ -33,7 +33,7 @@ impl<T: Display> Screen for WarningScreen<T> {
         String::from("Warning")
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<Message> {
         card(text(self.title()), text(self.kind.to_string()))
             .close_size(25.)
             .style(iced_aw::style::card::warning)

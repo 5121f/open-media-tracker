@@ -15,3 +15,24 @@ pub use error::{ErrorScrn, Msg as ErrorScrnMsg};
 pub use loading::{LoadingScrn, Msg as LoadingMsg};
 pub use main::{main_screen_view, Msg as MainScrnMsg};
 pub use media_edit::{MediaEditScrn, Msg as MediaEditScrnMsg};
+
+use iced::Element;
+
+pub trait Screen {
+    type Message;
+
+    fn title(&self) -> String;
+
+    fn view(&self) -> Element<Self::Message>;
+
+    fn view_map<'a, B: 'a>(&'a self, f: impl Fn(Self::Message) -> B + 'a) -> Element<'a, B> {
+        self.view().map(f)
+    }
+
+    fn view_into<'a, M>(&'a self) -> Element<'a, M>
+    where
+        M: From<Self::Message> + 'a,
+    {
+        self.view_map(Into::into)
+    }
+}
