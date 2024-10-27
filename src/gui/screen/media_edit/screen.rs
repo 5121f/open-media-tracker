@@ -18,8 +18,9 @@ use super::{
 use crate::{
     gui::{
         alias::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
+        dialog::confirm::ConfirmDlg,
         icon::{self, Icon},
-        screen::{ConfirmScrn, ConfirmScrnMsg},
+        screen::ConfirmScrnMsg,
         Closable, WarningMsg, WarningScreen,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
@@ -27,7 +28,7 @@ use crate::{
 };
 
 pub struct MediaEditScrn {
-    confirm_screen: Closable<ConfirmScrn<ConfirmKind>>,
+    confirm: ConfirmDlg<ConfirmKind>,
     warning: Closable<WarningScreen<WarningKind>>,
     editable_media_id: usize,
     episodes: Result<EpisodeList>,
@@ -40,7 +41,7 @@ impl MediaEditScrn {
         let editable_episode_name = editable_media.name().to_string();
         let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
         Self {
-            confirm_screen: Closable::closed(),
+            confirm: ConfirmDlg::closed(),
             warning: Closable::closed(),
             editable_media_id,
             episodes,
@@ -49,7 +50,7 @@ impl MediaEditScrn {
     }
 
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<Msg> {
-        let confirm_screen = self.confirm_screen.view_into();
+        let confirm_screen = self.confirm.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().display().to_string();
         let top = row![
@@ -216,11 +217,11 @@ impl MediaEditScrn {
     ) -> Result<()> {
         match message {
             ConfirmScrnMsg::Confirm => {
-                if let Some(kind) = self.confirm_screen.kind() {
+                if let Some(kind) = self.confirm.kind() {
                     self.confirm_kind_update(media, kind.clone())?
                 }
             }
-            ConfirmScrnMsg::Cancel => self.confirm_screen.close(),
+            ConfirmScrnMsg::Cancel => self.confirm.close(),
         }
         Ok(())
     }
@@ -228,11 +229,11 @@ impl MediaEditScrn {
     fn confirm_kind_update(&mut self, media: &mut [MediaHandler], kind: ConfirmKind) -> Result<()> {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
-                self.confirm_screen.close();
+                self.confirm.close();
                 self.set_chapter_path(media, path)
             }
             ConfirmKind::EpisodesOverflow { .. } => {
-                self.confirm_screen.close();
+                self.confirm.close();
                 self.increase_chapter(media)
             }
         }
@@ -330,8 +331,7 @@ impl MediaEditScrn {
     }
 
     fn confirm(&mut self, kind: ConfirmKind) {
-        let confirm = ConfirmScrn::new(kind);
-        self.confirm_screen = Closable::new(confirm);
+        self.confirm = ConfirmDlg::from_kind(kind);
     }
 
     fn confirm_switch_to_next_chapter(&mut self, next_chapter_path: PathBuf) {

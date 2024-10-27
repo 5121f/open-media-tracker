@@ -14,8 +14,8 @@ use iced::{widget::stack, window, Element, Task, Theme};
 use crate::{
     gui::{
         screen::{
-            main_screen_view, ConfirmScrn, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg,
-            MediaEditScrn, MediaEditScrnMsg,
+            main_screen_view, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrn,
+            MediaEditScrnMsg,
         },
         Closable, Dialog, ListMsg, LoadingDialog,
     },
@@ -23,10 +23,12 @@ use crate::{
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
 };
 
+use super::dialog::confirm::ConfirmDlg;
+
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
-    confirm_dialog: Closable<ConfirmScrn<ConfirmKind>>,
+    confirm_dialog: ConfirmDlg<ConfirmKind>,
     error: Closable<ErrorScrn>,
     loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
@@ -47,8 +49,7 @@ impl OpenMediaTracker {
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
-        let screen = ConfirmScrn::new(kind);
-        self.confirm_dialog = Closable::new(screen);
+        self.confirm_dialog = ConfirmDlg::from_kind(kind);
     }
 
     fn close_app(&self) -> Task<Msg> {
@@ -156,7 +157,7 @@ impl OpenMediaTracker {
         let mut omt = Self {
             media: MediaList::new(),
             screen: Screens::Main,
-            confirm_dialog: Closable::closed(),
+            confirm_dialog: ConfirmDlg::closed(),
             error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config,
@@ -214,7 +215,7 @@ impl Placeholder for OpenMediaTracker {
         Self {
             media: MediaList::placeholder(),
             screen: Screens::Main,
-            confirm_dialog: Closable::closed(),
+            confirm_dialog: ConfirmDlg::closed(),
             error: Closable::closed(),
             loading: LoadingDialog::closed(),
             config: Config::placeholder().into(),
