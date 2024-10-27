@@ -12,7 +12,11 @@ use iced::{
 };
 use iced_aw::card;
 
-use crate::gui::{alias::INDENT, dialog::HaveKind, Screen};
+use crate::gui::{
+    alias::INDENT,
+    dialog::{DialogWithKind, HaveKind},
+    Screen,
+};
 
 #[derive(Debug, Clone)]
 pub enum Msg {
@@ -72,3 +76,11 @@ impl<T> HaveKind for ConfirmScrn<T> {
         &self.kind
     }
 }
+
+impl<T> From<T> for ConfirmScrn<T> {
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+pub type ConfirmDlg<T> = DialogWithKind<ConfirmScrn<T>>;

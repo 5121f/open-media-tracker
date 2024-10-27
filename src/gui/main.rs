@@ -23,7 +23,7 @@ use crate::{
     model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
 };
 
-use super::dialog::confirm::ConfirmDlg;
+use crate::gui::screen::ConfirmDlg;
 
 pub struct OpenMediaTracker {
     media: MediaList,

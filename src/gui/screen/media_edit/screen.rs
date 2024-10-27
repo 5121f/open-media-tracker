@@ -18,10 +18,9 @@ use super::{
 use crate::{
     gui::{
         alias::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
-        dialog::confirm::ConfirmDlg,
         icon::{self, Icon},
-        screen::ConfirmScrnMsg,
-        Dialog, WarningMsg, WarningScreen,
+        screen::{ConfirmDlg, ConfirmScrnMsg},
+        WarningDlg, WarningMsg,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     open,
@@ -29,7 +28,7 @@ use crate::{
 
 pub struct MediaEditScrn {
     confirm: ConfirmDlg<ConfirmKind>,
-    warning: Dialog<WarningScreen<WarningKind>>,
+    warning: WarningDlg<WarningKind>,
     editable_media_id: usize,
     episodes: Result<EpisodeList>,
     buffer_name: String,
@@ -42,7 +41,7 @@ impl MediaEditScrn {
         let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
         Self {
             confirm: ConfirmDlg::closed(),
-            warning: Dialog::closed(),
+            warning: WarningDlg::closed(),
             editable_media_id,
             episodes,
             buffer_name: editable_episode_name,
@@ -278,8 +277,7 @@ impl MediaEditScrn {
     }
 
     fn warning(&mut self, kind: WarningKind) {
-        let screen = WarningScreen::new(kind);
-        self.warning = Dialog::new(screen);
+        self.warning = WarningDlg::from_kind(kind);
     }
 
     fn increase_episode(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {

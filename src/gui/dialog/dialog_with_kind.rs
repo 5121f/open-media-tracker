@@ -6,15 +6,20 @@
 
 use std::ops::{Deref, DerefMut};
 
-use crate::gui::screen::ConfirmScrn;
+use crate::gui::Screen;
 
-use super::Dialog;
+use super::{Dialog, HaveKind};
 
-pub struct ConfirmDlg<T>(Dialog<ConfirmScrn<T>>);
+pub struct DialogWithKind<S>(Dialog<S>)
+where
+    S: Screen + HaveKind + From<S::Kind>;
 
-impl<T> ConfirmDlg<T> {
-    pub fn from_kind(kind: T) -> Self {
-        let screen = ConfirmScrn::new(kind);
+impl<S> DialogWithKind<S>
+where
+    S: Screen + HaveKind + From<S::Kind>,
+{
+    pub fn from_kind(kind: S::Kind) -> Self {
+        let screen = kind.into();
         let closable = Dialog::new(screen);
         Self(closable)
     }
@@ -24,15 +29,21 @@ impl<T> ConfirmDlg<T> {
     }
 }
 
-impl<T> Deref for ConfirmDlg<T> {
-    type Target = Dialog<ConfirmScrn<T>>;
+impl<S> Deref for DialogWithKind<S>
+where
+    S: Screen + HaveKind + From<S::Kind>,
+{
+    type Target = Dialog<S>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<T> DerefMut for ConfirmDlg<T> {
+impl<S> DerefMut for DialogWithKind<S>
+where
+    S: Screen + HaveKind + From<S::Kind>,
+{
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

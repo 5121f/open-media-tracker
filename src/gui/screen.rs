@@ -10,7 +10,7 @@ pub mod loading;
 pub mod main;
 pub mod media_edit;
 
-pub use confirm::{ConfirmScrn, Msg as ConfirmScrnMsg};
+pub use confirm::{ConfirmDlg, Msg as ConfirmScrnMsg};
 pub use error::{ErrorScrn, Msg as ErrorScrnMsg};
 pub use loading::{LoadingScrn, Msg as LoadingMsg};
 pub use main::{main_screen_view, Msg as MainScrnMsg};

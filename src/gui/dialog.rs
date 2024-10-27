@@ -4,7 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-pub mod confirm;
+mod dialog_with_kind;
+
+pub use dialog_with_kind::DialogWithKind;
 
 use std::ops::{Deref, DerefMut};
 

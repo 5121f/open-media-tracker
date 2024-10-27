@@ -9,7 +9,10 @@ use std::fmt::Display;
 use iced::{widget::text, Element};
 use iced_aw::card;
 
-use super::{dialog::HaveKind, Screen};
+use super::{
+    dialog::{DialogWithKind, HaveKind},
+    Screen,
+};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -49,3 +52,11 @@ impl<T> HaveKind for WarningScreen<T> {
         &self.kind
     }
 }
+
+impl<T> From<T> for WarningScreen<T> {
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+pub type WarningDlg<T> = DialogWithKind<WarningScreen<T>>;
