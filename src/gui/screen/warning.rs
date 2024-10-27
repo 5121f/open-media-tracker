@@ -9,7 +9,7 @@ use std::fmt::Display;
 use iced::{widget::text, Element};
 use iced_aw::card;
 
-use super::{
+use crate::gui::{
     dialog::{DialogWithKind, HaveKind},
     Screen,
 };
@@ -19,17 +19,17 @@ pub enum Message {
     Close,
 }
 
-pub struct WarningScreen<T> {
+pub struct WarningScrn<T> {
     kind: T,
 }
 
-impl<T> WarningScreen<T> {
+impl<T> WarningScrn<T> {
     pub fn new(kind: T) -> Self {
         Self { kind }
     }
 }
 
-impl<T: Display> Screen for WarningScreen<T> {
+impl<T: Display> Screen for WarningScrn<T> {
     type Message = Message;
 
     fn title(&self) -> String {
@@ -45,7 +45,7 @@ impl<T: Display> Screen for WarningScreen<T> {
     }
 }
 
-impl<T> HaveKind for WarningScreen<T> {
+impl<T> HaveKind for WarningScrn<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {
@@ -53,10 +53,10 @@ impl<T> HaveKind for WarningScreen<T> {
     }
 }
 
-impl<T> From<T> for WarningScreen<T> {
+impl<T> From<T> for WarningScrn<T> {
     fn from(value: T) -> Self {
         Self::new(value)
     }
 }
 
-pub type WarningDlg<T> = DialogWithKind<WarningScreen<T>>;
+pub type WarningDlg<T> = DialogWithKind<WarningScrn<T>>;

@@ -19,8 +19,7 @@ use crate::{
     gui::{
         alias::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
         icon::{self, Icon},
-        screen::{ConfirmDlg, ConfirmScrnMsg},
-        WarningDlg, WarningMsg,
+        screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg},
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     open,

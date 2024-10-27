@@ -6,7 +6,7 @@
 
 use std::path::PathBuf;
 
-use crate::gui::{screen::ConfirmScrnMsg, WarningMsg};
+use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
 
 #[derive(Debug, Clone)]
 pub enum Msg {

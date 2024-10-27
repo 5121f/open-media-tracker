@@ -8,7 +8,6 @@ pub mod alias;
 pub mod dialog;
 pub mod main;
 pub mod screen;
-pub mod warning;
 
 mod icon;
 mod list;
@@ -18,4 +17,3 @@ pub use dialog::Dialog;
 pub use list::Message as ListMsg;
 pub use loading::LoadingDialog;
 pub use screen::Screen;
-pub use warning::{Message as WarningMsg, WarningDlg};
