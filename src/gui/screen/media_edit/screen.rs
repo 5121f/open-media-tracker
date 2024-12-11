@@ -47,7 +47,7 @@ impl MediaEditScrn {
         }
     }
 
-    pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<Msg> {
+    pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
         let confirm_screen = self.confirm.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().display().to_string();
