@@ -37,7 +37,7 @@ impl MediaEditScrn {
     pub fn new(media: &[MediaHandler], editable_media_id: usize) -> Self {
         let editable_media = &media[editable_media_id];
         let editable_episode_name = editable_media.name().to_string();
-        let episodes = EpisodeList::read(editable_media.chapter_path()).map_err(Into::into);
+        let episodes = editable_media.episode_list();
         Self {
             confirm: ConfirmDlg::closed(),
             warning: WarningDlg::closed(),
@@ -267,11 +267,8 @@ impl MediaEditScrn {
     ) -> Result<()> {
         self.editable_media_mut(media)
             .set_chapter_path(chapter_path)?;
-        self.episodes = {
-            let editable_media = self.editable_media(media);
-            let media_path = editable_media.chapter_path();
-            EpisodeList::read(media_path).map_err(Into::into)
-        };
+        let editable_media = self.editable_media(media);
+        self.episodes = editable_media.episode_list();
         Ok(())
     }
 

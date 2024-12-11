@@ -18,6 +18,8 @@ use crate::{
     read_dir,
 };
 
+use super::EpisodeList;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
     pub name: String,
@@ -89,6 +91,10 @@ impl Media {
         }
         let next_dir = paths[next_chapter_index].to_path_buf();
         Ok(next_dir)
+    }
+
+    pub fn episode_list(&self) -> Result<EpisodeList> {
+        EpisodeList::read(&self.chapter_path)
     }
 
     fn ser_to_ron(&self) -> Result<String> {
