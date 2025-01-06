@@ -7,7 +7,7 @@
 use std::{
     fmt::{self, Display},
     io,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use ron::de::SpannedError;
@@ -92,10 +92,20 @@ pub struct FSIOError {
 }
 
 impl FSIOError {
-    pub fn new(path: impl Into<PathBuf>, source: io::Error) -> Self {
-        let path = path.into();
+    pub fn new<S: AsRef<Path>>(path: S, source: io::Error) -> Self {
+        let path = path.as_ref().to_path_buf();
         let kind = source.kind();
         Self { path, kind }
+    }
+}
+
+pub trait FSIOErrorExtention<T> {
+    fn fs_err<S: AsRef<Path>>(self, path: S) -> std::result::Result<T, FSIOError>;
+}
+
+impl<T> FSIOErrorExtention<T> for std::result::Result<T, io::Error> {
+    fn fs_err<S: AsRef<Path>>(self, path: S) -> std::result::Result<T, FSIOError> {
+        self.map_err(|source| FSIOError::new(path, source))
     }
 }
 

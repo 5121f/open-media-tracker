@@ -9,13 +9,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::model::FSIOError;
+use crate::model::{FSIOError, FSIOErrorExtention};
 
 fn _read_dir(path: &Path) -> Result<Vec<PathBuf>> {
-    let read_dir = fs::read_dir(path).map_err(|source| FSIOError::new(path, source))?;
+    let read_dir = fs::read_dir(path).fs_err(path)?;
     let mut paths = Vec::new();
     for entry in read_dir {
-        let entry = entry.map_err(|source| FSIOError::new(path, source))?;
+        let entry = entry.fs_err(path)?;
         paths.push(entry.path());
     }
     Ok(paths)
@@ -25,10 +25,10 @@ pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {
 }
 
 fn _read_dir_for_dirs(path: &Path) -> Result<Vec<PathBuf>> {
-    let read_dir = fs::read_dir(path).map_err(|source| FSIOError::new(path, source))?;
+    let read_dir = fs::read_dir(path).fs_err(path)?;
     let mut dirs = Vec::new();
     for entry in read_dir {
-        let entry = entry.map_err(|source| FSIOError::new(path, source))?;
+        let entry = entry.fs_err(path)?;
         let path = entry.path();
         if path.is_dir() {
             dirs.push(path);

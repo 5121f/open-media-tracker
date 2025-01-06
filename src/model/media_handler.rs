@@ -12,12 +12,9 @@ use std::{
     sync::Arc,
 };
 
-use crate::model::{
-    error::{FSIOError, Result},
-    media::Media,
-};
+use crate::model::{media::Media, Result};
 
-use super::Config;
+use super::{error::FSIOErrorExtention, Config};
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
@@ -59,15 +56,15 @@ impl MediaHandler {
         }
         let new_file_name = file_name(&new_name);
         let new_path = self.config.path_to_media(&new_file_name);
-        fs::rename(self.path(), &new_path)
-            .map_err(|source| FSIOError::new(&self.media.name, source))?;
+        fs::rename(self.path(), &new_path).fs_err(&self.media.name)?;
         self.media.name = new_name;
         self.save()?;
         Ok(())
     }
 
     pub fn remove_file(&self) -> Result<()> {
-        fs::remove_file(self.path()).map_err(|source| FSIOError::new(self.path(), source).into())
+        fs::remove_file(self.path()).fs_err(self.path())?;
+        Ok(())
     }
 
     pub fn name(&self) -> &str {

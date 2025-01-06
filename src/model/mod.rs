@@ -17,7 +17,7 @@ mod placeholder;
 pub use config::Config;
 pub use episode::Episode;
 pub use episode_list::EpisodeList;
-pub use error::{Error, ErrorKind, FSIOError, Result};
+pub use error::{Error, ErrorKind, FSIOError, FSIOErrorExtention, Result};
 pub use loading::{LoadingKind, LoadingQueue};
 pub use media_handler::MediaHandler;
 pub use media_list::MediaList;

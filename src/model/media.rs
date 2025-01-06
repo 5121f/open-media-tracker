@@ -14,7 +14,7 @@ use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    model::error::{ErrorKind, FSIOError, Result},
+    model::{ErrorKind, FSIOErrorExtention, Result},
     read_dir,
 };
 
@@ -40,9 +40,7 @@ impl Media {
     }
 
     async fn _read(path: &Path) -> Result<Self> {
-        let file_content = async_fs::read_to_string(&path)
-            .await
-            .map_err(|source| FSIOError::new(path, source))?;
+        let file_content = async_fs::read_to_string(&path).await.fs_err(path)?;
         let media =
             ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
@@ -54,9 +52,9 @@ impl Media {
     fn _save(&self, path: &Path) -> Result<()> {
         let content = self.ser_to_ron()?;
         if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
-            fs::create_dir(path).map_err(|source| FSIOError::new(path, source))?;
+            fs::create_dir(path).fs_err(path)?;
         }
-        fs::write(path, content).map_err(|source| FSIOError::new(path, source))?;
+        fs::write(path, content).fs_err(path)?;
         Ok(())
     }
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
