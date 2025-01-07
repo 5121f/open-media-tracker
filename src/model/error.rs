@@ -100,11 +100,11 @@ impl FSIOError {
 }
 
 pub trait FSIOErrorExtention<T> {
-    fn fs_err<S: AsRef<Path>>(self, path: S) -> std::result::Result<T, FSIOError>;
+    fn fs_err(self, path: impl AsRef<Path>) -> std::result::Result<T, FSIOError>;
 }
 
 impl<T> FSIOErrorExtention<T> for std::result::Result<T, io::Error> {
-    fn fs_err<S: AsRef<Path>>(self, path: S) -> std::result::Result<T, FSIOError> {
+    fn fs_err(self, path: impl AsRef<Path>) -> std::result::Result<T, FSIOError> {
         self.map_err(|source| FSIOError::new(path, source))
     }
 }
