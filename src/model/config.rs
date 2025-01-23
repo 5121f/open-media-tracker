@@ -10,7 +10,7 @@ use crate::model::error::{ErrorKind, FSIOErrorExtention, Result};
 
 use super::Placeholder;
 
-const DATA_DIR_NAME: &str = "open media tracker";
+const DATA_DIR_NAME: &str = "open_media_tracker";
 
 #[derive(Debug)]
 pub struct Config {
