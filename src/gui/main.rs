@@ -61,14 +61,7 @@ impl OpenMediaTracker {
             .title()
             .or_else(|| self.confirm.title())
             .or_else(|| self.loading.title())
-            .or_else(|| self.screen_title())
-    }
-
-    fn screen_title(&self) -> Option<String> {
-        match &self.screen {
-            Screens::Main => None,
-            Screens::MediaChange(screen) => Some(screen.title(&self.media)),
-        }
+            .or_else(|| self.screen.title(&self.media))
     }
 
     fn read_media(&mut self) -> Task<Msg> {
@@ -236,6 +229,14 @@ impl Screens {
     fn change_media(media: &[MediaHandler], id: usize) -> Self {
         let screen = MediaEditScrn::new(media, id);
         Self::MediaChange(screen)
+    }
+
+    fn title(&self, media: &[MediaHandler]) -> Option<String> {
+        let title = match self {
+            Self::Main => return None,
+            Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
+        };
+        Some(title)
     }
 }
 
