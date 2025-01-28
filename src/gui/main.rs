@@ -4,24 +4,26 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    fmt::{self, Display},
-    sync::Arc,
-};
+mod confirm_kind;
+mod loading_kind;
+mod screens;
+
+use std::sync::Arc;
 
 use iced::{widget::stack, window, Element, Task, Theme};
 
 use crate::{
     gui::{
-        screen::{
-            main_screen_view, ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrn,
-            MediaEditScrnMsg,
-        },
+        screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg},
         Dialog, ListMsg, LoadingDialog, Screen,
     },
     message::Msg,
-    model::{self, Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
+    model::{Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
 };
+
+use confirm_kind::ConfirmKind;
+use loading_kind::LoadingKind;
+use screens::Screens;
 
 use crate::gui::screen::ConfirmDlg;
 
@@ -209,69 +211,6 @@ impl Placeholder for OpenMediaTracker {
             error: Dialog::closed(),
             loading: LoadingDialog::closed(),
             config: Config::placeholder().into(),
-        }
-    }
-}
-
-pub enum Screens {
-    Main,
-    MediaChange(MediaEditScrn),
-}
-
-impl Screens {
-    fn view<'a>(&'a self, media: &'a MediaList) -> Element<'a, Msg> {
-        match self {
-            Self::Main => main_screen_view(media).map(Into::into),
-            Self::MediaChange(screen) => screen.view(media).map(Into::into),
-        }
-    }
-
-    fn change_media(media: &[MediaHandler], id: usize) -> Self {
-        MediaEditScrn::new(media, id).into()
-    }
-
-    fn title(&self, media: &[MediaHandler]) -> Option<String> {
-        let title = match self {
-            Self::Main => return None,
-            Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
-        };
-        Some(title)
-    }
-}
-
-impl From<MediaEditScrn> for Screens {
-    fn from(value: MediaEditScrn) -> Self {
-        Self::MediaChange(value)
-    }
-}
-
-impl Default for Screens {
-    fn default() -> Self {
-        Self::Main
-    }
-}
-
-#[derive(PartialEq, Eq, Hash)]
-pub enum LoadingKind {
-    ReadMedia,
-}
-
-impl model::LoadingKind for LoadingKind {}
-
-#[derive(Clone)]
-enum ConfirmKind {
-    DeleteMedia { name: String, id: usize },
-}
-
-impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::DeleteMedia { name, .. } => {
-                write!(
-                    f,
-                    "You actually want to delete media \"{name}\" from the list?",
-                )
-            }
         }
     }
 }
