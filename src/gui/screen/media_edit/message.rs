@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
 
@@ -25,6 +25,14 @@ pub enum Msg {
     EpisodeDec,
     ConfirmScreen(ConfirmScrnMsg),
     Warning(WarningMsg),
+}
+
+impl Msg {
+    pub fn watch(path: impl AsRef<Path>) -> Self {
+        Self::Watch {
+            path: path.as_ref().to_owned(),
+        }
+    }
 }
 
 impl From<ConfirmScrnMsg> for Msg {

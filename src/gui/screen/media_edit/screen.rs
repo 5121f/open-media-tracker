@@ -62,13 +62,13 @@ impl MediaEditScrn {
             .width(Length::Fill)
             .align_x(Alignment::End),
         ];
-        let watch_message = self.episode(media_list).ok().map(|episode| Msg::Watch {
-            path: episode.path().to_owned(),
-        });
         let watch = container(
-            button("Watch")
-                .style(button::success)
-                .on_press_maybe(watch_message),
+            button("Watch").style(button::success).on_press_maybe(
+                self.episode(media_list)
+                    .ok()
+                    .map(Episode::path)
+                    .map(Msg::watch),
+            ),
         )
         .width(Length::Fill)
         .align_x(Alignment::Center);
