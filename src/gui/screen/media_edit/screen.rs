@@ -7,7 +7,7 @@
 use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
-    widget::{button, column, container, row, stack, text, Column},
+    widget::{button, column, container, row, stack, text, Column, Stack},
     Alignment, Element, Length,
 };
 
@@ -110,11 +110,7 @@ impl MediaEditScrn {
             .padding(LONG_INDENT)
             .spacing(LONG_INDENT);
 
-        if let Some(confirm_screen) = confirm_screen {
-            return stack![layout, confirm_screen].into();
-        }
-
-        layout.into()
+        Stack::new().push(layout).push_maybe(confirm_screen).into()
     }
 
     pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {
