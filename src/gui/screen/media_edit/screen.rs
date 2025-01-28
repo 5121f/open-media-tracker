@@ -31,6 +31,8 @@ pub struct MediaEditScrn {
     editable_media_id: usize,
     episodes: Result<EpisodeList>,
     buffer_name: String,
+    chapter: u8,
+    episode: u8,
 }
 
 impl MediaEditScrn {
@@ -44,6 +46,8 @@ impl MediaEditScrn {
             editable_media_id,
             episodes,
             buffer_name: editable_episode_name,
+            chapter: editable_media.chapter().get(),
+            episode: editable_media.episode().get(),
         }
     }
 
@@ -80,13 +84,13 @@ impl MediaEditScrn {
         let body = column![
             signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
             row![
-                signed_text_input("Chapter", &media.chapter().to_string(), Msg::ChapterChanged),
+                signed_text_input("Chapter", &self.chapter.to_string(), Msg::ChapterChanged),
                 square_button("-").on_press(Msg::ChapterDec),
                 square_button("+").on_press(Msg::ChapterInc)
             ]
             .spacing(INDENT),
             row![
-                signed_text_input("Episode", &media.episode().to_string(), Msg::EpisodeChanged),
+                signed_text_input("Episode", &self.episode.to_string(), Msg::EpisodeChanged),
                 square_button("-").on_press(Msg::EpisodeDec),
                 square_button("+").on_press(Msg::EpisodeInc)
             ]
@@ -133,33 +137,40 @@ impl MediaEditScrn {
             }
             Msg::ChapterChanged(value) => {
                 if value.is_empty() {
+                    // TODO: Warning: Chapter can not be zero
+                    self.chapter = 0;
                     self.editable_media_mut(media_list).set_chapter_to_one();
                     return Ok(());
                 }
-                if let Ok(number) = value.parse() {
+                if let Ok(number) = value.parse::<NonZeroU8>() {
+                    self.chapter = number.get();
                     self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
             Msg::EpisodeChanged(value) => {
                 if value.is_empty() {
-                    return self.set_episode_to_one(media_list);
+                    // TODO: Warning: Episode can not be zero
+                    self.episode = 0;
+                    self.editable_media_mut(media_list).set_episode_to_one();
                 }
-                if let Ok(number) = value.parse() {
+                if let Ok(number) = value.parse::<NonZeroU8>() {
+                    self.episode = number.get();
                     self.set_episode(media_list, number)?;
                 }
             }
             Msg::ChapterInc => self.increase_chapter(media_list)?,
             Msg::ChapterDec => {
-                let media = self.editable_media_mut(media_list);
-                let new_value = media.chapter().get() - 1;
+                let new_value = self.editable_media(media_list).chapter().get() - 1;
+                self.chapter = new_value;
                 if let Some(number) = NonZeroU8::new(new_value) {
-                    media.set_chapter(number)?;
+                    self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
             Msg::EpisodeInc => self.increase_episode(media_list)?,
             Msg::EpisodeDec => {
                 let media = self.editable_media_mut(media_list);
                 let new_value = media.episode().get() - 1;
+                self.episode = new_value;
                 if let Some(number) = NonZeroU8::new(new_value) {
                     self.editable_media_mut(media_list).set_episode(number)?;
                 }
@@ -275,6 +286,7 @@ impl MediaEditScrn {
     fn increase_episode(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
         let media = self.editable_media(media_list);
         let next_episode = media.episode().saturating_add(1);
+        self.episode = next_episode.get();
         self.set_episode(media_list, next_episode)
     }
 
@@ -286,6 +298,7 @@ impl MediaEditScrn {
     }
 
     fn set_episode(&mut self, media_list: &mut [MediaHandler], value: NonZeroU8) -> Result<()> {
+        self.episode = value.get();
         {
             let media = self.editable_media_mut(media_list);
             if !media.chapter_path_is_present() || value <= media.episode() {
@@ -314,16 +327,11 @@ impl MediaEditScrn {
         Some(count)
     }
 
-    fn set_episode_to_one(&self, media_list: &mut [MediaHandler]) -> Result<()> {
-        let media = self.editable_media_mut(media_list);
-        media.set_episode_to_one();
-        Ok(())
-    }
-
     fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
-        self.set_episode_to_one(media_list)?;
+        // self.set_episode_to_one(media_list)?;
+        let next_chapter = self.editable_media(media_list).chapter().saturating_add(1);
+        self.chapter = next_chapter.get();
         let media = self.editable_media_mut(media_list);
-        let next_chapter = media.chapter().saturating_add(1);
         media.set_chapter(next_chapter)?;
         if !media.chapter_path_is_present() {
             return Ok(());
