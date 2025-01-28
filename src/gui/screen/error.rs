@@ -20,6 +20,12 @@ pub enum Msg {
     Ok { critical: bool },
 }
 
+impl Msg {
+    const fn ok(critical: bool) -> Self {
+        Self::Ok { critical }
+    }
+}
+
 pub struct ErrorScrn {
     error: Error,
 }
@@ -48,9 +54,9 @@ impl Screen for ErrorScrn {
                     text(self.error.to_string()),
                     row![
                         horizontal_space(),
-                        button("Ok").style(ok_button_style).on_press(Msg::Ok {
-                            critical: self.error.critical
-                        })
+                        button("Ok")
+                            .style(ok_button_style)
+                            .on_press(Msg::ok(self.error.critical))
                     ],
                 ]
                 .spacing(INDENT)
