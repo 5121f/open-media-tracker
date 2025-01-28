@@ -7,7 +7,7 @@
 use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
-    widget::{button, column, container, row, stack, text, Column, Stack},
+    widget::{button, column, container, row, text, Column, Stack},
     Alignment, Element, Length,
 };
 
