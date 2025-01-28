@@ -18,10 +18,17 @@ impl<S> DialogWithKind<S>
 where
     S: Screen + HaveKind + From<S::Kind>,
 {
+    pub const fn from_dialog(dialog: Dialog<S>) -> Self {
+        Self(dialog)
+    }
+
+    pub const fn from_screen(screen: S) -> Self {
+        Self::from_dialog(Dialog::new(screen))
+    }
+
     pub fn from_kind(kind: S::Kind) -> Self {
         let screen = kind.into();
-        let closable = Dialog::new(screen);
-        Self(closable)
+        Self::from_screen(screen)
     }
 
     pub const fn closed() -> Self {
