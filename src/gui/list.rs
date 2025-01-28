@@ -5,7 +5,7 @@
  */
 
 use iced::{
-    widget::{button, column, container, scrollable, Button},
+    widget::{button, column, container, scrollable},
     Background, Border, Color, Element, Length, Theme,
 };
 
@@ -27,7 +27,12 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
                 buttons
                     .into_iter()
                     .enumerate()
-                    .map(|(id, text)| list_button(text).on_press(Message::Enter(id)))
+                    .map(|(id, text)| {
+                        button(text)
+                            .style(list_button_style)
+                            .width(Length::Fill)
+                            .on_press(Message::Enter(id))
+                    })
                     .map(Into::into),
             )
             .padding(INDENT),
@@ -74,10 +79,6 @@ fn list_container_style(_theme: &Theme) -> container::Style {
         border: button_border(),
         ..Default::default()
     }
-}
-
-pub fn list_button(text: &str) -> Button<Message> {
-    button(text).style(list_button_style).width(Length::Fill)
 }
 
 fn background() -> Background {
