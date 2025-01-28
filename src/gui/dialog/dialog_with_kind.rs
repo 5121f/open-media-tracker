@@ -12,33 +12,58 @@ use super::{Dialog, HaveKind};
 
 pub struct DialogWithKind<S>(Dialog<S>)
 where
-    S: Screen + HaveKind + From<S::Kind>;
+    S: Screen + HaveKind;
 
 impl<S> DialogWithKind<S>
 where
-    S: Screen + HaveKind + From<S::Kind>,
+    S: Screen + HaveKind,
 {
-    pub const fn from_dialog(dialog: Dialog<S>) -> Self {
-        Self(dialog)
-    }
-
-    pub const fn from_screen(screen: S) -> Self {
-        Self::from_dialog(Dialog::new(screen))
-    }
-
-    pub fn from_kind(kind: S::Kind) -> Self {
-        let screen = kind.into();
-        Self::from_screen(screen)
-    }
-
     pub const fn closed() -> Self {
         Self(Dialog::closed())
     }
 }
 
-impl<S> Deref for DialogWithKind<S>
+impl<S> DialogWithKind<S>
 where
     S: Screen + HaveKind + From<S::Kind>,
+{
+    pub fn from_kind(kind: S::Kind) -> Self {
+        let screen: S = kind.into();
+        screen.into()
+    }
+}
+
+impl<S> From<S> for Dialog<S>
+where
+    S: Screen + HaveKind,
+{
+    fn from(value: S) -> Self {
+        Self::new(value)
+    }
+}
+
+impl<S> From<Dialog<S>> for DialogWithKind<S>
+where
+    S: Screen + HaveKind,
+{
+    fn from(value: Dialog<S>) -> Self {
+        Self(value)
+    }
+}
+
+impl<S> From<S> for DialogWithKind<S>
+where
+    S: Screen + HaveKind,
+{
+    fn from(value: S) -> Self {
+        let dialog: Dialog<_> = value.into();
+        dialog.into()
+    }
+}
+
+impl<S> Deref for DialogWithKind<S>
+where
+    S: Screen + HaveKind,
 {
     type Target = Dialog<S>;
 
@@ -49,7 +74,7 @@ where
 
 impl<S> DerefMut for DialogWithKind<S>
 where
-    S: Screen + HaveKind + From<S::Kind>,
+    S: Screen + HaveKind,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
