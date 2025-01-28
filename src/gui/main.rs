@@ -227,8 +227,7 @@ impl Screens {
     }
 
     fn change_media(media: &[MediaHandler], id: usize) -> Self {
-        let screen = MediaEditScrn::new(media, id);
-        Self::MediaChange(screen)
+        MediaEditScrn::new(media, id).into()
     }
 
     fn title(&self, media: &[MediaHandler]) -> Option<String> {
@@ -237,6 +236,12 @@ impl Screens {
             Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
         };
         Some(title)
+    }
+}
+
+impl From<MediaEditScrn> for Screens {
+    fn from(value: MediaEditScrn) -> Self {
+        Self::MediaChange(value)
     }
 }
 
