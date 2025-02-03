@@ -7,10 +7,11 @@
 use std::{
     fs,
     num::NonZeroU8,
-    ops::{Deref, DerefMut},
     path::{Path, PathBuf},
     sync::Arc,
 };
+
+use derive_more::derive::{Deref, DerefMut};
 
 use crate::model::{media::Media, Result};
 
@@ -18,8 +19,10 @@ use super::{error::FSIOErrorExtention, Config};
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deref, DerefMut)]
 pub struct MediaHandler {
+    #[deref_mut]
+    #[deref]
     media: Media,
     config: Arc<Config>,
 }
@@ -112,20 +115,6 @@ impl MediaHandler {
 
     fn path(&self) -> PathBuf {
         self.config.path_to_media(&self.file_name())
-    }
-}
-
-impl Deref for MediaHandler {
-    type Target = Media;
-
-    fn deref(&self) -> &Self::Target {
-        &self.media
-    }
-}
-
-impl DerefMut for MediaHandler {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.media
     }
 }
 

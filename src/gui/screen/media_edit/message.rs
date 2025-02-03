@@ -6,13 +6,17 @@
 
 use std::path::{Path, PathBuf};
 
+use derive_more::derive::From;
+
 use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, From)]
 pub enum Msg {
     Back,
     Delete(usize),
-    Watch { path: PathBuf },
+    Watch {
+        path: PathBuf,
+    },
     NameChanged(String),
     ChapterChanged(String),
     EpisodeChanged(String),
@@ -23,7 +27,9 @@ pub enum Msg {
     ChapterDec,
     EpisodeInc,
     EpisodeDec,
+    #[from]
     ConfirmScreen(ConfirmScrnMsg),
+    #[from]
     Warning(WarningMsg),
 }
 
@@ -32,17 +38,5 @@ impl Msg {
         Self::Watch {
             path: path.as_ref().to_owned(),
         }
-    }
-}
-
-impl From<ConfirmScrnMsg> for Msg {
-    fn from(value: ConfirmScrnMsg) -> Self {
-        Self::ConfirmScreen(value)
-    }
-}
-
-impl From<WarningMsg> for Msg {
-    fn from(value: WarningMsg) -> Self {
-        Self::Warning(value)
     }
 }

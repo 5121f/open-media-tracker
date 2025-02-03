@@ -4,12 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use derive_more::derive::From;
+
 use crate::{
     gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg},
     model::{ErrorKind, MediaList},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, From)]
 pub enum Msg {
     MainScreen(MainScrnMsg),
     MediaEditScreen(MediaEditScrnMsg),
@@ -17,30 +19,6 @@ pub enum Msg {
     ErrorScreen(ErrorScrnMsg),
     MediaLoaded(Result<MediaList, ErrorKind>),
     Loading,
-}
-
-impl From<ConfirmScrnMsg> for Msg {
-    fn from(value: ConfirmScrnMsg) -> Self {
-        Self::ConfirmScreen(value)
-    }
-}
-
-impl From<ErrorScrnMsg> for Msg {
-    fn from(value: ErrorScrnMsg) -> Self {
-        Self::ErrorScreen(value)
-    }
-}
-
-impl From<MediaEditScrnMsg> for Msg {
-    fn from(value: MediaEditScrnMsg) -> Self {
-        Self::MediaEditScreen(value)
-    }
-}
-
-impl From<MainScrnMsg> for Msg {
-    fn from(value: MainScrnMsg) -> Self {
-        Self::MainScreen(value)
-    }
 }
 
 impl From<LoadingMsg> for Msg {

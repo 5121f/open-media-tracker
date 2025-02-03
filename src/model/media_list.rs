@@ -4,10 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    ops::{Deref, DerefMut},
-    sync::Arc,
-};
+use std::sync::Arc;
+
+use derive_more::derive::{Deref, DerefMut, From};
 
 use crate::{
     model::{
@@ -19,7 +18,7 @@ use crate::{
 
 use super::{Config, Placeholder};
 
-#[derive(Debug, Clone)]
+#[derive(Deref, DerefMut, Debug, Clone, From)]
 pub struct MediaList(Vec<MediaHandler>);
 
 impl MediaList {
@@ -68,25 +67,5 @@ impl MediaList {
 impl Placeholder for MediaList {
     fn placeholder() -> Self {
         Self::new()
-    }
-}
-
-impl Deref for MediaList {
-    type Target = Vec<MediaHandler>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for MediaList {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl From<Vec<MediaHandler>> for MediaList {
-    fn from(value: Vec<MediaHandler>) -> Self {
-        Self(value)
     }
 }

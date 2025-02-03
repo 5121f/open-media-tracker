@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use derive_more::derive::From;
 use iced::Element;
 
 use crate::{
@@ -12,7 +13,9 @@ use crate::{
     model::{MediaHandler, MediaList},
 };
 
+#[derive(Default, From)]
 pub enum Screens {
+    #[default]
     Main,
     MediaChange(MediaEditScrn),
 }
@@ -35,17 +38,5 @@ impl Screens {
             Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
         };
         Some(title)
-    }
-}
-
-impl From<MediaEditScrn> for Screens {
-    fn from(value: MediaEditScrn) -> Self {
-        Self::MediaChange(value)
-    }
-}
-
-impl Default for Screens {
-    fn default() -> Self {
-        Self::Main
     }
 }

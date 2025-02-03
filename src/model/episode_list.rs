@@ -4,7 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{ops::Deref, path::Path};
+use std::path::Path;
+
+use derive_more::derive::Deref;
 
 use crate::{
     model::{
@@ -14,6 +16,7 @@ use crate::{
     read_dir,
 };
 
+#[derive(Deref)]
 pub struct EpisodeList(Vec<Episode>);
 
 impl EpisodeList {
@@ -29,13 +32,5 @@ impl EpisodeList {
         }
         episodes.sort();
         Ok(Self(episodes))
-    }
-}
-
-impl Deref for EpisodeList {
-    type Target = Vec<Episode>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
