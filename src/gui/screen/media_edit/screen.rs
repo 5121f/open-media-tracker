@@ -328,7 +328,8 @@ impl MediaEditScrn {
     }
 
     fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
-        // self.set_episode_to_one(media_list)?;
+        self.episode = 1;
+        self.editable_media_mut(media_list).set_episode_to_one();
         let next_chapter = self.editable_media(media_list).chapter().saturating_add(1);
         self.chapter = next_chapter.get();
         let media = self.editable_media_mut(media_list);
