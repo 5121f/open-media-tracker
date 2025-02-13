@@ -1,5 +1,6 @@
 # TODO
 
+- on chapter decrement try to swotch to previos chapter folder
 - sorting series
     - by name
     - by date added
