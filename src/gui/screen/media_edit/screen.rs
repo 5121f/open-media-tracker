@@ -18,8 +18,8 @@ use super::{
 use crate::{
     gui::{
         alias::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
-        icon::{self, Icon},
         screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg},
+        Icon,
     },
     model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
     open,
@@ -97,8 +97,10 @@ impl MediaEditScrn {
             .spacing(INDENT),
             row![
                 signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
-                icon::button(Icon::open_folder()).on_press(Msg::OpenChapterDirectory),
-                icon::button(Icon::triple_dot()).on_press(Msg::ChapterPathSelect),
+                Icon::open_folder()
+                    .button()
+                    .on_press(Msg::OpenChapterDirectory),
+                Icon::triple_dot().button().on_press(Msg::ChapterPathSelect),
             ]
             .spacing(INDENT)
         ]

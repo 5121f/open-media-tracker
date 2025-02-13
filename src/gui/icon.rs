@@ -15,15 +15,15 @@ impl Icon {
     pub const fn open_folder() -> Self {
         Self('\u{F115}')
     }
-}
 
-pub fn text<'a, Message>(icon: Icon) -> Text<'a, Message>
-where
-    Message: iced::widget::text::Catalog + 'a,
-{
-    Text::new(icon.0).font(ICON_FONT)
-}
+    pub fn text<'a, Message>(&self) -> Text<'a, Message>
+    where
+        Message: iced::widget::text::Catalog + 'a,
+    {
+        Text::new(self.0).font(ICON_FONT)
+    }
 
-pub fn button<'a, Message>(icon: Icon) -> Button<'a, Message> {
-    Button::new(text(icon).align_x(Alignment::Center)).width(30)
+    pub fn button<'a, Message>(&self) -> Button<'a, Message> {
+        Button::new(self.text().align_x(Alignment::Center)).width(30)
+    }
 }

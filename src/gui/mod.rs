@@ -14,6 +14,7 @@ mod list;
 mod loading;
 
 pub use dialog::Dialog;
+pub use icon::Icon;
 pub use list::Message as ListMsg;
 pub use loading::LoadingDialog;
 pub use screen::Screen;
