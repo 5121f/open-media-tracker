@@ -11,33 +11,28 @@ use std::{
 
 use crate::model::{FSIOError, FSIOErrorExtention};
 
-fn _read_dir(path: &Path) -> Result<Vec<PathBuf>> {
+fn _read_dir(path: &Path, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>> {
     let read_dir = fs::read_dir(path).fs_err(path)?;
     let mut paths = Vec::new();
     for entry in read_dir {
         let entry = entry.fs_err(path)?;
-        paths.push(entry.path());
+        let path = entry.path();
+        if filter(&path) {
+            paths.push(path);
+        }
     }
     Ok(paths)
 }
-pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {
-    _read_dir(path.as_ref())
+
+pub fn read_dir_with_filter(
+    path: impl AsRef<Path>,
+    filter: fn(&Path) -> bool,
+) -> Result<Vec<PathBuf>> {
+    _read_dir(path.as_ref(), filter)
 }
 
-fn _read_dir_for_dirs(path: &Path) -> Result<Vec<PathBuf>> {
-    let read_dir = fs::read_dir(path).fs_err(path)?;
-    let mut dirs = Vec::new();
-    for entry in read_dir {
-        let entry = entry.fs_err(path)?;
-        let path = entry.path();
-        if path.is_dir() {
-            dirs.push(path);
-        }
-    }
-    Ok(dirs)
-}
-pub fn read_dir_for_dirs(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {
-    _read_dir_for_dirs(path.as_ref())
+pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {
+    read_dir_with_filter(path, |_| true)
 }
 
 type Result<T> = std::result::Result<T, FSIOError>;
