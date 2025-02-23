@@ -67,7 +67,8 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub const fn serialize(name: String, source: ron::Error) -> Self {
+    pub fn serialize(name: impl Into<String>, source: ron::Error) -> Self {
+        let name = name.into();
         Self::Serialize { name, source }
     }
 
