@@ -11,8 +11,8 @@ use iced::{
 
 use crate::{
     gui::{
-        alias::{INDENT, LONG_INDENT},
         list::list,
+        utils::{INDENT, LONG_INDENT},
         ListMsg,
     },
     model::MediaHandler,

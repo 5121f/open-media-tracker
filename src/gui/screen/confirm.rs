@@ -13,8 +13,8 @@ use iced::{
 use iced_aw::card;
 
 use crate::gui::{
-    alias::INDENT,
     dialog::{DialogWithKind, HaveKind},
+    utils::INDENT,
     Screen,
 };
 

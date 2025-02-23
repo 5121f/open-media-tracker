@@ -11,7 +11,7 @@ use iced::{
 use iced_aw::card;
 
 use crate::{
-    gui::{alias::INDENT, Screen},
+    gui::{utils::INDENT, Screen},
     model::Error,
 };
 
