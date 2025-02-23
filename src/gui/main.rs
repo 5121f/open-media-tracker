@@ -27,6 +27,8 @@ use screens::Screens;
 
 use crate::gui::screen::ConfirmDlg;
 
+const PROGRAM_NAME: &str = "Open Media Tracker";
+
 pub struct OpenMediaTracker {
     media: MediaList,
     screen: Screens,
@@ -171,10 +173,9 @@ impl OpenMediaTracker {
     }
 
     pub fn title(&self) -> String {
-        let program_name = "Open Media Tracker";
         self.sub_title()
-            .map(|sub_title| format!("{program_name} - {sub_title}"))
-            .unwrap_or_else(|| String::from(program_name))
+            .map(|sub_title| format!("{PROGRAM_NAME} - {sub_title}"))
+            .unwrap_or_else(|| String::from(PROGRAM_NAME))
     }
 
     pub fn update(&mut self, message: Msg) -> Task<Msg> {
