@@ -4,9 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::path::{Path, PathBuf};
+use std::{ffi::OsStr, path::PathBuf};
 
-pub fn open(path: impl AsRef<Path>) -> Result<(), OpenError> {
+pub fn open(path: impl AsRef<OsStr>) -> Result<(), OpenError> {
     let path = path.as_ref();
     open::that(path).map_err(|source| OpenError::new(path, source.kind()))
 }
