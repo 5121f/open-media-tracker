@@ -33,6 +33,15 @@ where
     }
 }
 
+impl<S> Default for DialogWithKind<S>
+where
+    S: Screen + HaveKind,
+{
+    fn default() -> Self {
+        Self(Default::default())
+    }
+}
+
 impl<S> From<S> for Dialog<S>
 where
     S: Screen + HaveKind,

@@ -16,9 +16,9 @@ use crate::{
     read_dir,
 };
 
-use super::{Config, Placeholder};
+use super::Config;
 
-#[derive(Deref, DerefMut, Debug, Clone, From)]
+#[derive(Deref, DerefMut, Debug, Clone, From, Default)]
 pub struct MediaList(Vec<MediaHandler>);
 
 impl MediaList {
@@ -61,11 +61,5 @@ impl MediaList {
 
     fn name_is_used(&self, name: &str) -> bool {
         self.0.iter().any(|s| s.name == name)
-    }
-}
-
-impl Placeholder for MediaList {
-    fn placeholder() -> Self {
-        Self::new()
     }
 }

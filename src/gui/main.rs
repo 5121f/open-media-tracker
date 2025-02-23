@@ -206,10 +206,10 @@ impl Placeholder for OpenMediaTracker {
     fn placeholder() -> Self {
         Self {
             media: MediaList::placeholder(),
-            screen: Screens::Main,
-            confirm: ConfirmDlg::closed(),
-            error: Dialog::closed(),
-            loading: LoadingDialog::closed(),
+            screen: Screens::placeholder(),
+            confirm: ConfirmDlg::placeholder(),
+            error: Dialog::placeholder(),
+            loading: LoadingDialog::placeholder(),
             config: Config::placeholder().into(),
         }
     }
