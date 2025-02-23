@@ -5,8 +5,8 @@
  */
 
 use iced::{
-    widget::{button, row, text, text::IntoFragment, text_input, Button, Row},
-    Alignment, Color,
+    widget::{button, row, text, text_input, Button, Row},
+    Alignment, Background, Border, Color, Theme,
 };
 
 pub const INDENT: u16 = 5;
@@ -14,7 +14,7 @@ pub const LONG_INDENT: u16 = 10;
 pub const GRAY: Color = Color::from_rgb(0.6, 0.6, 0.6);
 pub const CYAN: Color = Color::from_rgb(0., 1., 1.);
 
-pub fn square_button<'a, M>(content: impl IntoFragment<'a>) -> Button<'a, M> {
+pub fn square_button<'a, M>(content: impl text::IntoFragment<'a>) -> Button<'a, M> {
     button(
         text(content)
             .align_x(Alignment::Center)
@@ -25,8 +25,29 @@ pub fn square_button<'a, M>(content: impl IntoFragment<'a>) -> Button<'a, M> {
     .width(30)
 }
 
-pub fn link<'a, M>(s: impl IntoFragment<'a>) -> Button<'a, M> {
-    button(text(s).color(CYAN)).padding(0).style(button::text)
+pub fn link<'a, M>(s: impl text::IntoFragment<'a>) -> Button<'a, M> {
+    button(text(s).color(CYAN)).style(link_style)
+}
+
+fn link_style(theme: &Theme, status: button::Status) -> button::Style {
+    let base = button::text(theme, status);
+    match status {
+        button::Status::Active | button::Status::Disabled | button::Status::Pressed => base,
+        button::Status::Hovered => {
+            let palette = theme.extended_palette();
+            let background = palette.background.base.color;
+            let background = Color::from_rgb(
+                background.r + 0.05,
+                background.g + 0.05,
+                background.b + 0.05,
+            );
+            button::Style {
+                background: Some(Background::Color(background)),
+                border: Border::default().rounded(10.),
+                ..base
+            }
+        }
+    }
 }
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
