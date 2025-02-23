@@ -11,7 +11,12 @@ use std::{
 
 use crate::model::{FSIOError, FSIOErrorExtention};
 
-fn _read_dir(path: &Path, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>> {
+pub fn read_dir_with_filter(
+    path: impl AsRef<Path>,
+    filter: fn(&Path) -> bool,
+) -> Result<Vec<PathBuf>> {
+    let path = path.as_ref();
+
     let read_dir = fs::read_dir(path).fs_err(path)?;
     let mut paths = Vec::new();
     for entry in read_dir {
@@ -22,13 +27,6 @@ fn _read_dir(path: &Path, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>> {
         }
     }
     Ok(paths)
-}
-
-pub fn read_dir_with_filter(
-    path: impl AsRef<Path>,
-    filter: fn(&Path) -> bool,
-) -> Result<Vec<PathBuf>> {
-    _read_dir(path.as_ref(), filter)
 }
 
 pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {

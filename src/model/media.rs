@@ -39,26 +39,22 @@ impl Media {
         }
     }
 
-    async fn _read(path: &Path) -> Result<Self> {
-        let file_content = async_fs::read_to_string(&path).await.fs_err(path)?;
+    pub async fn read(path: PathBuf) -> Result<Self> {
+        let file_content = async_fs::read_to_string(&path).await.fs_err(&path)?;
         let media =
             ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
     }
-    pub async fn read(path: PathBuf) -> Result<Self> {
-        Self::_read(path.as_ref()).await
-    }
 
-    fn _save(&self, path: &Path) -> Result<()> {
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
+        let path = path.as_ref();
+
         let content = self.ser_to_ron()?;
         if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
             fs::create_dir(path).fs_err(path)?;
         }
         fs::write(path, content).fs_err(path)?;
         Ok(())
-    }
-    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        self._save(path.as_ref())
     }
 
     pub fn chapter_path_is_present(&self) -> bool {
