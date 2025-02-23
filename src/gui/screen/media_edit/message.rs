@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use derive_more::derive::From;
 
@@ -34,9 +34,7 @@ pub enum Msg {
 }
 
 impl Msg {
-    pub fn watch(path: impl AsRef<Path>) -> Self {
-        Self::Watch {
-            path: path.as_ref().to_owned(),
-        }
+    pub fn watch(path: impl Into<PathBuf>) -> Self {
+        Self::Watch { path: path.into() }
     }
 }
