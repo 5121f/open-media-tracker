@@ -5,17 +5,17 @@
  */
 
 use std::{
-    fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
 use derive_more::derive::{Deref, DerefMut};
+use fs_err as fs;
 
 use crate::model::{media::Media, Result};
 
-use super::{error::FSIOErrorExtention, Config};
+use super::Config;
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 
@@ -59,14 +59,14 @@ impl MediaHandler {
         }
         let new_file_name = file_name(&new_name);
         let new_path = self.config.path_to_media(&new_file_name);
-        fs::rename(self.path(), &new_path).fs_err(&self.media.name)?;
+        fs::rename(self.path(), &new_path)?;
         self.media.name = new_name;
         self.save()?;
         Ok(())
     }
 
     pub fn remove_file(&self) -> Result<()> {
-        fs::remove_file(self.path()).fs_err(self.path())?;
+        fs::remove_file(self.path())?;
         Ok(())
     }
 

@@ -21,7 +21,7 @@ use crate::{
         utils::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
         Icon,
     },
-    model::{Episode, EpisodeList, ErrorKind, FSIOError, MediaHandler, MediaList, Result},
+    model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result},
     open,
 };
 
@@ -209,8 +209,8 @@ impl MediaEditScrn {
         }
         let watch_sign = match self.episode(media) {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::Fsio(FSIOError { kind, .. })) => {
-                format!("Chapter path is incorrect: {kind}")
+            Err(ErrorKind::Io(err)) => {
+                format!("Chapter path is incorrect: {err}")
             }
             Err(err) => format!("Chapter path is incorrect: {err}"),
         };

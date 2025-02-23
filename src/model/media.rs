@@ -5,16 +5,16 @@
  */
 
 use std::{
-    fs,
     num::NonZeroU8,
     path::{Path, PathBuf},
 };
 
+use fs_err as fs;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    model::{ErrorKind, FSIOErrorExtention, Result},
+    model::{ErrorKind, Result},
     read_dir,
 };
 
@@ -40,7 +40,7 @@ impl Media {
     }
 
     pub async fn read(path: PathBuf) -> Result<Self> {
-        let file_content = async_fs::read_to_string(&path).await.fs_err(&path)?;
+        let file_content = async_fs::read_to_string(&path).await?;
         let media =
             ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
@@ -51,9 +51,9 @@ impl Media {
 
         let content = self.ser_to_ron()?;
         if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
-            fs::create_dir(path).fs_err(path)?;
+            fs::create_dir(path)?;
         }
-        fs::write(path, content).fs_err(path)?;
+        fs::write(path, content)?;
         Ok(())
     }
 

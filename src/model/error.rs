@@ -7,7 +7,8 @@
 use std::{
     fmt::{self, Display},
     io,
-    path::{Path, PathBuf},
+    path::PathBuf,
+    sync::Arc,
 };
 
 use ron::de::SpannedError;
@@ -62,7 +63,7 @@ pub enum ErrorKind {
     #[error(transparent)]
     Open(#[from] OpenError),
     #[error(transparent)]
-    Fsio(#[from] FSIOError),
+    Io(#[from] Arc<io::Error>),
 }
 
 impl ErrorKind {
@@ -84,28 +85,9 @@ impl ErrorKind {
     }
 }
 
-#[derive(Debug, Clone, thiserror::Error)]
-#[error("{path}: I/O error: {kind}")]
-pub struct FSIOError {
-    pub path: PathBuf,
-    pub kind: io::ErrorKind,
-}
-
-impl FSIOError {
-    pub fn new<S: AsRef<Path>>(path: S, source: io::Error) -> Self {
-        let path = path.as_ref().to_path_buf();
-        let kind = source.kind();
-        Self { path, kind }
-    }
-}
-
-pub trait FSIOErrorExtention<T> {
-    fn fs_err(self, path: impl AsRef<Path>) -> std::result::Result<T, FSIOError>;
-}
-
-impl<T> FSIOErrorExtention<T> for std::result::Result<T, io::Error> {
-    fn fs_err(self, path: impl AsRef<Path>) -> std::result::Result<T, FSIOError> {
-        self.map_err(|source| FSIOError::new(path, source))
+impl From<io::Error> for ErrorKind {
+    fn from(value: io::Error) -> Self {
+        Self::Io(Arc::new(value))
     }
 }
 

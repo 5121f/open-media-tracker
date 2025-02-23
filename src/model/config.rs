@@ -4,9 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
-use crate::model::error::{ErrorKind, FSIOErrorExtention, Result};
+use fs_err as fs;
+
+use crate::model::error::{ErrorKind, Result};
 
 use super::Placeholder;
 
@@ -23,7 +25,7 @@ impl Config {
             .ok_or(ErrorKind::UserDataDirNotFound)?
             .join(DATA_DIR_NAME);
         if !data_dir.exists() {
-            fs::create_dir(&data_dir).fs_err(&data_dir)?;
+            fs::create_dir(&data_dir)?;
         }
         Ok(Self { data_dir })
     }
