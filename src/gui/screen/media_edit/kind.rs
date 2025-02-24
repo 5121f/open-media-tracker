@@ -4,14 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    fmt::{self, Display},
-    path::PathBuf,
-};
+use std::path::PathBuf;
 
-#[derive(Clone)]
+use derive_more::Display;
+
+#[derive(Clone, Display)]
 pub enum ConfirmKind {
+    #[display("Proposed path to next chapter: {path:?}")]
     SwitchToNextChapter { path: PathBuf },
+    #[display(
+        "Seems like {episodes_on_disk} episode is a last of it chapter \
+        Switch to the next chapter?"
+    )]
     EpisodesOverflow { episodes_on_disk: usize },
 }
 
@@ -25,33 +29,10 @@ impl ConfirmKind {
     }
 }
 
-impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::SwitchToNextChapter {
-                path: next_chapter_path,
-            } => {
-                write!(f, "Proposed path to next chapter: {:?}", next_chapter_path)
-            }
-            Self::EpisodesOverflow { episodes_on_disk } => write!(
-                f,
-                "Seems like {} episode is a last of it chapter. Switch to the next chapter?",
-                episodes_on_disk
-            ),
-        }
-    }
-}
-
+#[derive(Display)]
 pub enum WarningKind {
+    #[display("Name must be unique")]
     NameUsed,
+    #[display("Wrong chapter path")]
     WrongChapterPath,
-}
-
-impl Display for WarningKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::NameUsed => write!(f, "Name must be unique"),
-            Self::WrongChapterPath => write!(f, "Wrong chapter path"),
-        }
-    }
 }

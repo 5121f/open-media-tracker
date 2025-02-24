@@ -4,17 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    fmt::{self, Display},
-    io,
-    path::PathBuf,
-    sync::Arc,
-};
+use std::{io, path::PathBuf, sync::Arc};
 
+use derive_more::Display;
 use ron::de::SpannedError;
 
 use crate::open::OpenError;
 
+#[derive(Display)]
+#[display("{}", self.kind)]
 pub struct Error {
     pub kind: ErrorKind,
     pub critical: bool,
@@ -29,12 +27,6 @@ impl Error {
     pub const fn common(kind: ErrorKind) -> Self {
         let critical = false;
         Self { kind, critical }
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.kind.fmt(f)
     }
 }
 

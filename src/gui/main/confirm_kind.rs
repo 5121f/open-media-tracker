@@ -4,22 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::fmt::Display;
+use derive_more::Display;
 
-#[derive(Clone)]
+#[derive(Clone, Display)]
 pub enum ConfirmKind {
+    #[display("You actually want to delete media \"{name}\" from the list?")]
     DeleteMedia { name: String, id: usize },
-}
-
-impl Display for ConfirmKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Self::DeleteMedia { name, .. } => {
-                write!(
-                    f,
-                    "You actually want to delete media \"{name}\" from the list?",
-                )
-            }
-        }
-    }
 }
