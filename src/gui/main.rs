@@ -189,7 +189,7 @@ impl OpenMediaTracker {
         let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
 
         if let Some(dialog) = dialog {
-            return stack![self.screen.view(&self.media), dialog].into();
+            return stack![dialog, self.screen.view(&self.media)].into();
         }
 
         if let Some(loading_screen) = self.loading.as_ref() {
