@@ -141,7 +141,7 @@ impl OpenMediaTracker {
             }
             Msg::ConfirmScreen(message) => self.confirm_screen_update(message)?,
             Msg::MediaLoaded(res) => {
-                self.media = res.map_err(Into::<ErrorKind>::into)?;
+                self.media = res.map_err(Error::critical)?;
                 self.loading.complete(LoadingKind::ReadMedia);
             }
             Msg::Loading => {}
