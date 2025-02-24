@@ -8,7 +8,7 @@ use derive_more::derive::From;
 
 use crate::{
     gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg},
-    model::{ErrorKind, MediaList},
+    model::{ErrorKind, MaybeError, MediaList},
 };
 
 #[derive(Debug, Clone, From)]
@@ -17,7 +17,7 @@ pub enum Msg {
     MediaEditScreen(MediaEditScrnMsg),
     ConfirmScreen(ConfirmScrnMsg),
     ErrorScreen(ErrorScrnMsg),
-    MediaLoaded(Result<MediaList, ErrorKind>),
+    MediaLoaded(MaybeError<MediaList, ErrorKind>),
     Loading,
 }
 

@@ -18,7 +18,7 @@ use crate::{
         Dialog, ListMsg, LoadingDialog, Screen,
     },
     message::Msg,
-    model::{Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder},
+    model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder},
 };
 
 use confirm_kind::ConfirmKind;
@@ -129,24 +129,43 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn update2(&mut self, message: Msg) -> Result<Task<Msg>, Error> {
+    fn update2(&mut self, message: Msg) -> MaybeError<Task<Msg>, Error> {
+        let mut error = None;
+
         match message {
-            Msg::MainScreen(message) => self.main_screen_update(message)?,
-            Msg::MediaEditScreen(message) => self.media_edit_screen_update(message)?,
+            Msg::MainScreen(message) => {
+                if let Err(err) = self.main_screen_update(message) {
+                    error = Some(err.into());
+                }
+            }
+            Msg::MediaEditScreen(message) => {
+                if let Err(err) = self.media_edit_screen_update(message) {
+                    error = Some(err.into());
+                }
+            }
             Msg::ErrorScreen(ErrorScrnMsg::Ok { critical }) => {
                 if critical {
-                    return Ok(self.close_app());
+                    return MaybeError::success(self.close_app());
                 }
                 self.error.close();
             }
-            Msg::ConfirmScreen(message) => self.confirm_screen_update(message)?,
+            Msg::ConfirmScreen(message) => {
+                if let Err(err) = self.confirm_screen_update(message) {
+                    error = Some(err.into());
+                }
+            }
             Msg::MediaLoaded(res) => {
-                self.media = res.map_err(Error::critical)?;
+                self.media = res.value;
+                error = res.error.map(Into::into);
                 self.loading.complete(LoadingKind::ReadMedia);
             }
             Msg::Loading => {}
         }
-        Ok(Task::none())
+
+        MaybeError {
+            value: Task::none(),
+            error,
+        }
     }
 
     fn new2() -> Result<(Self, Task<Msg>), Error> {
@@ -179,21 +198,22 @@ impl OpenMediaTracker {
     }
 
     pub fn update(&mut self, message: Msg) -> Task<Msg> {
-        self.update2(message).unwrap_or_else(|error| {
+        let res = self.update2(message);
+        if let Some(error) = res.error {
             self.error_dialog(error);
-            Task::none()
-        })
+        }
+        res.value
     }
 
     pub fn view(&self) -> Element<Msg> {
         let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
 
-        if let Some(dialog) = dialog {
-            return stack![dialog, self.screen.view(&self.media)].into();
-        }
-
         if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
+        }
+
+        if let Some(dialog) = dialog {
+            return stack![self.screen.view(&self.media), dialog].into();
         }
 
         self.screen.view(&self.media)

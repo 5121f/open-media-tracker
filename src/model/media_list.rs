@@ -16,7 +16,7 @@ use crate::{
     read_dir,
 };
 
-use super::Config;
+use super::{Config, MaybeError};
 
 #[derive(Deref, DerefMut, Debug, Clone, From, Default)]
 pub struct MediaList(Vec<MediaHandler>);
@@ -33,14 +33,23 @@ impl MediaList {
         Ok(())
     }
 
-    pub async fn read(config: Arc<Config>) -> Result<Self> {
-        let dir_content = read_dir(&config.data_dir)?;
+    pub async fn read(config: Arc<Config>) -> MaybeError<Self, ErrorKind> {
+        let dir_content = match read_dir(&config.data_dir) {
+            Ok(dir_content) => dir_content,
+            Err(err) => return MaybeError::error(err),
+        };
+        let mut error = None;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            let media = MediaHandler::read(entry, config.clone()).await?;
-            media_list.push(media);
+            match MediaHandler::read(entry, config.clone()).await {
+                Ok(media) => media_list.push(media),
+                Err(err) => error = Some(err),
+            }
         }
-        Ok(media_list.into())
+        MaybeError {
+            value: media_list.into(),
+            error,
+        }
     }
 
     /// Rename media with check on unique
