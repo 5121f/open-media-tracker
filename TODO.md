@@ -7,4 +7,6 @@
     - by last change
     - by hand?
 - search series
-- drag and Drop for chapter path
+- drag and Drop folder on chapter path
+- migrate to KDL when
+    [will be implemented serde support](https://github.com/kdl-org/kdl-rs/issues/71)
