@@ -10,12 +10,12 @@ mod screens;
 
 use std::sync::Arc;
 
-use iced::{widget::stack, window, Element, Task, Theme};
+use iced::{Element, Task, Theme, widget::stack, window};
 
 use crate::{
     gui::{
-        screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg},
         Dialog, ListMsg, LoadingDialog, Screen,
+        screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg},
     },
     message::Msg,
     model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder},

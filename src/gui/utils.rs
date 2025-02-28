@@ -5,8 +5,8 @@
  */
 
 use iced::{
-    widget::{button, row, text, text_input, Button, Row},
     Alignment, Background, Border, Color, Theme,
+    widget::{Button, Row, button, row, text, text_input},
 };
 
 pub const INDENT: u16 = 5;

@@ -6,12 +6,12 @@
 
 use std::fmt::Display;
 
-use iced::{widget::text, Element};
+use iced::{Element, widget::text};
 use iced_aw::card;
 
 use crate::gui::{
-    dialog::{DialogWithKind, HaveKind},
     Screen,
+    dialog::{DialogWithKind, HaveKind},
 };
 
 #[derive(Debug, Clone)]

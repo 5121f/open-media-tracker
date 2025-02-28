@@ -7,15 +7,15 @@
 use std::fmt::Display;
 
 use iced::{
-    widget::{button, column, container, horizontal_space, row, text, Space},
     Alignment, Element, Length,
+    widget::{Space, button, column, container, horizontal_space, row, text},
 };
 use iced_aw::card;
 
 use crate::gui::{
+    Screen,
     dialog::{DialogWithKind, HaveKind},
     utils::INDENT,
-    Screen,
 };
 
 #[derive(Debug, Clone)]

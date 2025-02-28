@@ -7,8 +7,8 @@
 use std::{num::NonZeroU8, path::PathBuf};
 
 use iced::{
-    widget::{button, column, container, row, text, Column, Stack},
     Alignment, Element, Length,
+    widget::{Column, Stack, button, column, container, row, text},
 };
 
 use super::{
@@ -17,9 +17,9 @@ use super::{
 };
 use crate::{
     gui::{
-        screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg},
-        utils::{link, signed_text_input, square_button, GRAY, INDENT, LONG_INDENT},
         Icon,
+        screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg},
+        utils::{GRAY, INDENT, LONG_INDENT, link, signed_text_input, square_button},
     },
     model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result},
     open,

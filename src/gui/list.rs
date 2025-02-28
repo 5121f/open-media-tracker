@@ -5,8 +5,8 @@
  */
 
 use iced::{
-    widget::{button, column, container, scrollable},
     Background, Border, Color, Element, Length, Theme,
+    widget::{button, column, container, scrollable},
 };
 
 use crate::gui::utils::INDENT;

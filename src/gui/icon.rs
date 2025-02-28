@@ -1,6 +1,6 @@
 use iced::{
-    widget::{Button, Text},
     Alignment, Font,
+    widget::{Button, Text},
 };
 
 const ICON_FONT: Font = Font::with_name("open_media_tracker");

@@ -5,15 +5,15 @@
  */
 
 use iced::{
-    widget::{button, container, Column},
     Alignment, Element, Length,
+    widget::{Column, button, container},
 };
 
 use crate::{
     gui::{
+        ListMsg,
         list::list,
         utils::{INDENT, LONG_INDENT},
-        ListMsg,
     },
     model::MediaHandler,
 };

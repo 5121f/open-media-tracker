@@ -13,7 +13,7 @@ use std::{
 use derive_more::derive::{Deref, DerefMut};
 use fs_err as fs;
 
-use crate::model::{media::Media, Result};
+use crate::model::{Result, media::Media};
 
 use super::Config;
 
@@ -91,7 +91,7 @@ impl MediaHandler {
     }
 
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
-        self.media.next_chapter_path().map_err(Into::into)
+        self.media.next_chapter_path()
     }
 
     fn file_name(&self) -> String {

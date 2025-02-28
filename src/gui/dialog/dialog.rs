@@ -6,7 +6,7 @@
 
 use std::ops::{Deref, DerefMut};
 
-use crate::gui::{dialog::HaveKind, Screen};
+use crate::gui::{Screen, dialog::HaveKind};
 
 use iced::Element;
 

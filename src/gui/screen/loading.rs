@@ -5,8 +5,8 @@
  */
 
 use iced::{
-    widget::{center, text},
     Element, Length,
+    widget::{center, text},
 };
 
 use crate::{

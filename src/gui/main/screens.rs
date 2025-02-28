@@ -8,7 +8,7 @@ use derive_more::derive::From;
 use iced::Element;
 
 use crate::{
-    gui::screen::{main_screen_view, MediaEditScrn},
+    gui::screen::{MediaEditScrn, main_screen_view},
     message::Msg,
     model::{MediaHandler, MediaList},
 };

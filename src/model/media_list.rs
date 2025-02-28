@@ -10,8 +10,8 @@ use derive_more::derive::{Deref, DerefMut, From};
 
 use crate::{
     model::{
-        error::{ErrorKind, Result},
         MediaHandler,
+        error::{ErrorKind, Result},
     },
     read_dir,
 };

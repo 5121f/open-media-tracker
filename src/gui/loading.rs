@@ -7,7 +7,7 @@
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    gui::{screen::LoadingScrn, Dialog},
+    gui::{Dialog, screen::LoadingScrn},
     model::LoadingKind,
 };
 

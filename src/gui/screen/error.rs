@@ -5,13 +5,13 @@
  */
 
 use iced::{
-    widget::{button, column, container, horizontal_space, row, text, Space},
     Alignment, Element, Length,
+    widget::{Space, button, column, container, horizontal_space, row, text},
 };
 use iced_aw::card;
 
 use crate::{
-    gui::{utils::INDENT, Screen},
+    gui::{Screen, utils::INDENT},
     model::Error,
 };
 
