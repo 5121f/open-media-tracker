@@ -10,10 +10,10 @@ use fs_err as fs;
 
 use crate::model::Result;
 
-pub fn read_dir_with_filter(
-    path: impl AsRef<Path>,
-    filter: fn(&Path) -> bool,
-) -> Result<Vec<PathBuf>> {
+pub fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>>
+where
+    P: AsRef<Path>,
+{
     let path = path.as_ref();
 
     let read_dir = fs::read_dir(path)?;
