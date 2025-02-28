@@ -6,6 +6,7 @@
 
 use std::path::PathBuf;
 
+use etcetera::BaseStrategy;
 use fs_err as fs;
 
 use crate::model::error::{ErrorKind, Result};
@@ -21,9 +22,10 @@ pub struct Config {
 
 impl Config {
     pub fn read() -> Result<Self> {
-        let data_dir = dirs::data_dir()
-            .ok_or(ErrorKind::UserDataDirNotFound)?
-            .join(DATA_DIR_NAME);
+        let user_dirs =
+            etcetera::choose_base_strategy().map_err(|_| ErrorKind::UserDataDirNotFound)?;
+        let user_data_dir = user_dirs.data_dir();
+        let data_dir = user_data_dir.join(DATA_DIR_NAME);
         if !data_dir.exists() {
             fs::create_dir(&data_dir)?;
         }
@@ -38,8 +40,8 @@ impl Config {
 impl Placeholder for Config {
     fn placeholder() -> Self {
         Self {
-            data_dir: dirs::data_dir()
-                .map(|d| d.join(DATA_DIR_NAME))
+            data_dir: etcetera::choose_base_strategy()
+                .map(|d| d.data_dir().join(DATA_DIR_NAME))
                 .unwrap_or_default(),
         }
     }
