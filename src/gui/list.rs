@@ -68,7 +68,7 @@ fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
             text_color: Color::WHITE,
             ..Default::default()
         },
-        _ => Default::default(),
+        button::Status::Disabled => button::Style::default(),
     }
 }
 

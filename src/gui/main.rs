@@ -56,10 +56,6 @@ impl OpenMediaTracker {
         self.confirm = ConfirmDlg::from_kind(kind);
     }
 
-    fn close_app(&self) -> Task<Msg> {
-        window::get_latest().and_then(window::close)
-    }
-
     fn sub_title(&self) -> Option<String> {
         self.error
             .title()
@@ -75,11 +71,11 @@ impl OpenMediaTracker {
         Task::perform(read_media_future, Msg::MediaLoaded)
     }
 
-    fn confirm_screen_update(&mut self, message: ConfirmScrnMsg) -> Result<(), ErrorKind> {
+    fn confirm_screen_update(&mut self, message: &ConfirmScrnMsg) -> Result<(), ErrorKind> {
         match message {
             ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm.kind() {
-                    self.confirm_kind_update(kind.clone())?;
+                    self.confirm_kind_update(&kind.clone())?;
                 }
             }
             ConfirmScrnMsg::Cancel => self.confirm.close(),
@@ -87,10 +83,10 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn confirm_kind_update(&mut self, kind: ConfirmKind) -> Result<(), ErrorKind> {
+    fn confirm_kind_update(&mut self, kind: &ConfirmKind) -> Result<(), ErrorKind> {
         match kind {
             ConfirmKind::DeleteMedia { id, .. } => {
-                self.media.remove(id)?;
+                self.media.remove(*id)?;
                 self.confirm.close();
                 self.main_screen();
             }
@@ -116,7 +112,7 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<(), ErrorKind> {
+    fn main_screen_update(&mut self, message: &MainScrnMsg) -> Result<(), ErrorKind> {
         match message {
             MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
@@ -124,7 +120,7 @@ impl OpenMediaTracker {
                 let new_media_index = self.media.insert(media);
                 self.change_media_screen(new_media_index);
             }
-            MainScrnMsg::MenuButton(ListMsg::Enter(id)) => self.change_media_screen(id),
+            MainScrnMsg::MenuButton(ListMsg::Enter(id)) => self.change_media_screen(*id),
         }
         Ok(())
     }
@@ -134,7 +130,7 @@ impl OpenMediaTracker {
 
         match message {
             Msg::MainScreen(message) => {
-                if let Err(err) = self.main_screen_update(message) {
+                if let Err(err) = self.main_screen_update(&message) {
                     error = Some(err.into());
                 }
             }
@@ -145,19 +141,19 @@ impl OpenMediaTracker {
             }
             Msg::ErrorScreen(ErrorScrnMsg::Ok { critical }) => {
                 if critical {
-                    return MaybeError::success(self.close_app());
+                    return MaybeError::success(close_app());
                 }
                 self.error.close();
             }
             Msg::ConfirmScreen(message) => {
-                if let Err(err) = self.confirm_screen_update(message) {
+                if let Err(err) = self.confirm_screen_update(&message) {
                     error = Some(err.into());
                 }
             }
             Msg::MediaLoaded(res) => {
                 self.media = res.value;
                 error = res.error.map(Into::into);
-                self.loading.complete(LoadingKind::ReadMedia);
+                self.loading.complete(&LoadingKind::ReadMedia);
             }
             Msg::Loading => {}
         }
@@ -192,9 +188,10 @@ impl OpenMediaTracker {
     }
 
     pub fn title(&self) -> String {
-        self.sub_title()
-            .map(|sub_title| format!("{PROGRAM_NAME} - {sub_title}"))
-            .unwrap_or_else(|| String::from(PROGRAM_NAME))
+        self.sub_title().map_or_else(
+            || String::from(PROGRAM_NAME),
+            |sub_title| format!("{PROGRAM_NAME} - {sub_title}"),
+        )
     }
 
     pub fn update(&mut self, message: Msg) -> Task<Msg> {
@@ -219,7 +216,7 @@ impl OpenMediaTracker {
         self.screen.view(&self.media)
     }
 
-    pub const fn theme(&self) -> Theme {
+    pub const fn theme(_: &Self) -> Theme {
         Theme::Dark
     }
 }
@@ -235,4 +232,8 @@ impl Placeholder for OpenMediaTracker {
             config: Config::placeholder().into(),
         }
     }
+}
+
+fn close_app() -> Task<Msg> {
+    window::get_latest().and_then(window::close)
 }

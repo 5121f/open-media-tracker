@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 use crate::{
     gui::{Dialog, screen::LoadingScrn},
@@ -26,8 +26,8 @@ where
         dialog.add(kind);
     }
 
-    pub fn complete(&mut self, kind: K) {
-        let Some(screen) = self.0.deref_mut() else {
+    pub fn complete(&mut self, kind: &K) {
+        let Some(screen) = &mut *self.0 else {
             return;
         };
         screen.complete(kind);
@@ -53,6 +53,6 @@ where
     K: LoadingKind,
 {
     fn default() -> Self {
-        Self(Default::default())
+        Self(Dialog::default())
     }
 }

@@ -35,7 +35,7 @@ impl Media {
             name: name.into(),
             chapter: one,
             episode: one,
-            chapter_path: Default::default(),
+            chapter_path: PathBuf::default(),
         }
     }
 
@@ -64,11 +64,11 @@ impl Media {
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
         let chapter_dir_name = self.chapter_path.file_name().unwrap_or_default();
         let parent = self.chapter_path.parent().unwrap_or_else(|| Path::new("/"));
-        let mut paths = read_dir::read_dir_with_filter(parent, |path| path.is_dir())?;
+        let mut paths = read_dir::read_dir_with_filter(parent, Path::is_dir)?;
         paths.sort();
         let (current_dir_index, _) = paths
             .iter()
-            .flat_map(|path| path.file_name())
+            .filter_map(|path| path.file_name())
             .enumerate()
             .find(|(_, file_name)| *file_name == chapter_dir_name)
             .ok_or(ErrorKind::FindNextChapterPath)?;

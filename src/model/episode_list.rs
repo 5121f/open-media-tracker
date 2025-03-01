@@ -25,7 +25,7 @@ impl EpisodeList {
         let episode_paths = read_dir(media_path)?;
         let mut episodes: Vec<_> = episode_paths
             .into_iter()
-            .flat_map(|path| Episode::new(path).ok())
+            .filter_map(|path| Episode::new(path).ok())
             .collect();
         if episodes.is_empty() {
             return Err(ErrorKind::EpisodeNotFound);

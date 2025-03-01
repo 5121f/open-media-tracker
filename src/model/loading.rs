@@ -26,8 +26,8 @@ where
         self.kinds.insert(kind);
     }
 
-    pub fn complete(&mut self, kind: T) {
-        self.kinds.remove(&kind);
+    pub fn complete(&mut self, kind: &T) {
+        self.kinds.remove(kind);
     }
 
     pub fn completed(&self) -> bool {

@@ -123,7 +123,7 @@ impl MediaEditScrn {
         match message {
             Msg::Back | Msg::Delete(_) | Msg::Watch { .. } => {}
             Msg::NameChanged(value) => {
-                self.buffer_name = value.clone();
+                self.buffer_name.clone_from(&value);
                 let rename_res = media_list.rename_media(self.editable_media_id, value);
                 match rename_res {
                     Ok(()) => {}
@@ -178,9 +178,9 @@ impl MediaEditScrn {
                 }
             }
             Msg::ChapterPathChanged(value) => {
-                self.set_chapter_path(media_list, PathBuf::from(value))?
+                self.set_chapter_path(media_list, PathBuf::from(value))?;
             }
-            Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, message)?,
+            Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, &message)?,
             Msg::ChapterPathSelect => {
                 if let Some(folder) = rfd::FileDialog::new().pick_folder() {
                     self.set_chapter_path(media_list, folder)?;
@@ -220,12 +220,12 @@ impl MediaEditScrn {
     fn confirm_screen_update(
         &mut self,
         media: &mut [MediaHandler],
-        message: ConfirmScrnMsg,
+        message: &ConfirmScrnMsg,
     ) -> Result<()> {
         match message {
             ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm.kind() {
-                    self.confirm_kind_update(media, kind.clone())?
+                    self.confirm_kind_update(media, kind.clone())?;
                 }
             }
             ConfirmScrnMsg::Cancel => self.confirm.close(),

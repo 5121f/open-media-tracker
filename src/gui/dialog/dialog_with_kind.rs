@@ -38,7 +38,7 @@ where
     S: Screen + HaveKind,
 {
     fn default() -> Self {
-        Self(Default::default())
+        Self(Dialog::default())
     }
 }
 
