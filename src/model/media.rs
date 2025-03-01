@@ -62,15 +62,8 @@ impl Media {
     }
 
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
-        let chapter_dir_name = self
-            .chapter_path
-            .file_name()
-            .ok_or(ErrorKind::FindNextChapterPath)?;
-        let parent = self
-            .chapter_path
-            .parent()
-            .ok_or_else(|| ErrorKind::find_parent_dir(&self.chapter_path))?
-            .to_owned();
+        let chapter_dir_name = self.chapter_path.file_name().unwrap_or_default();
+        let parent = self.chapter_path.parent().unwrap_or_else(|| Path::new("/"));
         let mut paths = read_dir::read_dir_with_filter(parent, |path| path.is_dir())?;
         paths.sort();
         let (current_dir_index, _) = paths
@@ -83,7 +76,7 @@ impl Media {
         if next_chapter_index >= paths.len() {
             return Err(ErrorKind::FindNextChapterPath);
         }
-        let next_dir = paths[next_chapter_index].to_path_buf();
+        let next_dir = paths.into_iter().take(next_chapter_index + 1).collect();
         Ok(next_dir)
     }
 
