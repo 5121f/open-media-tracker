@@ -12,7 +12,7 @@ use iced::{
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;
 pub const GRAY: Color = Color::from_rgb(0.6, 0.6, 0.6);
-pub const CYAN: Color = Color::from_rgb(0., 1., 1.);
+pub const CYAN: Color = Color::from_rgb(0.0, 1.0, 1.0);
 
 pub fn square_button<'a, M>(content: impl text::IntoFragment<'a>) -> Button<'a, M> {
     button(

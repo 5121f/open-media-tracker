@@ -58,7 +58,7 @@ impl<T: Display> Screen for ConfirmScrn<T> {
                 ]
                 .spacing(INDENT)
             )
-            .close_size(25.)
+            .close_size(25.0)
             .width(Length::FillPortion(15))
             .on_close(Msg::Cancel),
             Space::with_width(Length::FillPortion(1))
