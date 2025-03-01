@@ -20,7 +20,8 @@ pub enum ConfirmKind {
 }
 
 impl ConfirmKind {
-    pub const fn switch_to_next_chapter(path: PathBuf) -> Self {
+    pub fn switch_to_next_chapter(path: impl Into<PathBuf>) -> Self {
+        let path = path.into();
         Self::SwitchToNextChapter { path }
     }
 

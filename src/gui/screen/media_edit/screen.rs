@@ -272,7 +272,7 @@ impl MediaEditScrn {
     fn set_chapter_path(
         &mut self,
         media: &mut [MediaHandler],
-        chapter_path: PathBuf,
+        chapter_path: impl Into<PathBuf>,
     ) -> Result<()> {
         self.editable_media_mut(media)
             .set_chapter_path(chapter_path)?;
@@ -356,7 +356,7 @@ impl MediaEditScrn {
         self.confirm = ConfirmDlg::from_kind(kind);
     }
 
-    fn confirm_switch_to_next_chapter(&mut self, next_chapter_path: PathBuf) {
+    fn confirm_switch_to_next_chapter(&mut self, next_chapter_path: impl Into<PathBuf>) {
         let kind = ConfirmKind::switch_to_next_chapter(next_chapter_path);
         self.confirm(kind);
     }

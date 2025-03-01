@@ -5,6 +5,7 @@
  */
 
 use std::{
+    fmt::Display,
     num::NonZeroU8,
     path::{Path, PathBuf},
     sync::Arc,
@@ -28,7 +29,7 @@ pub struct MediaHandler {
 }
 
 impl MediaHandler {
-    pub fn new(media_name: String, config: Arc<Config>) -> Result<Self> {
+    pub fn new(media_name: impl Into<String>, config: Arc<Config>) -> Result<Self> {
         let media = Media::new(media_name);
         let handler = Self { media, config };
         handler.save()?;
@@ -45,7 +46,8 @@ impl MediaHandler {
         Ok(())
     }
 
-    pub async fn read(path: PathBuf, config: Arc<Config>) -> Result<Self> {
+    pub async fn read(path: impl AsRef<Path>, config: Arc<Config>) -> Result<Self> {
+        let path = path.as_ref();
         let media = Self {
             media: Media::read(path).await?,
             config,
@@ -53,7 +55,8 @@ impl MediaHandler {
         Ok(media)
     }
 
-    pub fn rename(&mut self, new_name: String) -> Result<()> {
+    pub fn rename(&mut self, new_name: impl Into<String>) -> Result<()> {
+        let new_name = new_name.into();
         if self.media.name == new_name {
             return Ok(());
         }
@@ -108,17 +111,17 @@ impl MediaHandler {
         self.save()
     }
 
-    pub fn set_chapter_path(&mut self, value: PathBuf) -> Result<()> {
-        self.media.chapter_path = value;
+    pub fn set_chapter_path(&mut self, value: impl Into<PathBuf>) -> Result<()> {
+        self.media.chapter_path = value.into();
         self.save()
     }
 
     fn path(&self) -> PathBuf {
-        self.config.path_to_media(&self.file_name())
+        self.config.path_to_media(self.file_name())
     }
 }
 
-pub fn file_name(name: &str) -> String {
+pub fn file_name(name: impl Display) -> String {
     format!("{name}.ron")
 }
 

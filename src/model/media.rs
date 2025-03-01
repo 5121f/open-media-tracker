@@ -29,20 +29,20 @@ pub struct Media {
 }
 
 impl Media {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: impl Into<String>) -> Self {
         let one = NonZeroU8::MIN;
         Self {
-            name,
+            name: name.into(),
             chapter: one,
             episode: one,
             chapter_path: Default::default(),
         }
     }
 
-    pub async fn read(path: PathBuf) -> Result<Self> {
+    pub async fn read(path: &Path) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path).await?;
-        let media =
-            ron::from_str(&file_content).map_err(|source| ErrorKind::deserialize(path, source))?;
+        let media = ron::from_str(&file_content)
+            .map_err(|source| ErrorKind::deserialize(path.to_owned(), source))?;
         Ok(media)
     }
 

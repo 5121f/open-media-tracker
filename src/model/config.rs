@@ -4,7 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use etcetera::{BaseStrategy, HomeDirError};
 use fs_err as fs;
@@ -31,7 +34,7 @@ impl Config {
         Ok(Self { data_dir })
     }
 
-    pub fn path_to_media(&self, file_name: &str) -> PathBuf {
+    pub fn path_to_media(&self, file_name: impl AsRef<Path>) -> PathBuf {
         self.data_dir.join(file_name)
     }
 }

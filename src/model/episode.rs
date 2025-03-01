@@ -14,10 +14,13 @@ pub struct Episode {
 }
 
 impl Episode {
-    pub fn new(path: PathBuf) -> Result<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> Result<Self> {
+        let path = path.into();
+
         if !is_media_file(&path) {
             return Err(Error::MustBeAMediaFile);
         }
+
         Ok(Self { path })
     }
 

@@ -53,9 +53,10 @@ impl MediaList {
     }
 
     /// Rename media with check on unique
-    pub fn rename_media(&mut self, media_id: usize, new_name: String) -> Result<()> {
+    pub fn rename_media(&mut self, media_id: usize, new_name: impl Into<String>) -> Result<()> {
+        let new_name = new_name.into();
         if self.name_is_used(&new_name) {
-            return Err(ErrorKind::media_name_is_used(&new_name));
+            return Err(ErrorKind::media_name_is_used(new_name));
         }
         self.0[media_id].rename(new_name)?;
         Ok(())
@@ -68,7 +69,8 @@ impl MediaList {
         index
     }
 
-    fn name_is_used(&self, name: &str) -> bool {
+    fn name_is_used(&self, name: impl AsRef<str>) -> bool {
+        let name = name.as_ref();
         self.0.iter().any(|s| s.name == name)
     }
 }
