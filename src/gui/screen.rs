@@ -27,7 +27,10 @@ pub trait Screen {
 
     fn view(&self) -> Element<Self::Message>;
 
-    fn view_map<'a, B: 'a>(&'a self, f: impl Fn(Self::Message) -> B + 'a) -> Element<'a, B> {
+    fn view_map<'a, B: 'a, F>(&'a self, f: F) -> Element<'a, B>
+    where
+        F: Fn(Self::Message) -> B + 'a,
+    {
         self.view().map(f)
     }
 
