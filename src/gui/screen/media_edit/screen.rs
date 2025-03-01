@@ -298,10 +298,8 @@ impl MediaEditScrn {
     }
 
     fn is_episode_overflow(&self, value: NonZeroU8) -> bool {
-        let Some(episodes_count) = self.episodes_count() else {
-            return false;
-        };
-        episodes_count < value.get() as usize
+        self.episodes_count()
+            .is_some_and(|ec| ec < value.get() as usize)
     }
 
     fn set_episode(&mut self, media_list: &mut [MediaHandler], value: NonZeroU8) -> Result<()> {
