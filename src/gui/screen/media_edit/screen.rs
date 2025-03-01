@@ -304,15 +304,14 @@ impl MediaEditScrn {
 
     fn set_episode(&mut self, media_list: &mut [MediaHandler], value: NonZeroU8) -> Result<()> {
         self.episode = value.get();
-        {
-            let media = self.editable_media_mut(media_list);
-            if !media.chapter_path_is_present() || value <= media.episode() {
-                media.set_episode(value)?;
-                return Ok(());
-            }
+
+        let media = self.editable_media_mut(media_list);
+        if !media.chapter_path_is_present() || value <= media.episode() {
+            media.set_episode(value)?;
+            return Ok(());
         }
+
         if self.is_episode_overflow(value) {
-            let media = self.editable_media(media_list);
             self.episodes = media.episode_list();
             if self.is_episode_overflow(value) {
                 let Some(episodes_count) = self.episodes_count() else {
@@ -322,6 +321,7 @@ impl MediaEditScrn {
                 return Ok(());
             }
         }
+
         let media = self.editable_media_mut(media_list);
         media.set_episode(value)?;
         Ok(())
