@@ -5,7 +5,6 @@
  */
 
 #![windows_subsystem = "windows"] // Do not open console window on startup on Windows
-#![allow(clippy::module_inception)]
 #![warn(clippy::nursery)]
 
 mod gui;

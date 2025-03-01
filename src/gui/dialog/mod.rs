@@ -4,10 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod dialog;
 mod dialog_with_kind;
 mod have_kind;
+mod traits;
 
-pub use dialog::Dialog;
 pub use dialog_with_kind::DialogWithKind;
 pub use have_kind::HaveKind;
+pub use traits::Dialog;
