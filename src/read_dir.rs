@@ -12,10 +12,8 @@ use crate::model::Result;
 
 pub fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>>
 where
-    P: AsRef<Path>,
+    P: Into<PathBuf>,
 {
-    let path = path.as_ref();
-
     let read_dir = fs::read_dir(path)?;
     let mut paths = Vec::new();
     for entry in read_dir {
@@ -28,6 +26,6 @@ where
     Ok(paths)
 }
 
-pub fn read_dir(path: impl AsRef<Path>) -> Result<Vec<PathBuf>> {
+pub fn read_dir(path: impl Into<PathBuf>) -> Result<Vec<PathBuf>> {
     read_dir_with_filter(path, |_| true)
 }
