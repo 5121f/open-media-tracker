@@ -86,7 +86,7 @@ impl Media {
 
     fn ser_to_ron(&self) -> Result<String> {
         ron::ser::to_string_pretty(&self, PrettyConfig::new())
-            .map_err(|source| ErrorKind::serialize(&self.name, source))
+            .map_err(|source| ErrorKind::serialize(source, &self.name))
     }
 
     pub fn set_chapter_to_one(&mut self) {
