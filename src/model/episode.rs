@@ -14,11 +14,11 @@ pub struct Episode {
 }
 
 impl Episode {
-    pub fn new(path: impl Into<PathBuf>) -> Result<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> Result<Self, NotAMediaFileError> {
         let path = path.into();
 
         if !is_media_file(&path) {
-            return Err(Error::MustBeAMediaFile);
+            return Err(NotAMediaFileError);
         }
 
         Ok(Self { path })
@@ -47,9 +47,5 @@ fn is_media_file(path: impl AsRef<Path>) -> bool {
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
-pub enum Error {
-    #[error("Episode must be media file")]
-    MustBeAMediaFile,
-}
-
-type Result<T> = std::result::Result<T, Error>;
+#[error("Episode must be media file")]
+pub struct NotAMediaFileError;
