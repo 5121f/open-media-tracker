@@ -69,8 +69,7 @@ impl MediaList {
         index
     }
 
-    fn name_is_used(&self, name: impl AsRef<str>) -> bool {
-        let name = name.as_ref();
+    fn name_is_used(&self, name: &str) -> bool {
         self.0.iter().any(|s| s.name == name)
     }
 }
