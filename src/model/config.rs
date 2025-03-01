@@ -4,12 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
-use etcetera::BaseStrategy;
+use etcetera::{BaseStrategy, HomeDirError};
 use fs_err as fs;
 
-use crate::model::error::{ErrorKind, Result};
+use crate::model::error::Result;
 
 use super::Placeholder;
 
@@ -22,8 +22,7 @@ pub struct Config {
 
 impl Config {
     pub fn read() -> Result<Self> {
-        let user_dirs =
-            etcetera::choose_base_strategy().map_err(|_| ErrorKind::UserDataDirNotFound)?;
+        let user_dirs = etcetera::choose_base_strategy().map_err(UserDataDirNotFoundError::new)?;
         let user_data_dir = user_dirs.data_dir();
         let data_dir = user_data_dir.join(DATA_DIR_NAME);
         if !data_dir.exists() {
@@ -44,5 +43,18 @@ impl Placeholder for Config {
                 .map(|d| d.data_dir().join(DATA_DIR_NAME))
                 .unwrap_or_default(),
         }
+    }
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+#[error("Failed to found user's data directory: {source}")]
+pub struct UserDataDirNotFoundError {
+    source: Arc<HomeDirError>,
+}
+
+impl UserDataDirNotFoundError {
+    fn new(source: HomeDirError) -> Self {
+        let source = source.into();
+        Self { source }
     }
 }

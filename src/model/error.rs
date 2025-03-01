@@ -11,6 +11,8 @@ use ron::de::SpannedError;
 
 use crate::open::OpenError;
 
+use super::config::UserDataDirNotFoundError;
+
 #[derive(Display)]
 #[display("{}", self.kind)]
 pub struct Error {
@@ -38,8 +40,6 @@ impl From<ErrorKind> for Error {
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
-    #[error("Failed to found user's data directory")]
-    UserDataDirNotFound,
     #[error("{name}: Serialize error: {source}")]
     Serialize { name: String, source: ron::Error },
     #[error("{path}: file parsing error: {source}")]
@@ -54,6 +54,8 @@ pub enum ErrorKind {
     Open(#[from] OpenError),
     #[error(transparent)]
     Io(#[from] Arc<io::Error>),
+    #[error(transparent)]
+    UserDataDirNotFound(#[from] UserDataDirNotFoundError),
 }
 
 impl ErrorKind {
