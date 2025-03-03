@@ -27,11 +27,11 @@ where
     }
 
     pub fn complete(&mut self, kind: &K) {
-        let Some(screen) = &mut *self.0 else {
+        let Some(queue) = &mut *self.0 else {
             return;
         };
-        screen.complete(kind);
-        if screen.completed() {
+        queue.complete(kind);
+        if queue.completed() {
             self.0.close();
         }
     }
