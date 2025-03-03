@@ -30,11 +30,11 @@ pub struct ErrorScrn {
     error: Error,
 }
 
-impl ErrorScrn {
-    pub const fn new(error: Error) -> Self {
-        Self { error }
-    }
-}
+// impl ErrorScrn {
+//     pub const fn new(error: Error) -> Self {
+//         Self { error }
+//     }
+// }
 
 impl Screen for ErrorScrn {
     type Message = Msg;
@@ -72,5 +72,11 @@ impl Screen for ErrorScrn {
 
     fn title(&self) -> String {
         String::from("Error")
+    }
+}
+
+impl From<Error> for ErrorScrn {
+    fn from(value: Error) -> Self {
+        Self { error: value }
     }
 }

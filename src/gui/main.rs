@@ -48,8 +48,7 @@ impl OpenMediaTracker {
     }
 
     fn error_dialog(&mut self, error: Error) {
-        let screen = ErrorScrn::new(error);
-        self.error = Dialog::new(screen);
+        self.error = Dialog::new(error.into());
     }
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
