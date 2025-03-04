@@ -160,10 +160,11 @@ impl MediaEditScrn {
             }
             Msg::ChapterInc => self.increase_chapter(media_list)?,
             Msg::ChapterDec => {
-                let new_value = self.editable_media(media_list).chapter().get() - 1;
+                let media = self.editable_media_mut(media_list);
+                let new_value = media.chapter().get() - 1;
                 self.chapter = new_value;
                 if let Some(number) = NonZeroU8::new(new_value) {
-                    self.editable_media_mut(media_list).set_chapter(number)?;
+                    media.set_chapter(number)?;
                 }
             }
             Msg::EpisodeInc => self.increase_episode(media_list)?,
@@ -172,7 +173,7 @@ impl MediaEditScrn {
                 let new_value = media.episode().get() - 1;
                 self.episode = new_value;
                 if let Some(number) = NonZeroU8::new(new_value) {
-                    self.editable_media_mut(media_list).set_episode(number)?;
+                    media.set_episode(number)?;
                 }
             }
             Msg::ChapterPathChanged(value) => {
@@ -245,11 +246,11 @@ impl MediaEditScrn {
         }
     }
 
-    const fn editable_media<'a>(&'a self, media: &'a [MediaHandler]) -> &'a MediaHandler {
+    const fn editable_media<'a>(&self, media: &'a [MediaHandler]) -> &'a MediaHandler {
         &media[self.editable_media_id]
     }
 
-    fn editable_media_mut<'a>(&'a self, media: &'a mut [MediaHandler]) -> &'a mut MediaHandler {
+    fn editable_media_mut<'a>(&self, media: &'a mut [MediaHandler]) -> &'a mut MediaHandler {
         &mut media[self.editable_media_id]
     }
 
@@ -321,7 +322,6 @@ impl MediaEditScrn {
             }
         }
 
-        let media = self.editable_media_mut(media_list);
         media.set_episode(value)?;
         Ok(())
     }
@@ -338,10 +338,10 @@ impl MediaEditScrn {
         }
 
         self.episode = 1;
-        self.editable_media_mut(media_list).set_episode_to_one();
-        let next_chapter = self.editable_media(media_list).chapter().saturating_add(1);
-        self.chapter = next_chapter.get();
         let media = self.editable_media_mut(media_list);
+        media.set_episode_to_one();
+        let next_chapter = media.chapter().saturating_add(1);
+        self.chapter = next_chapter.get();
         media.set_chapter(next_chapter)?;
         if !media.chapter_path_is_present() {
             return Ok(());
