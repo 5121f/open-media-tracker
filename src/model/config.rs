@@ -4,17 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use etcetera::{BaseStrategy, HomeDirError};
 use fs_err as fs;
 
-use crate::model::error::Result;
-
 use super::Placeholder;
+use crate::model::error::Result;
 
 const DATA_DIR_NAME: &str = "open_media_tracker";
 

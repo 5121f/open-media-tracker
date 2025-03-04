@@ -6,9 +6,8 @@
 
 use std::ops::{Deref, DerefMut};
 
-use crate::gui::Screen;
-
-use super::{Dialog, HaveKind};
+use crate::gui::dialog::HaveKind;
+use crate::gui::{Dialog, Screen};
 
 pub struct DialogWithKind<S>(Dialog<S>)
 where

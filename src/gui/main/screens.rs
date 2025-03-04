@@ -7,11 +7,9 @@
 use derive_more::derive::From;
 use iced::Element;
 
-use crate::{
-    gui::screen::{MediaEditScrn, main_screen_view},
-    message::Msg,
-    model::{MediaHandler, MediaList},
-};
+use crate::gui::screen::{MediaEditScrn, main_screen_view};
+use crate::message::Msg;
+use crate::model::{MediaHandler, MediaList};
 
 #[derive(Default, From)]
 pub enum Screens {

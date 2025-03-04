@@ -4,14 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{io, path::PathBuf, sync::Arc};
+use std::io;
+use std::path::PathBuf;
+use std::sync::Arc;
 
 use derive_more::Display;
 use ron::de::SpannedError;
 
-use crate::open::OpenError;
-
 use super::config::UserDataDirNotFoundError;
+use crate::open::OpenError;
 
 #[derive(Display)]
 #[display("{}", self.kind)]

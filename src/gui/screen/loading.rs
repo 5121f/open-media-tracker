@@ -4,15 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-    Element, Length,
-    widget::{center, text},
-};
+use iced::widget::{center, text};
+use iced::{Element, Length};
 
-use crate::{
-    gui::Screen,
-    model::{LoadingKind, LoadingQueue},
-};
+use crate::gui::Screen;
+use crate::model::{LoadingKind, LoadingQueue};
 
 pub struct Msg;
 

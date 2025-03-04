@@ -9,14 +9,10 @@ use iced::{
     widget::{Column, button, container},
 };
 
-use crate::{
-    gui::{
-        ListMsg,
-        list::list,
-        utils::{INDENT, LONG_INDENT},
-    },
-    model::MediaHandler,
-};
+use crate::gui::ListMsg;
+use crate::gui::list;
+use crate::gui::utils::{INDENT, LONG_INDENT};
+use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
 pub enum Msg {

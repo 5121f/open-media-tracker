@@ -4,10 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-    Alignment, Background, Border, Color, Theme,
-    widget::{Button, Row, button, row, text, text_input},
-};
+use iced::widget::{Button, Row, button, row, text, text_input};
+use iced::{Alignment, Background, Border, Color, Theme};
 
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;

@@ -4,10 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-    Background, Border, Color, Element, Length, Theme,
-    widget::{button, column, container, scrollable},
-};
+use iced::widget::{button, column, container, scrollable};
+use iced::{Background, Border, Color, Element, Length, Theme};
 
 use crate::gui::utils::INDENT;
 

@@ -12,20 +12,14 @@ use std::sync::Arc;
 
 use iced::{Element, Task, Theme, widget::stack, window};
 
-use crate::{
-    gui::{
-        Dialog, ListMsg, LoadingDialog, Screen,
-        screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg},
-    },
-    message::Msg,
-    model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder},
-};
-
+use crate::gui::screen::ConfirmDlg;
+use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
+use crate::gui::{Dialog, ListMsg, LoadingDialog, Screen};
+use crate::message::Msg;
+use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
 use confirm_kind::ConfirmKind;
 use loading_kind::LoadingKind;
 use screens::Screens;
-
-use crate::gui::screen::ConfirmDlg;
 
 const PROGRAM_NAME: &str = "Open Media Tracker";
 

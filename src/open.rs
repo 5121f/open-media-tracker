@@ -4,7 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{ffi::OsStr, path::PathBuf, sync::Arc};
+use std::ffi::OsStr;
+use std::path::PathBuf;
+use std::sync::Arc;
 
 pub fn open(path: impl AsRef<OsStr>) -> Result<(), OpenError> {
     let path = path.as_ref();

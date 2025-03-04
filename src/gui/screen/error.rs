@@ -4,16 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-    Alignment, Element, Length,
-    widget::{Space, button, column, container, horizontal_space, row, text},
-};
+use iced::widget::{Space, button, column, container, horizontal_space, row, text};
+use iced::{Alignment, Element, Length};
 use iced_aw::card;
 
-use crate::{
-    gui::{Screen, utils::INDENT},
-    model::Error,
-};
+use crate::gui::Screen;
+use crate::gui::utils::INDENT;
+use crate::model::Error;
 
 #[derive(Debug, Clone)]
 pub enum Msg {

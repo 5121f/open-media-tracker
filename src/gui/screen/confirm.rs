@@ -6,17 +6,13 @@
 
 use std::fmt::Display;
 
-use iced::{
-    Alignment, Element, Length,
-    widget::{Space, button, column, container, horizontal_space, row, text},
-};
+use iced::widget::{Space, button, column, container, horizontal_space, row, text};
+use iced::{Alignment, Element, Length};
 use iced_aw::card;
 
-use crate::gui::{
-    Screen,
-    dialog::{DialogWithKind, HaveKind},
-    utils::INDENT,
-};
+use crate::gui::Screen;
+use crate::gui::dialog::{DialogWithKind, HaveKind};
+use crate::gui::utils::INDENT;
 
 #[derive(Debug, Clone)]
 pub enum Msg {

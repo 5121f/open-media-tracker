@@ -4,26 +4,19 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{num::NonZeroU8, path::PathBuf};
+use std::num::NonZeroU8;
+use std::path::PathBuf;
 
-use iced::{
-    Alignment, Element, Length,
-    widget::{Column, Stack, button, column, container, row, text},
-};
+use iced::widget::{Column, Stack, button, column, container, row, text};
+use iced::{Alignment, Element, Length};
 
-use super::{
-    kind::{ConfirmKind, WarningKind},
-    message::Msg,
-};
-use crate::{
-    gui::{
-        Icon,
-        screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg},
-        utils::{GRAY, INDENT, LONG_INDENT, link, signed_text_input, square_button},
-    },
-    model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result},
-    open,
-};
+use super::kind::{ConfirmKind, WarningKind};
+use super::message::Msg;
+use crate::gui::Icon;
+use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
+use crate::gui::utils::{GRAY, INDENT, LONG_INDENT, link, signed_text_input, square_button};
+use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
+use crate::open;
 
 pub struct MediaEditScrn {
     confirm: ConfirmDlg<ConfirmKind>,

@@ -6,10 +6,8 @@
 
 use derive_more::derive::From;
 
-use crate::{
-    gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg},
-    model::{ErrorKind, MaybeError, MediaList},
-};
+use crate::gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg};
+use crate::model::{ErrorKind, MaybeError, MediaList};
 
 #[derive(Debug, Clone, From)]
 pub enum Msg {

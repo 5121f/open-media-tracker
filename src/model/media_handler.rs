@@ -4,19 +4,17 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    fmt::Display,
-    num::NonZeroU8,
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::fmt::Display;
+use std::num::NonZeroU8;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use derive_more::derive::{Deref, DerefMut};
 use fs_err as fs;
 
-use crate::model::{Result, media::Media};
-
 use super::Config;
+use crate::model::Result;
+use crate::model::media::Media;
 
 const DEFAULT_MEDIA_NAME: &str = "New media";
 

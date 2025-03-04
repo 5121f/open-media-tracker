@@ -6,10 +6,9 @@
 
 use std::ops::Deref;
 
-use crate::{
-    gui::{Dialog, screen::LoadingScrn},
-    model::LoadingKind,
-};
+use crate::gui::Dialog;
+use crate::gui::screen::LoadingScrn;
+use crate::model::LoadingKind;
 
 pub struct LoadingDialog<K: LoadingKind>(Dialog<LoadingScrn<K>>);
 

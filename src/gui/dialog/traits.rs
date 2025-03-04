@@ -6,9 +6,10 @@
 
 use std::ops::{Deref, DerefMut};
 
-use crate::gui::{Screen, dialog::HaveKind};
-
 use iced::Element;
+
+use crate::gui::Screen;
+use crate::gui::dialog::HaveKind;
 
 pub struct Dialog<T>(Option<T>);
 

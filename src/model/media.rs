@@ -4,10 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{
-    num::NonZeroU8,
-    path::{Path, PathBuf},
-};
+use std::num::NonZeroU8;
+use std::path::{Path, PathBuf};
 
 use fs_err as fs;
 use ron::ser::PrettyConfig;

@@ -6,13 +6,12 @@
 
 use std::fmt::Display;
 
-use iced::{Element, widget::text};
+use iced::Element;
+use iced::widget::text;
 use iced_aw::card;
 
-use crate::gui::{
-    Screen,
-    dialog::{DialogWithKind, HaveKind},
-};
+use crate::gui::Screen;
+use crate::gui::dialog::{DialogWithKind, HaveKind};
 
 #[derive(Debug, Clone)]
 pub enum Message {
