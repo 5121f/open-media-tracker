@@ -121,7 +121,6 @@ impl MediaEditScrn {
 
     pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {
         match message {
-            Msg::Back | Msg::Delete(_) | Msg::Watch { .. } => {}
             Msg::NameChanged(value) => {
                 self.buffer_name.clone_from(&value);
                 let rename_res = media_list.rename_media(self.editable_media_id, value);
@@ -137,24 +136,23 @@ impl MediaEditScrn {
                     self.warning.close();
                 }
             }
+            Msg::ChapterChanged(value) if value.is_empty() => {
+                // TODO: Warning: Chapter can not be zero
+                self.chapter = 0;
+                self.editable_media_mut(media_list).set_chapter_to_one();
+            }
             Msg::ChapterChanged(value) => {
-                if value.is_empty() {
-                    // TODO: Warning: Chapter can not be zero
-                    self.chapter = 0;
-                    self.editable_media_mut(media_list).set_chapter_to_one();
-                    return Ok(());
-                }
                 if let Ok(number) = value.parse::<NonZeroU8>() {
                     self.chapter = number.get();
                     self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
+            Msg::EpisodeChanged(value) if value.is_empty() => {
+                // TODO: Warning: Episode can not be zero
+                self.episode = 0;
+                self.editable_media_mut(media_list).set_episode_to_one();
+            }
             Msg::EpisodeChanged(value) => {
-                if value.is_empty() {
-                    // TODO: Warning: Episode can not be zero
-                    self.episode = 0;
-                    self.editable_media_mut(media_list).set_episode_to_one();
-                }
                 if let Ok(number) = value.parse::<NonZeroU8>() {
                     self.episode = number.get();
                     self.set_episode(media_list, number)?;
@@ -195,6 +193,7 @@ impl MediaEditScrn {
                 }
                 open(chapter_path)?;
             }
+            Msg::Back | Msg::Delete(_) | Msg::Watch { .. } => {}
         }
         Ok(())
     }
