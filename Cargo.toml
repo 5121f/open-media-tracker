@@ -9,19 +9,19 @@ mime_guess = "2.0.5"
 open = "5.3.2"
 ron = "0.8.1"
 serde = { version = "1.0.218", features = ["derive"] }
-thiserror = "2.0.11"
+thiserror = "2.0.12"
 rfd = "0.15.2"
 async-fs = "2.1.2"
 iced_fonts = "0.2.0"
 fs-err = "3.1.0"
-etcetera = "0.9.0"
+etcetera = "0.10.0"
 
 [dependencies.derive_more]
 version = "2.0.1"
 features = ["deref", "deref_mut", "display", "from"]
 
 [dependencies.iced_aw]
-version = "0.12.1"
+version = "0.12.2"
 default-features = false
 features = ["card"]
 
