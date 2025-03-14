@@ -7,14 +7,16 @@
 use std::num::NonZeroU8;
 use std::path::PathBuf;
 
-use iced::widget::{Column, Stack, button, column, container, row, text};
+use iced::widget::{Column, Stack, button as iced_button, column, container, row, text};
 use iced::{Alignment, Element, Length};
 
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
 use crate::gui::Icon;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::{GRAY, INDENT, LONG_INDENT, link, signed_text_input, square_button};
+use crate::gui::utils::{
+    GRAY, INDENT, LONG_INDENT, button_styled, link, signed_text_input, square_button,
+};
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
@@ -52,15 +54,14 @@ impl MediaEditScrn {
             container(link("< Back").on_press(Msg::Back)).width(Length::Fill),
             text(media.name()),
             container(
-                button("Delete")
-                    .style(button::danger)
+                button_styled("Delete", iced_button::danger)
                     .on_press(Msg::Delete(self.editable_media_id))
             )
             .width(Length::Fill)
             .align_x(Alignment::End),
         ];
         let watch = container(
-            button("Watch").style(button::success).on_press_maybe(
+            button_styled("Watch", iced_button::success).on_press_maybe(
                 self.episode(media_list)
                     .ok()
                     .map(Episode::path)

@@ -1,3 +1,4 @@
+use crate::gui::utils::button;
 use iced::widget::{Button, Text};
 use iced::{Alignment, Font};
 
@@ -22,6 +23,6 @@ impl Icon {
     }
 
     pub fn button<'a, Message>(&self) -> Button<'a, Message> {
-        Button::new(self.text().align_x(Alignment::Center)).width(30)
+        button(self.text().align_x(Alignment::Center)).width(30)
     }
 }
