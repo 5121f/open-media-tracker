@@ -1,4 +1,4 @@
-use crate::gui::utils::button;
+use crate::gui::button;
 use iced::widget::{Button, Text};
 use iced::{Alignment, Font};
 

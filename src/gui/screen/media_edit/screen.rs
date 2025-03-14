@@ -13,10 +13,9 @@ use iced::{Alignment, Element, Length};
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
 use crate::gui::Icon;
+use crate::gui::button::{button_styled, link, square_button};
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::{
-    GRAY, INDENT, LONG_INDENT, button_styled, link, signed_text_input, square_button,
-};
+use crate::gui::utils::{GRAY, INDENT, LONG_INDENT, signed_text_input};
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
