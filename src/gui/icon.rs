@@ -1,5 +1,5 @@
 use crate::gui::button;
-use iced::widget::{Button, Text};
+use iced::widget::{Button, Text, container};
 use iced::{Alignment, Font};
 
 const ICON_FONT: Font = Font::with_name("open_media_tracker");
@@ -22,7 +22,7 @@ impl Icon {
         Text::new(self.0).font(ICON_FONT)
     }
 
-    pub fn button<'a, Message>(&self) -> Button<'a, Message> {
-        button(self.text().align_x(Alignment::Center)).width(30)
+    pub fn button<'a, Message: 'a>(&self) -> Button<'a, Message> {
+        button(container(self.text().align_x(Alignment::Center)).padding(0.25)).width(30)
     }
 }
