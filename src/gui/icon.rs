@@ -1,6 +1,7 @@
-use crate::gui::button;
 use iced::widget::{Button, Text, container};
 use iced::{Alignment, Font};
+
+use crate::gui::button;
 
 const ICON_FONT: Font = Font::with_name("open_media_tracker");
 
