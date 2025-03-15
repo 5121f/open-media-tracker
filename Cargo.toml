@@ -8,11 +8,11 @@ iced = "0.13.1"
 mime_guess = "2.0.5"
 open = "5.3.2"
 ron = "0.8.1"
-serde = { version = "1.0.218", features = ["derive"] }
+serde = { version = "1.0.219", features = ["derive"] }
 thiserror = "2.0.12"
-rfd = "0.15.2"
+rfd = "0.15.3"
 async-fs = "2.1.2"
-iced_fonts = "0.2.0"
+iced_fonts = "0.2.1"
 fs-err = "3.1.0"
 etcetera = "0.10.0"
 
