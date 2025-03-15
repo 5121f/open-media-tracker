@@ -8,7 +8,7 @@ use iced::widget::{Column, button as iced_button, container};
 use iced::{Alignment, Element, Length};
 
 use crate::gui::button::button_styled;
-use crate::gui::utils::{INDENT, LONG_INDENT};
+use crate::gui::utils::LONG_INDENT;
 use crate::gui::{ListMsg, list};
 use crate::model::MediaHandler;
 
@@ -29,6 +29,6 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
             list(media.iter().map(MediaHandler::name).collect()).map(|v| v.map(Msg::MenuButton)),
         )
         .spacing(LONG_INDENT)
-        .padding(INDENT)
+        .padding(LONG_INDENT)
         .into()
 }
