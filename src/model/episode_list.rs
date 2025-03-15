@@ -8,13 +8,8 @@ use std::path::Path;
 
 use derive_more::derive::Deref;
 
-use crate::{
-    model::{
-        episode::Episode,
-        error::{ErrorKind, Result},
-    },
-    read_dir,
-};
+use crate::model::{Episode, ErrorKind, Result};
+use crate::read_dir;
 
 #[derive(Deref)]
 pub struct EpisodeList(Vec<Episode>);
