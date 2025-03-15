@@ -4,14 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-    Alignment, Element, Length,
-    widget::{Column, button, container},
-};
+use iced::widget::{Column, button as iced_button, container};
+use iced::{Alignment, Element, Length};
 
-use crate::gui::ListMsg;
-use crate::gui::list;
+use crate::gui::button::button_styled;
 use crate::gui::utils::{INDENT, LONG_INDENT};
+use crate::gui::{ListMsg, list};
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -23,13 +21,9 @@ pub enum Msg {
 pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
     Column::new()
         .push(
-            container(
-                button("Add media")
-                    .style(button::success)
-                    .on_press(Msg::AddMedia),
-            )
-            .width(Length::Fill)
-            .align_x(Alignment::Center),
+            container(button_styled("Add media", iced_button::success).on_press(Msg::AddMedia))
+                .width(Length::Fill)
+                .align_x(Alignment::Center),
         )
         .push_maybe(
             list(media.iter().map(MediaHandler::name).collect()).map(|v| v.map(Msg::MenuButton)),
