@@ -10,7 +10,8 @@ mod screens;
 
 use std::sync::Arc;
 
-use iced::{Element, Task, Theme, widget::stack, window};
+use iced::widget::Stack;
+use iced::{Element, Task, Theme, window};
 
 use crate::gui::screen::ConfirmDlg;
 use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
@@ -196,17 +197,16 @@ impl OpenMediaTracker {
     }
 
     pub fn view(&self) -> Element<Msg> {
-        let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
-
         if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
         }
 
-        if let Some(dialog) = dialog {
-            return stack![self.screen.view(&self.media), dialog].into();
-        }
+        let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
 
-        self.screen.view(&self.media)
+        Stack::new()
+            .push(self.screen.view(&self.media))
+            .push_maybe(dialog)
+            .into()
     }
 
     pub const fn theme(_: &Self) -> Theme {
