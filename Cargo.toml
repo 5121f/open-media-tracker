@@ -7,7 +7,7 @@ edition = "2024"
 iced = "0.13.1"
 mime_guess = "2.0.5"
 open = "5.3.2"
-ron = "0.8.1"
+ron = "0.9.0"
 serde = { version = "1.0.219", features = ["derive"] }
 thiserror = "2.0.12"
 rfd = "0.15.3"
