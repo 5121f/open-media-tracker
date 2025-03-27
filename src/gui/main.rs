@@ -199,13 +199,16 @@ impl OpenMediaTracker {
     pub fn view(&self) -> Element<Msg> {
         // Error -> Loading -> Confirm
 
-        if self.error.is_none() {
-            if let Some(loading_screen) = self.loading.as_ref() {
-                return loading_screen.view_into();
-            }
-        }
-
-        let dialog = self.error.view_into().or_else(|| self.confirm.view_into());
+        let dialog = match (
+            self.error.as_ref(),
+            self.loading.as_ref(),
+            self.confirm.as_ref(),
+        ) {
+            (Some(error_screen), _, _) => Some(error_screen.view_into()),
+            (None, Some(loading_screen), _) => return loading_screen.view_into(),
+            (None, None, Some(confirm_screen)) => Some(confirm_screen.view_into()),
+            (None, None, None) => None,
+        };
 
         Stack::new()
             .push(self.screen.view(&self.media))
