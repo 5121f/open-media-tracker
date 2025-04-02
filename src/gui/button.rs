@@ -27,9 +27,6 @@ pub fn link<'a, M>(s: impl text::IntoFragment<'a>) -> Button<'a, M> {
 fn link_style(theme: &Theme, status: iced_button::Status) -> iced_button::Style {
     let base = iced_button::text(theme, status);
     match status {
-        iced_button::Status::Active
-        | iced_button::Status::Disabled
-        | iced_button::Status::Pressed => base,
         iced_button::Status::Hovered => {
             let palette = theme.extended_palette();
             let background = palette.background.base.color;
@@ -44,6 +41,7 @@ fn link_style(theme: &Theme, status: iced_button::Status) -> iced_button::Style 
                 ..base
             }
         }
+        _ => base,
     }
 }
 
