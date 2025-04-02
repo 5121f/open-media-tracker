@@ -6,11 +6,12 @@
 
 use std::fmt::Display;
 
-use iced::widget::{Space, button, column, container, horizontal_space, row, text};
+use iced::widget::{Space, button as iced_button, column, container, horizontal_space, row, text};
 use iced::{Alignment, Element, Length};
 use iced_aw::card;
 
 use crate::gui::Screen;
+use crate::gui::button::button_styled;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
 use crate::gui::utils::INDENT;
 
@@ -45,11 +46,9 @@ impl<T: Display> Screen for ConfirmScrn<T> {
                 column![
                     text(self.kind.to_string()),
                     row![
-                        button("Cancel").style(button::danger).on_press(Msg::Cancel),
+                        button_styled("Cancel", iced_button::danger).on_press(Msg::Cancel),
                         horizontal_space(),
-                        button("Confirm")
-                            .style(button::success)
-                            .on_press(Msg::Confirm)
+                        button_styled("Confirm", iced_button::success).on_press(Msg::Confirm)
                     ]
                 ]
                 .spacing(INDENT)

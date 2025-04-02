@@ -4,11 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::widget::{Space, button, column, container, horizontal_space, row, text};
+use iced::widget::{Space, button as iced_button, column, container, horizontal_space, row, text};
 use iced::{Alignment, Element, Length};
 use iced_aw::card;
 
 use crate::gui::Screen;
+use crate::gui::button::button_styled;
 use crate::gui::utils::INDENT;
 use crate::model::Error;
 
@@ -38,9 +39,9 @@ impl Screen for ErrorScrn {
 
     fn view(&self) -> Element<Msg> {
         let ok_button_style = if self.error.critical {
-            button::danger
+            iced_button::danger
         } else {
-            button::success
+            iced_button::success
         };
 
         container(row![
@@ -51,9 +52,7 @@ impl Screen for ErrorScrn {
                     text(self.error.to_string()),
                     row![
                         horizontal_space(),
-                        button("Ok")
-                            .style(ok_button_style)
-                            .on_press(Msg::ok(self.error.critical))
+                        button_styled("Ok", ok_button_style).on_press(Msg::ok(self.error.critical))
                     ],
                 ]
                 .spacing(INDENT)
