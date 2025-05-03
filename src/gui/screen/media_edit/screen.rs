@@ -107,7 +107,8 @@ impl MediaEditScrn {
             .push_maybe(warning)
             .push(body)
             .padding(LONG_INDENT)
-            .spacing(LONG_INDENT);
+            .spacing(LONG_INDENT)
+            .height(Length::Fill);
 
         Stack::new().push(layout).push_maybe(confirm_screen).into()
     }
