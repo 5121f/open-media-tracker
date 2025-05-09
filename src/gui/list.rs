@@ -5,7 +5,7 @@
  */
 
 use iced::widget::{button, column, container, scrollable};
-use iced::{Background, Border, Color, Element, Length, Theme};
+use iced::{Background, Border, Color, Element, Length, Theme, color};
 
 use crate::gui::utils::INDENT;
 
@@ -52,7 +52,7 @@ fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
             ..Default::default()
         },
         button::Status::Hovered => {
-            let background_color = Color::from_rgb8(40, 42, 46);
+            let background_color = color!(40, 42, 46);
             let background = Background::Color(background_color);
 
             button::Style {
@@ -80,7 +80,7 @@ fn list_container_style(_theme: &Theme) -> container::Style {
 }
 
 fn background() -> Background {
-    let background_color = Color::from_rgb8(22, 23, 25);
+    let background_color = color!(22, 23, 25);
     Background::Color(background_color)
 }
 

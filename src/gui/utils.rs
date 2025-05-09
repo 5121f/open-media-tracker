@@ -5,12 +5,12 @@
  */
 
 use iced::widget::{Row, row, text, text_input};
-use iced::{Alignment, Color};
+use iced::{Alignment, Color, color};
 
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;
-pub const GRAY: Color = Color::from_rgb(0.6, 0.6, 0.6);
-pub const CYAN: Color = Color::from_rgb(0.0, 1.0, 1.0);
+pub const GRAY: Color = color!(150, 150, 150);
+pub const CYAN: Color = color!(0, 255, 255);
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
 where
