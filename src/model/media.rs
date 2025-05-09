@@ -40,7 +40,7 @@ impl Media {
     pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path).await?;
         let media = ron::from_str(&file_content)
-            .map_err(|source| ErrorKind::deserialize(path.as_ref().to_owned(), source))?;
+            .map_err(|source| ErrorKind::deserialize(path.as_ref(), source))?;
         Ok(media)
     }
 
