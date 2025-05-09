@@ -74,16 +74,26 @@ impl MediaEditScrn {
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
         });
+        let chapter = if self.chapter == 0 {
+            String::new()
+        } else {
+            self.chapter.to_string()
+        };
+        let episode = if self.episode == 0 {
+            String::new()
+        } else {
+            self.episode.to_string()
+        };
         let body = column![
             signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
             row![
-                signed_text_input("Chapter", &self.chapter.to_string(), Msg::ChapterChanged),
+                signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
                 square_button("-").on_press(Msg::ChapterDec),
                 square_button("+").on_press(Msg::ChapterInc)
             ]
             .spacing(INDENT),
             row![
-                signed_text_input("Episode", &self.episode.to_string(), Msg::EpisodeChanged),
+                signed_text_input("Episode", &episode, Msg::EpisodeChanged),
                 square_button("-").on_press(Msg::EpisodeDec),
                 square_button("+").on_press(Msg::EpisodeInc)
             ]
