@@ -30,5 +30,6 @@ pub fn main_screen_view(media: &[MediaHandler]) -> Element<Msg> {
         )
         .spacing(LONG_INDENT)
         .padding(LONG_INDENT)
+        .height(Length::Fill)
         .into()
 }
