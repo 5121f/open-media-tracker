@@ -12,7 +12,7 @@ use std::sync::Arc;
 use derive_more::derive::{Deref, DerefMut};
 use fs_err as fs;
 
-use super::Config;
+use super::{Config, UserPath};
 use crate::model::Result;
 use crate::model::media::Media;
 
@@ -83,12 +83,8 @@ impl MediaHandler {
         self.media.episode
     }
 
-    pub fn chapter_path(&self) -> &Path {
+    pub fn chapter_path(&self) -> &UserPath {
         &self.media.chapter_path
-    }
-
-    pub fn chapter_path_is_present(&self) -> bool {
-        self.media.chapter_path_is_present()
     }
 
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
@@ -109,7 +105,7 @@ impl MediaHandler {
         self.save()
     }
 
-    pub fn set_chapter_path(&mut self, value: impl Into<PathBuf>) -> Result<()> {
+    pub fn set_chapter_path(&mut self, value: impl Into<UserPath>) -> Result<()> {
         self.media.chapter_path = value.into();
         self.save()
     }

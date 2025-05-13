@@ -14,6 +14,7 @@ mod media;
 mod media_handler;
 mod media_list;
 mod placeholder;
+mod user_path;
 
 pub use config::Config;
 pub use episode::Episode;
@@ -24,3 +25,4 @@ pub use maybe_error::MaybeError;
 pub use media_handler::MediaHandler;
 pub use media_list::MediaList;
 pub use placeholder::Placeholder;
+pub use user_path::UserPath;

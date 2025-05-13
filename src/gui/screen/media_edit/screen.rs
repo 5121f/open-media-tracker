@@ -48,7 +48,7 @@ impl MediaEditScrn {
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
         let confirm_screen = self.confirm.view_into();
         let media = self.editable_media(media_list);
-        let chapter_path = media.chapter_path().display().to_string();
+        let chapter_path = media.chapter_path().to_string();
         let top = row![
             container(link("< Back").on_press(Msg::Back)).width(Length::Fill),
             text(media.name()),
@@ -191,7 +191,11 @@ impl MediaEditScrn {
             }
             Msg::Warning(WarningMsg::Close) => self.warning.close(),
             Msg::OpenChapterDirectory => {
-                let chapter_path = self.editable_media(media_list).chapter_path();
+                let chapter_path = self
+                    .editable_media(media_list)
+                    .chapter_path()
+                    .clone()
+                    .into_path_buf();
                 if !chapter_path.is_dir() {
                     self.warning(WarningKind::WrongChapterPath);
                     return Ok(());
@@ -208,7 +212,7 @@ impl MediaEditScrn {
     }
 
     fn watch_sign(&self, media: &[MediaHandler]) -> Option<String> {
-        if !self.editable_media(media).chapter_path_is_present() {
+        if self.editable_media(media).chapter_path().is_empty() {
             return None;
         }
         let watch_sign = match self.episode(media) {
@@ -279,7 +283,7 @@ impl MediaEditScrn {
         chapter_path: impl Into<PathBuf>,
     ) -> Result<()> {
         self.editable_media_mut(media)
-            .set_chapter_path(chapter_path)?;
+            .set_chapter_path(chapter_path.into())?;
         let editable_media = self.editable_media(media);
         self.episodes = editable_media.episode_list();
         Ok(())
@@ -310,7 +314,7 @@ impl MediaEditScrn {
         self.episode = value.get();
 
         let media = self.editable_media_mut(media_list);
-        if !media.chapter_path_is_present() || value <= media.episode() {
+        if media.chapter_path().is_empty() || value <= media.episode() {
             media.set_episode(value)?;
             return Ok(());
         }
@@ -347,7 +351,7 @@ impl MediaEditScrn {
         let next_chapter = media.chapter().saturating_add(1);
         self.chapter = next_chapter.get();
         media.set_chapter(next_chapter)?;
-        if !media.chapter_path_is_present() {
+        if media.chapter_path().is_empty() {
             return Ok(());
         }
         let next_chapter_path = media.next_chapter_path()?;

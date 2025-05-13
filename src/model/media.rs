@@ -15,14 +15,14 @@ use crate::{
     read_dir,
 };
 
-use super::EpisodeList;
+use super::{EpisodeList, UserPath};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
     pub name: String,
     pub chapter: NonZeroU8,
     pub episode: NonZeroU8,
-    pub chapter_path: PathBuf,
+    pub chapter_path: UserPath,
 }
 
 impl Media {
@@ -32,7 +32,7 @@ impl Media {
             name: name.into(),
             chapter: one,
             episode: one,
-            chapter_path: PathBuf::default(),
+            chapter_path: UserPath::default(),
         }
     }
 
@@ -55,13 +55,10 @@ impl Media {
         Ok(())
     }
 
-    pub fn chapter_path_is_present(&self) -> bool {
-        !self.chapter_path.as_os_str().is_empty()
-    }
-
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
-        let chapter_dir_name = self.chapter_path.file_name().unwrap_or_default();
-        let parent = self.chapter_path.parent().unwrap_or_else(|| Path::new("/"));
+        let chapter_path = self.chapter_path.clone().into_path_buf();
+        let chapter_dir_name = chapter_path.file_name().unwrap_or_default();
+        let parent = chapter_path.parent().unwrap_or_else(|| Path::new("/"));
         let mut paths = read_dir::read_dir_with_filter(parent, Path::is_dir)?;
         paths.sort();
         let (current_dir_index, _) = paths
@@ -79,7 +76,7 @@ impl Media {
     }
 
     pub fn episode_list(&self) -> Result<EpisodeList> {
-        EpisodeList::read(&self.chapter_path)
+        EpisodeList::read(self.chapter_path.clone().into_path_buf())
     }
 
     pub fn set_chapter_to_one(&mut self) {
