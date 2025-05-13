@@ -8,7 +8,6 @@ use std::num::NonZeroU8;
 use std::path::{Path, PathBuf};
 
 use fs_err as fs;
-use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -39,7 +38,7 @@ impl Media {
 
     pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
         let file_content = async_fs::read_to_string(&path).await?;
-        let media = ron::from_str(&file_content)
+        let media = serde_json::from_str(&file_content)
             .map_err(|source| ErrorKind::deserialize(path.as_ref(), source))?;
         Ok(media)
     }
@@ -47,7 +46,8 @@ impl Media {
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
         let path = path.as_ref();
 
-        let content = self.ser_to_ron()?;
+        let content = serde_json::to_string_pretty(&self)
+            .map_err(|source| ErrorKind::serialize(source, &self.name))?;
         if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
             fs::create_dir(path)?;
         }
@@ -80,11 +80,6 @@ impl Media {
 
     pub fn episode_list(&self) -> Result<EpisodeList> {
         EpisodeList::read(&self.chapter_path)
-    }
-
-    fn ser_to_ron(&self) -> Result<String> {
-        ron::ser::to_string_pretty(&self, PrettyConfig::new())
-            .map_err(|source| ErrorKind::serialize(source, &self.name))
     }
 
     pub fn set_chapter_to_one(&mut self) {

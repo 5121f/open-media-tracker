@@ -120,7 +120,7 @@ impl MediaHandler {
 }
 
 pub fn file_name(name: impl Display) -> String {
-    format!("{name}.ron")
+    format!("{name}.json")
 }
 
 fn find_available_name(path: impl AsRef<Path>) -> String {

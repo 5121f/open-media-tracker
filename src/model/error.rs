@@ -9,7 +9,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use derive_more::Display;
-use ron::de::SpannedError;
 
 use super::config::UserDataDirNotFoundError;
 use crate::open::OpenError;
@@ -42,9 +41,15 @@ impl From<ErrorKind> for Error {
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ErrorKind {
     #[error("{name}: Serialize error: {source}")]
-    Serialize { name: String, source: ron::Error },
+    Serialize {
+        name: String,
+        source: Arc<serde_json::Error>,
+    },
     #[error("{path}: file parsing error: {source}")]
-    Deserialize { path: PathBuf, source: SpannedError },
+    Deserialize {
+        path: PathBuf,
+        source: Arc<serde_json::Error>,
+    },
     #[error("Failed to find next chapter path")]
     FindNextChapterPath,
     #[error("Name \"{name}\" is used")]
@@ -60,13 +65,15 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub fn serialize(source: ron::Error, name: impl Into<String>) -> Self {
+    pub fn serialize(source: serde_json::Error, name: impl Into<String>) -> Self {
         let name = name.into();
+        let source = source.into();
         Self::Serialize { name, source }
     }
 
-    pub fn deserialize(path: impl Into<PathBuf>, source: SpannedError) -> Self {
+    pub fn deserialize(path: impl Into<PathBuf>, source: serde_json::Error) -> Self {
         let path = path.into();
+        let source = source.into();
         Self::Deserialize { path, source }
     }
 
