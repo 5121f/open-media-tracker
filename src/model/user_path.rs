@@ -23,7 +23,6 @@ impl UserPath {
             } else {
                 &self.0[1..]
             };
-            dbg!(&relative_path);
             return home_dir.join(relative_path);
         }
         PathBuf::from(self.0)
