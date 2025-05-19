@@ -316,24 +316,23 @@ impl MediaEditScrn {
             Some(episodes_count) if value.get() as usize <= episodes_count => {
                 self.episode = value.get();
                 media.set_episode(value)?;
-                return Ok(());
             }
             None => {
                 self.episode = value.get();
                 media.set_episode(value)?;
-                return Ok(());
             }
-            Some(_) => {}
-        }
-
-        if self.is_episode_overflow(value) {
-            self.episodes = media.episode_list();
-            if self.is_episode_overflow(value) {
+            Some(_) => {
+                if !self.is_episode_overflow(value) {
+                    return Ok(());
+                }
+                self.episodes = media.episode_list();
+                if !self.is_episode_overflow(value) {
+                    return Ok(());
+                }
                 let Some(episodes_count) = self.episodes_count() else {
                     return Ok(());
                 };
                 self.confirm_episode_overflow(episodes_count);
-                return Ok(());
             }
         }
 
