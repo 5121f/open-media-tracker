@@ -1,7 +1,6 @@
-# TODO
+# Roadmap
 
 - on chapter decrement try to switch to previos chapter folder
-- allow to use tilde in media path
 - sorting series
     - by name
     - by date added
