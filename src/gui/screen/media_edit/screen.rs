@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{Column, button, container, icon, popover, text};
-use cosmic::{Element, theme};
+use cosmic::{Element, style, theme};
 
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
@@ -83,33 +83,37 @@ impl MediaEditScrn {
         } else {
             self.episode.to_string()
         };
-        let body = column![
-            signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
-            row![
-                signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
-                button::standard("-").on_press(Msg::ChapterDec),
-                button::standard("+").on_press(Msg::ChapterInc)
+        let body = container(
+            column![
+                signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
+                row![
+                    signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
+                    button::standard("-").on_press(Msg::ChapterDec),
+                    button::standard("+").on_press(Msg::ChapterInc)
+                ]
+                .spacing(spacing.space_xxs),
+                row![
+                    signed_text_input("Episode", &episode, Msg::EpisodeChanged),
+                    button::standard("-").on_press(Msg::EpisodeDec),
+                    button::standard("+").on_press(Msg::EpisodeInc)
+                ]
+                .spacing(spacing.space_xxs),
+                row![
+                    signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
+                    button::standard("")
+                        .leading_icon(icon::from_name("folder-symbolic"))
+                        .height(30)
+                        .on_press(Msg::OpenChapterDirectory),
+                    button::standard("...")
+                        .height(30)
+                        .on_press(Msg::ChapterPathSelect),
+                ]
+                .spacing(spacing.space_xxs)
             ]
-            .spacing(spacing.space_xxs),
-            row![
-                signed_text_input("Episode", &episode, Msg::EpisodeChanged),
-                button::standard("-").on_press(Msg::EpisodeDec),
-                button::standard("+").on_press(Msg::EpisodeInc)
-            ]
-            .spacing(spacing.space_xxs),
-            row![
-                signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
-                button::standard("")
-                    .leading_icon(icon::from_name("folder-symbolic"))
-                    .height(30)
-                    .on_press(Msg::OpenChapterDirectory),
-                button::standard("...")
-                    .height(30)
-                    .on_press(Msg::ChapterPathSelect),
-            ]
-            .spacing(spacing.space_xxs)
-        ]
-        .spacing(spacing.space_xxs);
+            .spacing(spacing.space_xs),
+        )
+        .padding(spacing.space_xs)
+        .class(style::Container::Card);
         let warning = self.warning.view_into();
 
         let layout = Column::new()
