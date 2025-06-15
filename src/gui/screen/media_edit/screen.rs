@@ -7,15 +7,15 @@
 use std::num::NonZeroU8;
 use std::path::PathBuf;
 
-use cosmic::Element;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{Column, button, container, icon, popover, text};
+use cosmic::{Element, theme};
 
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::{INDENT, LONG_INDENT, signed_text_input};
+use crate::gui::utils::signed_text_input;
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
@@ -46,6 +46,8 @@ impl MediaEditScrn {
     }
 
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
+        let spacing = theme::active().cosmic().spacing;
+
         let confirm_screen = self.confirm.view_into();
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().to_string();
@@ -88,13 +90,13 @@ impl MediaEditScrn {
                 button::standard("-").on_press(Msg::ChapterDec),
                 button::standard("+").on_press(Msg::ChapterInc)
             ]
-            .spacing(INDENT),
+            .spacing(spacing.space_xxs),
             row![
                 signed_text_input("Episode", &episode, Msg::EpisodeChanged),
                 button::standard("-").on_press(Msg::EpisodeDec),
                 button::standard("+").on_press(Msg::EpisodeInc)
             ]
-            .spacing(INDENT),
+            .spacing(spacing.space_xxs),
             row![
                 signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
                 button::standard("")
@@ -105,9 +107,9 @@ impl MediaEditScrn {
                     .height(30)
                     .on_press(Msg::ChapterPathSelect),
             ]
-            .spacing(INDENT)
+            .spacing(spacing.space_xxs)
         ]
-        .spacing(INDENT);
+        .spacing(spacing.space_xxs);
         let warning = self.warning.view_into();
 
         let layout = Column::new()
@@ -116,8 +118,8 @@ impl MediaEditScrn {
             .push_maybe(watch_sign)
             .push_maybe(warning)
             .push(body)
-            .padding(LONG_INDENT)
-            .spacing(LONG_INDENT)
+            .padding(spacing.space_xs)
+            .spacing(spacing.space_xs)
             .height(Length::Fill);
 
         if let Some(confirm_screen_view) = confirm_screen {
