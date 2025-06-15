@@ -7,15 +7,15 @@
 use std::num::NonZeroU8;
 use std::path::PathBuf;
 
-use iced::widget::{Column, Stack, button as iced_button, column, container, row, text};
-use iced::{Alignment, Element, Length};
+use cosmic::Element;
+use cosmic::iced::{Alignment, Length};
+use cosmic::iced_widget::{column, row};
+use cosmic::widget::{Column, button, container, icon, popover, text};
 
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
-use crate::gui::Icon;
-use crate::gui::button::{button_styled, link, square_button};
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::{GRAY, INDENT, LONG_INDENT, signed_text_input};
+use crate::gui::utils::{INDENT, LONG_INDENT, signed_text_input};
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
@@ -50,17 +50,14 @@ impl MediaEditScrn {
         let media = self.editable_media(media_list);
         let chapter_path = media.chapter_path().to_string();
         let top = row![
-            container(link("< Back").on_press(Msg::Back)).width(Length::Fill),
+            container(button::link("< Back").on_press(Msg::Back)).width(Length::Fill),
             text(media.name()),
-            container(
-                button_styled("Delete", iced_button::danger)
-                    .on_press(Msg::Delete(self.editable_media_id))
-            )
-            .width(Length::Fill)
-            .align_x(Alignment::End),
+            container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
+                .width(Length::Fill)
+                .align_x(Alignment::End),
         ];
         let watch = container(
-            button_styled("Watch", iced_button::success).on_press_maybe(
+            button::suggested("Watch").on_press_maybe(
                 self.episode(media_list)
                     .ok()
                     .map(Episode::path)
@@ -70,7 +67,7 @@ impl MediaEditScrn {
         .width(Length::Fill)
         .align_x(Alignment::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(text(watch_sign).size(13).color(GRAY))
+            container(text(watch_sign).size(13))
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
         });
@@ -88,22 +85,20 @@ impl MediaEditScrn {
             signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
             row![
                 signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
-                square_button("-").on_press(Msg::ChapterDec),
-                square_button("+").on_press(Msg::ChapterInc)
+                button::standard("-").on_press(Msg::ChapterDec),
+                button::standard("+").on_press(Msg::ChapterInc)
             ]
             .spacing(INDENT),
             row![
                 signed_text_input("Episode", &episode, Msg::EpisodeChanged),
-                square_button("-").on_press(Msg::EpisodeDec),
-                square_button("+").on_press(Msg::EpisodeInc)
+                button::standard("-").on_press(Msg::EpisodeDec),
+                button::standard("+").on_press(Msg::EpisodeInc)
             ]
             .spacing(INDENT),
             row![
                 signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
-                Icon::open_folder()
-                    .button()
-                    .on_press(Msg::OpenChapterDirectory),
-                Icon::triple_dot().button().on_press(Msg::ChapterPathSelect),
+                button::icon(icon::from_name("folder")).on_press(Msg::OpenChapterDirectory),
+                button::standard("...").on_press(Msg::ChapterPathSelect),
             ]
             .spacing(INDENT)
         ]
@@ -120,7 +115,13 @@ impl MediaEditScrn {
             .spacing(LONG_INDENT)
             .height(Length::Fill);
 
-        Stack::new().push(layout).push_maybe(confirm_screen).into()
+        if let Some(confirm_screen_view) = confirm_screen {
+            return popover::Popover::new(layout)
+                .popup(confirm_screen_view)
+                .into();
+        }
+
+        layout.into()
     }
 
     pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {

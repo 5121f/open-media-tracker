@@ -13,21 +13,12 @@ mod model;
 mod open;
 mod read_dir;
 
-use iced::Size;
+use cosmic::app::Settings;
 
 use gui::main::OpenMediaTracker;
 use open::open;
 use read_dir::read_dir;
 
-fn main() -> iced::Result {
-    iced::application(
-        OpenMediaTracker::title,
-        OpenMediaTracker::update,
-        OpenMediaTracker::view,
-    )
-    .theme(OpenMediaTracker::theme)
-    .window_size(Size::new(550.0, 400.0))
-    .font(iced_fonts::REQUIRED_FONT_BYTES)
-    .font(include_bytes!("../assets/fonts/open_media_tracker.ttf"))
-    .run_with(OpenMediaTracker::new)
+fn main() -> cosmic::iced::Result {
+    cosmic::app::run::<OpenMediaTracker>(Settings::default(), ())
 }

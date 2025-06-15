@@ -6,9 +6,8 @@
 
 use std::fmt::Display;
 
-use iced::Element;
-use iced::widget::text;
-use iced_aw::card;
+use cosmic::Element;
+use cosmic::widget::{container, text};
 
 use crate::gui::Screen;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
@@ -36,11 +35,7 @@ impl<T: Display> Screen for WarningScrn<T> {
     }
 
     fn view(&self) -> Element<Message> {
-        card(text(self.title()), text(self.kind.to_string()))
-            .close_size(25.0)
-            .style(iced_aw::style::card::warning)
-            .on_close(Message::Close)
-            .into()
+        container(text(self.kind.to_string())).into()
     }
 }
 

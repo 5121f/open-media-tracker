@@ -4,19 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-pub mod button;
 pub mod dialog;
 pub mod main;
 pub mod screen;
 pub mod utils;
 
-mod icon;
 mod list;
 mod loading;
 
-pub use button::button;
 pub use dialog::Dialog;
-pub use icon::Icon;
 pub use list::Message as ListMsg;
 pub use list::list;
 pub use loading::LoadingDialog;

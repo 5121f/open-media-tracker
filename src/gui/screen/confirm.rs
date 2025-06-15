@@ -6,12 +6,12 @@
 
 use std::fmt::Display;
 
-use iced::widget::{Space, button as iced_button, column, container, horizontal_space, row, text};
-use iced::{Alignment, Element, Length};
-use iced_aw::card;
+use cosmic::Element;
+use cosmic::iced::{Alignment, Length};
+use cosmic::iced_widget::{column, row};
+use cosmic::widget::{Space, button, container, horizontal_space, text};
 
 use crate::gui::Screen;
-use crate::gui::button::button_styled;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
 use crate::gui::utils::INDENT;
 
@@ -41,21 +41,18 @@ impl<T: Display> Screen for ConfirmScrn<T> {
     fn view(&self) -> Element<Msg> {
         container(row![
             Space::with_width(Length::FillPortion(1)),
-            card(
-                text(self.title()),
+            container(
                 column![
                     text(self.kind.to_string()),
                     row![
-                        button_styled("Cancel", iced_button::danger).on_press(Msg::Cancel),
+                        button::destructive("Cancel").on_press(Msg::Cancel),
                         horizontal_space(),
-                        button_styled("Confirm", iced_button::success).on_press(Msg::Confirm)
+                        button::suggested("Confirm").on_press(Msg::Confirm)
                     ]
                 ]
                 .spacing(INDENT)
             )
-            .close_size(25.0)
-            .width(Length::FillPortion(15))
-            .on_close(Msg::Cancel),
+            .width(Length::FillPortion(15)),
             Space::with_width(Length::FillPortion(1))
         ])
         .height(Length::Fill)

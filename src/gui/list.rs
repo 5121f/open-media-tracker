@@ -4,8 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::widget::{button, column, container, scrollable};
-use iced::{Background, Border, Color, Element, Length, Theme, color};
+use cosmic::Element;
+use cosmic::iced::Length;
+use cosmic::widget::{button, column, container, scrollable};
 
 use crate::gui::utils::INDENT;
 
@@ -21,13 +22,12 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
 
     let view = container(
         scrollable(
-            column(
+            column::Column::with_children(
                 buttons
                     .into_iter()
                     .enumerate()
                     .map(|(id, text)| {
-                        button(text)
-                            .style(list_button_style)
+                        button::standard(text)
                             .width(Length::Fill)
                             .on_press(Message::Enter(id))
                     })
@@ -37,53 +37,7 @@ pub fn list(buttons: Vec<&str>) -> Option<Element<Message>> {
         )
         .height(Length::Fill),
     )
-    .width(Length::Fill)
-    .style(list_container_style);
+    .width(Length::Fill);
 
     Some(view.into())
-}
-
-fn list_button_style(_theme: &Theme, statsus: button::Status) -> button::Style {
-    match statsus {
-        button::Status::Active => button::Style {
-            background: Some(background()),
-            text_color: Color::WHITE,
-            border: button_border(),
-            ..Default::default()
-        },
-        button::Status::Hovered => {
-            let background_color = color!(40, 42, 46);
-            let background = Background::Color(background_color);
-
-            button::Style {
-                background: Some(background),
-                text_color: Color::WHITE,
-                border: button_border(),
-                ..Default::default()
-            }
-        }
-        button::Status::Pressed => button::Style {
-            text_color: Color::WHITE,
-            ..Default::default()
-        },
-        button::Status::Disabled => button::Style::default(),
-    }
-}
-
-fn list_container_style(_theme: &Theme) -> container::Style {
-    container::Style {
-        text_color: None,
-        background: Some(background()),
-        border: button_border(),
-        ..Default::default()
-    }
-}
-
-fn background() -> Background {
-    let background_color = color!(22, 23, 25);
-    Background::Color(background_color)
-}
-
-fn button_border() -> Border {
-    Border::default().rounded(10.)
 }

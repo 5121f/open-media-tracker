@@ -10,8 +10,11 @@ mod screens;
 
 use std::sync::Arc;
 
-use iced::widget::Stack;
-use iced::{Element, Task, Theme, window};
+use cosmic::app::Task;
+use cosmic::iced::{executor, window};
+use cosmic::widget::Popover;
+use cosmic::{Action, Application, Core, Element};
+use iced::futures::FutureExt;
 
 use crate::gui::screen::ConfirmDlg;
 use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
@@ -25,12 +28,44 @@ use screens::Screens;
 const PROGRAM_NAME: &str = "Open Media Tracker";
 
 pub struct OpenMediaTracker {
+    core: Core,
     media: MediaList,
     screen: Screens,
     confirm: ConfirmDlg<ConfirmKind>,
     error: Dialog<ErrorScrn>,
     loading: LoadingDialog<LoadingKind>,
     config: Arc<Config>,
+}
+
+impl Application for OpenMediaTracker {
+    type Executor = executor::Default;
+    type Flags = ();
+    type Message = Msg;
+    const APP_ID: &'static str = "com.open_media_tracker.zeroten";
+
+    fn core(&self) -> &cosmic::Core {
+        &self.core
+    }
+
+    fn core_mut(&mut self) -> &mut cosmic::Core {
+        &mut self.core
+    }
+
+    fn init(core: cosmic::Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
+        Self::new(core)
+    }
+
+    fn view(&self) -> Element<Self::Message> {
+        self.view()
+    }
+
+    fn update(&mut self, message: Self::Message) -> Task<Self::Message> {
+        let res = self.update2(message);
+        if let Some(error) = res.error {
+            self.error_dialog(error);
+        }
+        res.value
+    }
 }
 
 impl OpenMediaTracker {
@@ -62,7 +97,7 @@ impl OpenMediaTracker {
         self.loading.insert(LoadingKind::ReadMedia);
         let config = self.config.clone();
         let read_media_future = MediaList::read(config);
-        Task::perform(read_media_future, Msg::MediaLoaded)
+        Task::perform(read_media_future, |res| Action::App(Msg::MediaLoaded(res)))
     }
 
     fn confirm_screen_update(&mut self, message: &ConfirmScrnMsg) -> Result<(), ErrorKind> {
@@ -158,10 +193,11 @@ impl OpenMediaTracker {
         }
     }
 
-    fn new2() -> Result<(Self, Task<Msg>), Error> {
+    fn new2(core: Core) -> Result<(Self, Task<Msg>), Error> {
         let config = Config::read().map_err(Error::critical)?;
         let config = config.into();
         let mut omt = Self {
+            core,
             media: MediaList::new(),
             screen: Screens::Main,
             confirm: ConfirmDlg::closed(),
@@ -173,8 +209,8 @@ impl OpenMediaTracker {
         Ok((omt, command))
     }
 
-    pub fn new() -> (Self, Task<Msg>) {
-        Self::new2().unwrap_or_else(|error| {
+    pub fn new(core: Core) -> (Self, Task<Msg>) {
+        Self::new2(core).unwrap_or_else(|error| {
             let mut omt = Self::placeholder();
             omt.error_dialog(error);
             (omt, Task::none())
@@ -210,20 +246,20 @@ impl OpenMediaTracker {
             (None, None, None) => None,
         };
 
-        Stack::new()
-            .push(self.screen.view(&self.media))
-            .push_maybe(dialog)
-            .into()
-    }
+        let screen_view = self.screen.view(&self.media);
 
-    pub const fn theme(_: &Self) -> Theme {
-        Theme::Dark
+        if let Some(dialog) = dialog {
+            return Popover::new(screen_view).popup(dialog).into();
+        }
+
+        screen_view.into()
     }
 }
 
 impl Placeholder for OpenMediaTracker {
     fn placeholder() -> Self {
         Self {
+            core: Core::default(),
             media: MediaList::placeholder(),
             screen: Screens::placeholder(),
             confirm: ConfirmDlg::placeholder(),

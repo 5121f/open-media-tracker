@@ -4,8 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::widget::{Row, row, text, text_input};
-use iced::{Alignment, Color, color};
+use cosmic::{
+    iced::{Alignment, Color, color},
+    iced_widget::{row, text_input},
+    widget::{Row, text},
+};
 
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;
@@ -14,8 +17,8 @@ pub const CYAN: Color = color!(0, 255, 255);
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
 where
-    M: Clone + 'a,
-    F: 'a + Fn(String) -> M,
+    M: Clone + 'static,
+    F: Fn(String) -> M + 'a,
 {
     row![text(sign), text_input(sign, value).on_input(on_input)]
         .spacing(INDENT)

@@ -4,12 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::widget::{Space, button as iced_button, column, container, horizontal_space, row, text};
-use iced::{Alignment, Element, Length};
-use iced_aw::card;
+use cosmic::Element;
+use cosmic::iced::{Alignment, Length};
+use cosmic::iced_widget::{column, row};
+use cosmic::widget::{Space, button, container, horizontal_space, text};
 
 use crate::gui::Screen;
-use crate::gui::button::button_styled;
 use crate::gui::utils::INDENT;
 use crate::model::Error;
 
@@ -38,26 +38,23 @@ impl Screen for ErrorScrn {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {
-        let ok_button_style = if self.error.critical {
-            iced_button::danger
-        } else {
-            iced_button::success
-        };
-
         container(row![
             Space::with_width(Length::FillPortion(1)),
-            card(
-                text(self.title()),
+            container(
                 column![
                     text(self.error.to_string()),
                     row![
                         horizontal_space(),
-                        button_styled("Ok", ok_button_style).on_press(Msg::ok(self.error.critical))
+                        if self.error.critical {
+                            button::destructive("Ok")
+                        } else {
+                            button::suggested("Ok")
+                        }
+                        .on_press(Msg::ok(self.error.critical))
                     ],
                 ]
                 .spacing(INDENT)
             )
-            .style(iced_aw::style::card::danger)
             .width(Length::FillPortion(15)),
             Space::with_width(Length::FillPortion(1))
         ])

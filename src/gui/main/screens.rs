@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use cosmic::Element;
 use derive_more::derive::From;
-use iced::Element;
 
 use crate::gui::screen::{MediaEditScrn, main_screen_view};
 use crate::message::Msg;

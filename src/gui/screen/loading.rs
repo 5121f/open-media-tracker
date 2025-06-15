@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use iced::widget::{center, text};
-use iced::{Element, Length};
+use cosmic::Element;
+use cosmic::iced::Length;
+use cosmic::iced_widget::center;
+use cosmic::widget::text;
 
 use crate::gui::Screen;
 use crate::model::{LoadingKind, LoadingQueue};

@@ -18,7 +18,7 @@ pub use main::{Msg as MainScrnMsg, main_screen_view};
 pub use media_edit::{MediaEditScrn, Msg as MediaEditScrnMsg};
 pub use warning::{Message as WarningMsg, WarningDlg};
 
-use iced::Element;
+use cosmic::Element;
 
 pub trait Screen {
     type Message;
