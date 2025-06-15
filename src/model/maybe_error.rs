@@ -1,4 +1,4 @@
-use super::Placeholder;
+use crate::model::Placeholder;
 
 #[derive(Debug, Clone)]
 pub struct MaybeError<T, E> {

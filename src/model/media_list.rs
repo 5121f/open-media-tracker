@@ -8,15 +8,9 @@ use std::sync::Arc;
 
 use derive_more::derive::{Deref, DerefMut, From};
 
-use crate::{
-    model::{
-        MediaHandler,
-        error::{ErrorKind, Result},
-    },
-    read_dir,
-};
-
-use super::{Config, MaybeError};
+use crate::model::error::{ErrorKind, Result};
+use crate::model::{Config, MaybeError, MediaHandler};
+use crate::read_dir;
 
 #[derive(Deref, DerefMut, Debug, Clone, From, Default)]
 pub struct MediaList(Vec<MediaHandler>);

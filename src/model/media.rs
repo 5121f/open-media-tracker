@@ -10,10 +10,8 @@ use std::path::{Path, PathBuf};
 use fs_err as fs;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    model::{ErrorKind, Result},
-    read_dir,
-};
+use crate::model::{ErrorKind, Result};
+use crate::read_dir;
 
 use super::{EpisodeList, UserPath};
 

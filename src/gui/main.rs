@@ -15,9 +15,13 @@ use cosmic::iced::{executor, window};
 use cosmic::widget::Popover;
 use cosmic::{Action, Application, Core, Element};
 
-use super::screen::MainScrn;
 use crate::gui::screen::ConfirmDlg;
-use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
+use crate::gui::screen::ConfirmScrnMsg;
+use crate::gui::screen::ErrorScrn;
+use crate::gui::screen::ErrorScrnMsg;
+use crate::gui::screen::MainScrn;
+use crate::gui::screen::MainScrnMsg;
+use crate::gui::screen::MediaEditScrnMsg;
 use crate::gui::{Dialog, LoadingDialog, Screen};
 use crate::message::Msg;
 use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};

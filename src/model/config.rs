@@ -10,7 +10,7 @@ use std::sync::Arc;
 use etcetera::{BaseStrategy, HomeDirError};
 use fs_err as fs;
 
-use super::Placeholder;
+use crate::model::Placeholder;
 use crate::model::error::Result;
 
 const DATA_DIR_NAME: &str = "open_media_tracker";

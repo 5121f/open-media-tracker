@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use derive_more::Display;
 
-use super::config::UserDataDirNotFoundError;
+use crate::model::config::UserDataDirNotFoundError;
 use crate::open::OpenError;
 
 #[derive(Display)]
