@@ -7,21 +7,20 @@
 use cosmic::Element;
 use derive_more::derive::From;
 
-use crate::gui::screen::{MediaEditScrn, main_screen_view};
+use crate::gui::screen::{MainScrn, MediaEditScrn};
 use crate::message::Msg;
 use crate::model::{MediaHandler, MediaList};
 
-#[derive(Default, From)]
+#[derive(From)]
 pub enum Screens {
-    #[default]
-    Main,
+    Main(MainScrn),
     MediaChange(MediaEditScrn),
 }
 
 impl Screens {
     pub fn view<'a>(&'a self, media: &'a MediaList) -> Element<'a, Msg> {
         match self {
-            Self::Main => main_screen_view(media).map(Into::into),
+            Self::Main(screen) => screen.view().map(Into::into),
             Self::MediaChange(screen) => screen.view(media).map(Into::into),
         }
     }
@@ -32,9 +31,15 @@ impl Screens {
 
     pub fn title(&self, media: &[MediaHandler]) -> Option<String> {
         let title = match self {
-            Self::Main => return None,
+            Self::Main(_) => return None,
             Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
         };
         Some(title)
+    }
+}
+
+impl Default for Screens {
+    fn default() -> Self {
+        Self::Main(MainScrn::default())
     }
 }

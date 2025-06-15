@@ -12,17 +12,19 @@ use std::sync::Arc;
 
 use cosmic::app::Task;
 use cosmic::iced::{executor, window};
-use cosmic::widget::Popover;
+use cosmic::widget::{Popover, segmented_button};
 use cosmic::{Action, Application, Core, Element};
 
 use crate::gui::screen::ConfirmDlg;
 use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
-use crate::gui::{Dialog, ListMsg, LoadingDialog, Screen};
+use crate::gui::{Dialog, LoadingDialog, Screen};
 use crate::message::Msg;
 use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
 use confirm_kind::ConfirmKind;
 use loading_kind::LoadingKind;
 use screens::Screens;
+
+use super::screen::MainScrn;
 
 const PROGRAM_NAME: &str = "Open Media Tracker";
 
@@ -73,7 +75,7 @@ impl OpenMediaTracker {
     }
 
     fn main_screen(&mut self) {
-        self.screen = Screens::Main;
+        self.screen = Screens::Main(MainScrn::new(&self.media));
     }
 
     fn error_dialog(&mut self, error: Error) {
@@ -148,7 +150,23 @@ impl OpenMediaTracker {
                 let new_media_index = self.media.insert(media);
                 self.change_media_screen(new_media_index);
             }
-            MainScrnMsg::MenuButton(ListMsg::Enter(id)) => self.change_media_screen(*id),
+            MainScrnMsg::MenuButton(entity) => {
+                let Screens::Main(screen) = &self.screen else {
+                    return Ok(());
+                };
+                let Some(selected_media_name) = screen.selected(*entity) else {
+                    return Ok(());
+                };
+                let selected_media_id = self
+                    .media
+                    .iter()
+                    .enumerate()
+                    .find(|(_id, media)| media.name() == selected_media_name)
+                    .map(|(id, _media)| id);
+                if let Some(id) = selected_media_id {
+                    self.change_media_screen(id);
+                }
+            }
         }
         Ok(())
     }
@@ -182,6 +200,9 @@ impl OpenMediaTracker {
                 self.media = res.value;
                 error = res.error.map(Into::into);
                 self.loading.complete(&LoadingKind::ReadMedia);
+                if let Screens::Main(screen) = &mut self.screen {
+                    screen.update(&self.media);
+                }
             }
             Msg::Loading => {}
         }
@@ -198,7 +219,7 @@ impl OpenMediaTracker {
         let mut omt = Self {
             core,
             media: MediaList::new(),
-            screen: Screens::Main,
+            screen: Screens::default(),
             confirm: ConfirmDlg::closed(),
             error: Dialog::closed(),
             loading: LoadingDialog::closed(),

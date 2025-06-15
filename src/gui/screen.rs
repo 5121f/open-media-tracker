@@ -14,7 +14,7 @@ pub mod warning;
 pub use confirm::{ConfirmDlg, Msg as ConfirmScrnMsg};
 pub use error::{ErrorScrn, Msg as ErrorScrnMsg};
 pub use loading::{LoadingScrn, Msg as LoadingMsg};
-pub use main::{Msg as MainScrnMsg, main_screen_view};
+pub use main::{MainScrn, Msg as MainScrnMsg};
 pub use media_edit::{MediaEditScrn, Msg as MediaEditScrnMsg};
 pub use warning::{Message as WarningMsg, WarningDlg};
 
