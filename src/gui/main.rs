@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use cosmic::app::Task;
 use cosmic::iced::{executor, window};
-use cosmic::widget::{Popover, segmented_button};
+use cosmic::widget::Popover;
 use cosmic::{Action, Application, Core, Element};
 
 use crate::gui::screen::ConfirmDlg;
@@ -244,14 +244,6 @@ impl OpenMediaTracker {
         )
     }
 
-    pub fn update(&mut self, message: Msg) -> Task<Msg> {
-        let res = self.update2(message);
-        if let Some(error) = res.error {
-            self.error_dialog(error);
-        }
-        res.value
-    }
-
     pub fn view(&self) -> Element<Msg> {
         // Error -> Loading -> Confirm
 
@@ -272,7 +264,7 @@ impl OpenMediaTracker {
             return Popover::new(screen_view).popup(dialog).into();
         }
 
-        screen_view.into()
+        screen_view
     }
 }
 

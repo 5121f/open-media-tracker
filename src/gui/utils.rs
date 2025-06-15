@@ -4,16 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use cosmic::{
-    iced::{Alignment, Color, color},
-    iced_widget::{row, text_input},
-    widget::{Row, text},
-};
+use cosmic::iced::Alignment;
+use cosmic::iced_widget::{row, text_input};
+use cosmic::widget::{Row, text};
 
 pub const INDENT: u16 = 5;
 pub const LONG_INDENT: u16 = 10;
-pub const GRAY: Color = color!(150, 150, 150);
-pub const CYAN: Color = color!(0, 255, 255);
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
 where
