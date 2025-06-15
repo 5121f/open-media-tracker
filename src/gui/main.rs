@@ -15,6 +15,7 @@ use cosmic::iced::{executor, window};
 use cosmic::widget::Popover;
 use cosmic::{Action, Application, Core, Element};
 
+use super::screen::MainScrn;
 use crate::gui::screen::ConfirmDlg;
 use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
 use crate::gui::{Dialog, LoadingDialog, Screen};
@@ -23,10 +24,6 @@ use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList
 use confirm_kind::ConfirmKind;
 use loading_kind::LoadingKind;
 use screens::Screens;
-
-use super::screen::MainScrn;
-
-const PROGRAM_NAME: &str = "Open Media Tracker";
 
 pub struct OpenMediaTracker {
     core: Core,
@@ -84,14 +81,6 @@ impl OpenMediaTracker {
 
     fn confirm_dialog(&mut self, kind: ConfirmKind) {
         self.confirm = ConfirmDlg::from_kind(kind);
-    }
-
-    fn sub_title(&self) -> Option<String> {
-        self.error
-            .title()
-            .or_else(|| self.confirm.title())
-            .or_else(|| self.loading.title())
-            .or_else(|| self.screen.title(&self.media))
     }
 
     fn read_media(&mut self) -> Task<Msg> {
@@ -235,13 +224,6 @@ impl OpenMediaTracker {
             omt.error_dialog(error);
             (omt, Task::none())
         })
-    }
-
-    pub fn title(&self) -> String {
-        self.sub_title().map_or_else(
-            || String::from(PROGRAM_NAME),
-            |sub_title| format!("{PROGRAM_NAME} - {sub_title}"),
-        )
     }
 
     pub fn view(&self) -> Element<Msg> {

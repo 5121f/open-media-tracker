@@ -28,10 +28,6 @@ impl<T> Dialog<T> {
 }
 
 impl<T: Screen> Dialog<T> {
-    pub fn title(&self) -> Option<String> {
-        self.0.as_ref().map(Screen::title)
-    }
-
     pub fn view(&self) -> Option<Element<T::Message>> {
         self.0.as_ref().map(Screen::view)
     }

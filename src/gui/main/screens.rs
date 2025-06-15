@@ -28,14 +28,6 @@ impl Screens {
     pub fn change_media(media: &[MediaHandler], id: usize) -> Self {
         MediaEditScrn::new(media, id).into()
     }
-
-    pub fn title(&self, media: &[MediaHandler]) -> Option<String> {
-        let title = match self {
-            Self::Main(_) => return None,
-            Self::MediaChange(media_edit_scrn) => media_edit_scrn.title(media),
-        };
-        Some(title)
-    }
 }
 
 impl Default for Screens {

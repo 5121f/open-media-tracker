@@ -213,10 +213,6 @@ impl MediaEditScrn {
         Ok(())
     }
 
-    pub fn title(&self, media: &[MediaHandler]) -> String {
-        self.editable_media(media).name().to_string()
-    }
-
     fn watch_sign(&self, media: &[MediaHandler]) -> Option<String> {
         if self.editable_media(media).chapter_path().is_empty() {
             return None;
