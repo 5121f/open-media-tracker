@@ -14,7 +14,6 @@ use cosmic::app::Task;
 use cosmic::iced::{executor, window};
 use cosmic::widget::Popover;
 use cosmic::{Action, Application, Core, Element};
-use iced::futures::FutureExt;
 
 use crate::gui::screen::ConfirmDlg;
 use crate::gui::screen::{ConfirmScrnMsg, ErrorScrn, ErrorScrnMsg, MainScrnMsg, MediaEditScrnMsg};
