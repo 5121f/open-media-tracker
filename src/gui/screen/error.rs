@@ -5,12 +5,10 @@
  */
 
 use cosmic::Element;
-use cosmic::iced::{Alignment, Length};
-use cosmic::iced_widget::{column, row};
-use cosmic::widget::{Space, button, container, horizontal_space, text};
+use cosmic::iced_widget::center;
+use cosmic::widget::{Dialog, button};
 
 use crate::gui::Screen;
-use crate::gui::utils::INDENT;
 use crate::model::Error;
 
 #[derive(Debug, Clone)]
@@ -38,28 +36,19 @@ impl Screen for ErrorScrn {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {
-        container(row![
-            Space::with_width(Length::FillPortion(1)),
-            container(
-                column![
-                    text(self.error.to_string()),
-                    row![
-                        horizontal_space(),
-                        if self.error.critical {
-                            button::destructive("Ok")
-                        } else {
-                            button::suggested("Ok")
-                        }
-                        .on_press(Msg::ok(self.error.critical))
-                    ],
-                ]
-                .spacing(INDENT)
-            )
-            .width(Length::FillPortion(15)),
-            Space::with_width(Length::FillPortion(1))
-        ])
-        .height(Length::Fill)
-        .align_y(Alignment::Center)
+        center(
+            Dialog::new()
+                .title(self.title())
+                .body(self.error.to_string())
+                .primary_action(
+                    if self.error.critical {
+                        button::destructive("Ok")
+                    } else {
+                        button::suggested("Ok")
+                    }
+                    .on_press(Msg::ok(self.error.critical)),
+                ),
+        )
         .into()
     }
 
