@@ -42,7 +42,8 @@ impl MainScrn {
             )
             .push(
                 segmented_button::vertical(&self.media_list_seg_button)
-                    .on_activate(Msg::MenuButton),
+                    .on_activate(Msg::MenuButton)
+                    .button_padding([5, 0, 0, 5]),
             )
             .spacing(LONG_INDENT)
             .padding(LONG_INDENT)
