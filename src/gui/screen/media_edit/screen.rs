@@ -97,8 +97,13 @@ impl MediaEditScrn {
             .spacing(INDENT),
             row![
                 signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
-                button::icon(icon::from_name("folder")).on_press(Msg::OpenChapterDirectory),
-                button::standard("...").on_press(Msg::ChapterPathSelect),
+                button::standard("")
+                    .leading_icon(icon::from_name("folder-symbolic"))
+                    .height(30)
+                    .on_press(Msg::OpenChapterDirectory),
+                button::standard("...")
+                    .height(30)
+                    .on_press(Msg::ChapterPathSelect),
             ]
             .spacing(INDENT)
         ]
