@@ -26,12 +26,6 @@ pub struct ErrorScrn {
     error: Error,
 }
 
-// impl ErrorScrn {
-//     pub const fn new(error: Error) -> Self {
-//         Self { error }
-//     }
-// }
-
 impl Screen for ErrorScrn {
     type Message = Msg;
 
