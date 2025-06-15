@@ -48,9 +48,7 @@ impl MediaEditScrn {
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
         let spacing = theme::active().cosmic().spacing;
 
-        let confirm_screen = self.confirm.view_into();
         let media = self.editable_media(media_list);
-        let chapter_path = media.chapter_path().to_string();
         let top = row![
             container(button::link("< Back").on_press(Msg::Back)).width(Length::Fill),
             text(media.name()),
@@ -73,6 +71,30 @@ impl MediaEditScrn {
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
         });
+        let edit_view = self.edit_view(media.chapter_path());
+
+        let layout = Column::new()
+            .push(top)
+            .push(watch)
+            .push_maybe(watch_sign)
+            .push_maybe(self.warning.view_into())
+            .push(edit_view)
+            .padding(spacing.space_xs)
+            .spacing(spacing.space_xs)
+            .height(Length::Fill);
+
+        if let Some(confirm_screen_view) = self.confirm.view_into() {
+            return popover::Popover::new(layout)
+                .popup(confirm_screen_view)
+                .into();
+        }
+
+        layout.into()
+    }
+
+    fn edit_view(&self, chapter_path: &str) -> Element<Msg> {
+        let spacing = theme::active().cosmic().spacing;
+
         let chapter = if self.chapter == 0 {
             String::new()
         } else {
@@ -83,7 +105,8 @@ impl MediaEditScrn {
         } else {
             self.episode.to_string()
         };
-        let body = container(
+
+        container(
             column![
                 signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
                 row![
@@ -99,7 +122,7 @@ impl MediaEditScrn {
                 ]
                 .spacing(spacing.space_xxs),
                 row![
-                    signed_text_input("Chapter path", &chapter_path, Msg::ChapterPathChanged),
+                    signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
                     button::standard("")
                         .leading_icon(icon::from_name("folder-symbolic"))
                         .height(30)
@@ -113,26 +136,8 @@ impl MediaEditScrn {
             .spacing(spacing.space_xs),
         )
         .padding(spacing.space_xs)
-        .class(style::Container::Card);
-        let warning = self.warning.view_into();
-
-        let layout = Column::new()
-            .push(top)
-            .push(watch)
-            .push_maybe(watch_sign)
-            .push_maybe(warning)
-            .push(body)
-            .padding(spacing.space_xs)
-            .spacing(spacing.space_xs)
-            .height(Length::Fill);
-
-        if let Some(confirm_screen_view) = confirm_screen {
-            return popover::Popover::new(layout)
-                .popup(confirm_screen_view)
-                .into();
-        }
-
-        layout.into()
+        .class(style::Container::Card)
+        .into()
     }
 
     pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {
