@@ -6,8 +6,9 @@
 
 use std::fmt::Display;
 
-use cosmic::Element;
-use cosmic::widget::{container, text};
+use cosmic::iced_widget::{column, row};
+use cosmic::widget::{button, container, horizontal_space, icon, text};
+use cosmic::{Element, font, style, theme};
 
 use crate::gui::Screen;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
@@ -35,7 +36,22 @@ impl<T: Display> Screen for WarningScrn<T> {
     }
 
     fn view(&self) -> Element<Message> {
-        container(text(self.kind.to_string())).into()
+        let spacing = theme::active().cosmic().spacing;
+
+        container(
+            column![
+                row![
+                    text::text("Warning").size(17).font(font::bold()),
+                    horizontal_space(),
+                    button::icon(icon::from_name("window-close-symbolic")).on_press(Message::Close)
+                ],
+                text(self.kind.to_string())
+            ]
+            .spacing(spacing.space_s),
+        )
+        .class(style::Container::Dialog)
+        .padding(spacing.space_m)
+        .into()
     }
 }
 
