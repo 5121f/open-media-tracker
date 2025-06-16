@@ -16,7 +16,7 @@ use cosmic::{Element, style, theme};
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::signed_text_input;
+use crate::gui::utils::{signed_text_input, square_button};
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
@@ -393,8 +393,4 @@ impl MediaEditScrn {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
-}
-
-fn square_button<M>(sign: &str) -> button::TextButton<M> {
-    button::standard(sign).height(30).font_size(30)
 }
