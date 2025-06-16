@@ -32,7 +32,7 @@ impl Screen for ErrorScrn {
     fn view(&self) -> Element<Msg> {
         center(
             Dialog::new()
-                .title(self.title())
+                .title("Error")
                 .body(self.error.to_string())
                 .primary_action(
                     if self.error.critical {
@@ -44,10 +44,6 @@ impl Screen for ErrorScrn {
                 ),
         )
         .into()
-    }
-
-    fn title(&self) -> String {
-        String::from("Error")
     }
 }
 

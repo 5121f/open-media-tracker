@@ -22,10 +22,6 @@ where
 {
     type Message = Msg;
 
-    fn title(&self) -> String {
-        String::from("Loading")
-    }
-
     fn view(&self) -> Element<Self::Message> {
         center(text("Loading..."))
             .width(Length::Fill)

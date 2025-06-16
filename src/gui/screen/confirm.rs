@@ -32,14 +32,10 @@ impl<T> ConfirmScrn<T> {
 impl<T: Display> Screen for ConfirmScrn<T> {
     type Message = Msg;
 
-    fn title(&self) -> String {
-        String::from("Delte media")
-    }
-
     fn view(&self) -> Element<Msg> {
         center(
             Dialog::new()
-                .title(self.title())
+                .title("Delte media")
                 .body(self.kind.to_string())
                 .primary_action(button::suggested("Confirm").on_press(Msg::Confirm))
                 .secondary_action(button::destructive("Cancel").on_press(Msg::Cancel)),

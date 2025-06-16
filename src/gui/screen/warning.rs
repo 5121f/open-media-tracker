@@ -31,10 +31,6 @@ impl<T> WarningScrn<T> {
 impl<T: Display> Screen for WarningScrn<T> {
     type Message = Message;
 
-    fn title(&self) -> String {
-        String::from("Warning")
-    }
-
     fn view(&self) -> Element<Message> {
         let spacing = theme::active().cosmic().spacing;
 

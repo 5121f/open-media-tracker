@@ -23,8 +23,6 @@ use cosmic::Element;
 pub trait Screen {
     type Message;
 
-    fn title(&self) -> String;
-
     fn view(&self) -> Element<Self::Message>;
 
     fn view_map<'a, B: 'a, F>(&'a self, f: F) -> Element<'a, B>
