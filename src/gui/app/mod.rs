@@ -31,7 +31,7 @@ use screens::Screens;
 
 pub struct OpenMediaTracker {
     core: Core,
-    media: MediaList,
+    media_list: MediaList,
     screen: Screens,
     confirm: ConfirmDlg<ConfirmKind>,
     error: Dialog<ErrorScrn>,
@@ -69,7 +69,7 @@ impl Application for OpenMediaTracker {
         let config = config.into();
         let mut omt = Self {
             core: custom_core(core),
-            media: MediaList::new(),
+            media_list: MediaList::new(),
             screen,
             confirm: ConfirmDlg::closed(),
             error: Dialog::closed(),
@@ -95,11 +95,11 @@ impl Application for OpenMediaTracker {
 
 impl OpenMediaTracker {
     fn change_media_screen(&mut self, id: usize) {
-        self.screen = Screens::change_media(&self.media, id);
+        self.screen = Screens::change_media(&self.media_list, id);
     }
 
     fn main_screen(&mut self) {
-        self.screen = Screens::Main(MainScrn::new(&self.media));
+        self.screen = Screens::Main(MainScrn::new(&self.media_list));
     }
 
     fn error_dialog(&mut self, error: Error) {
@@ -132,7 +132,7 @@ impl OpenMediaTracker {
     fn confirm_kind_update(&mut self, kind: &ConfirmKind) -> Result<(), ErrorKind> {
         match kind {
             ConfirmKind::DeleteMedia { id, .. } => {
-                self.media.remove(*id)?;
+                self.media_list.remove(*id)?;
                 self.confirm.close();
                 self.main_screen();
             }
@@ -143,7 +143,7 @@ impl OpenMediaTracker {
     fn media_edit_screen_update(&mut self, message: MediaEditScrnMsg) -> Result<(), ErrorKind> {
         match message {
             MediaEditScrnMsg::Delete(id) => {
-                let media = &self.media[id];
+                let media = &self.media_list[id];
                 let name = media.name().to_string();
                 self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
@@ -151,7 +151,7 @@ impl OpenMediaTracker {
             MediaEditScrnMsg::Watch { path } => crate::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
-                    dialog.update(&mut self.media, message)?;
+                    dialog.update(&mut self.media_list, message)?;
                 }
             }
         }
@@ -163,7 +163,7 @@ impl OpenMediaTracker {
             MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
                 let media = MediaHandler::with_default_name(config)?;
-                let new_media_index = self.media.insert(media);
+                let new_media_index = self.media_list.insert(media);
                 self.change_media_screen(new_media_index);
             }
             MainScrnMsg::MenuButton(entity) => {
@@ -174,7 +174,7 @@ impl OpenMediaTracker {
                     return Ok(());
                 };
                 let selected_media_id = self
-                    .media
+                    .media_list
                     .iter()
                     .enumerate()
                     .find(|(_id, media)| media.name() == selected_media_name)
@@ -185,7 +185,7 @@ impl OpenMediaTracker {
             }
             MainScrnMsg::SortButton | MainScrnMsg::SearchBarChanged(_) => {
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.update(message, &mut self.media);
+                    screen.update(message, &mut self.media_list);
                 }
             }
         }
@@ -218,11 +218,11 @@ impl OpenMediaTracker {
                 }
             }
             Msg::MediaLoaded(res) => {
-                self.media = res.value;
+                self.media_list = res.value;
                 error = res.error.map(Into::into);
                 self.loading.complete(&LoadingKind::ReadMedia);
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.update_media(&self.media);
+                    screen.update_media(&self.media_list);
                 }
             }
             Msg::Loading => {}
@@ -248,7 +248,7 @@ impl OpenMediaTracker {
             (None, None, None) => None,
         };
 
-        let screen_view = self.screen.view(&self.media);
+        let screen_view = self.screen.view(&self.media_list);
 
         if let Some(dialog) = dialog {
             return Popover::new(screen_view).popup(dialog).into();
@@ -262,7 +262,7 @@ impl Placeholder for OpenMediaTracker {
     fn placeholder() -> Self {
         Self {
             core: custom_core(Core::default()),
-            media: MediaList::placeholder(),
+            media_list: MediaList::placeholder(),
             screen: Screens::placeholder(),
             confirm: ConfirmDlg::placeholder(),
             error: Dialog::placeholder(),
