@@ -6,9 +6,7 @@
 
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{
-    Space, button, container, horizontal_space, icon, segmented_button, text_input,
-};
+use cosmic::widget::{Space, button, container, icon, segmented_button, text_input};
 use cosmic::{Element, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
@@ -57,15 +55,7 @@ impl MainScrn {
 
         column![
             container(row![
-                horizontal_space(),
-                button::suggested("Add media").on_press(Msg::AddMedia),
-                row![
-                    Space::new(Length::Fixed(40.0), Length::Shrink),
-                    text_input("Search", &self.search_bar)
-                        .leading_icon(
-                            button::icon(icon::from_name("system-search-symbolic")).into()
-                        )
-                        .on_input(Msg::SearchBarChanged),
+                container(
                     button::icon(match &self.sorting {
                         Some(sorting) =>
                             if sorting.reverse {
@@ -76,6 +66,16 @@ impl MainScrn {
                         None => icon::from_name("view-sort-ascending-symbolic"),
                     })
                     .on_press(Msg::SortButton)
+                )
+                .width(Length::Fill),
+                button::suggested("Add media").on_press(Msg::AddMedia),
+                row![
+                    Space::new(Length::Fixed(40.0), Length::Shrink),
+                    text_input("Search", &self.search_bar)
+                        .leading_icon(
+                            button::icon(icon::from_name("system-search-symbolic")).into()
+                        )
+                        .on_input(Msg::SearchBarChanged),
                 ],
             ])
             .width(Length::Fill)
