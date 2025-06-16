@@ -15,7 +15,7 @@ mod read_dir;
 
 use cosmic::{app::Settings, iced::Size};
 
-use gui::main::OpenMediaTracker;
+use gui::app::OpenMediaTracker;
 use open::open;
 use read_dir::read_dir;
 
