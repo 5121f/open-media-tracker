@@ -13,12 +13,12 @@ mod model;
 mod open;
 mod read_dir;
 
-use cosmic::app::Settings;
+use cosmic::{app::Settings, iced::Size};
 
 use gui::main::OpenMediaTracker;
 use open::open;
 use read_dir::read_dir;
 
 fn main() -> cosmic::iced::Result {
-    cosmic::app::run::<OpenMediaTracker>(Settings::default(), ())
+    cosmic::app::run::<OpenMediaTracker>(Settings::default().size(Size::new(600.0, 500.0)), ())
 }
