@@ -14,9 +14,7 @@ where
     M: Clone + 'static,
     F: Fn(String) -> M + 'a,
 {
-    let spacing = theme::active().cosmic().spacing;
-
     row![text(sign), text_input(sign, value).on_input(on_input)]
-        .spacing(spacing.space_xxs)
+        .spacing(theme::spacing().space_xs)
         .align_y(Alignment::Center)
 }
