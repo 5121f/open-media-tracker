@@ -160,9 +160,9 @@ impl OpenMediaTracker {
                     self.change_media_screen(id);
                 }
             }
-            MainScrnMsg::SortButton => {
+            MainScrnMsg::SortButton | MainScrnMsg::SearchBarChanged(_) => {
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.sort(&mut self.media);
+                    screen.update(message, &mut self.media);
                 }
             }
         }

@@ -4,10 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::char::ToLowercase;
+
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{button, container, horizontal_space, icon, segmented_button};
+use cosmic::widget::{
+    Space, button, container, horizontal_space, icon, segmented_button, text_input,
+};
 use cosmic::{Element, theme};
+use fuzzy_matcher::FuzzyMatcher;
+use fuzzy_matcher::skim::SkimMatcherV2;
 
 use crate::model::MediaHandler;
 
@@ -16,6 +22,7 @@ pub enum Msg {
     AddMedia,
     MenuButton(segmented_button::Entity),
     SortButton,
+    SearchBarChanged(String),
 }
 
 enum SortType {
@@ -31,6 +38,7 @@ struct Sorting {
 pub struct MainScrn {
     media_list_seg_button: segmented_button::Model<segmented_button::SingleSelect>,
     sorting: Option<Sorting>,
+    search_bar: String,
 }
 
 impl MainScrn {
@@ -38,6 +46,7 @@ impl MainScrn {
         Self {
             media_list_seg_button: Self::build(media_list),
             sorting: None,
+            search_bar: String::new(),
         }
     }
 
@@ -53,7 +62,12 @@ impl MainScrn {
                 horizontal_space(),
                 button::suggested("Add media").on_press(Msg::AddMedia),
                 row![
-                    horizontal_space(),
+                    Space::new(Length::Fixed(40.0), Length::Shrink),
+                    text_input("Search", &self.search_bar)
+                        .leading_icon(
+                            button::icon(icon::from_name("system-search-symbolic")).into()
+                        )
+                        .on_input(Msg::SearchBarChanged),
                     button::icon(match &self.sorting {
                         Some(sorting) =>
                             if sorting.reverse {
@@ -78,27 +92,54 @@ impl MainScrn {
         .into()
     }
 
-    pub fn sort(&mut self, media_list: &mut Vec<MediaHandler>) {
-        if let Some(sorting) = &mut self.sorting {
-            sorting.reverse = !sorting.reverse;
-            media_list.sort_by(|a, b| a.name().cmp(b.name()));
-            if sorting.reverse {
-                media_list.reverse();
-            }
-        } else {
-            self.sorting = Some(Sorting {
-                _type: SortType::Alphabet,
-                reverse: true,
-            });
-            media_list.sort_by(|a, b| a.name().cmp(b.name()));
-            media_list.reverse();
-        }
+    pub fn update(&mut self, message: &Msg, media_list: &mut Vec<MediaHandler>) {
+        match message {
+            Msg::SortButton => {
+                if let Some(sorting) = &mut self.sorting {
+                    sorting.reverse = !sorting.reverse;
+                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
+                    if sorting.reverse {
+                        media_list.reverse();
+                    }
+                } else {
+                    self.sorting = Some(Sorting {
+                        _type: SortType::Alphabet,
+                        reverse: true,
+                    });
+                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
+                    media_list.reverse();
+                }
 
-        let mut builder = segmented_button::Model::builder();
-        for media in media_list {
-            builder = builder.insert(|b| b.text(media.name().to_owned()));
+                let mut builder = segmented_button::Model::builder();
+                for media in media_list {
+                    builder = builder.insert(|b| b.text(media.name().to_owned()));
+                }
+                self.media_list_seg_button = builder.build();
+            }
+            Msg::SearchBarChanged(value) => {
+                self.search_bar = value.clone();
+
+                let matcher = SkimMatcherV2::default();
+                let mut search_result: Vec<(String, i64)> = media_list
+                    .iter()
+                    .map(MediaHandler::name)
+                    .map(ToOwned::to_owned)
+                    .filter_map(|n| {
+                        let scope = matcher.fuzzy_match(&n, value);
+                        scope.map(|s| (n, s))
+                    })
+                    .collect();
+                search_result.sort_by(|a, b| a.1.cmp(&b.1));
+                search_result.reverse();
+
+                let mut builder = segmented_button::Model::builder();
+                for (media_name, _) in search_result {
+                    builder = builder.insert(|b| b.text(media_name.clone()));
+                }
+                self.media_list_seg_button = builder.build();
+            }
+            Msg::AddMedia | Msg::MenuButton(_) => {}
         }
-        self.media_list_seg_button = builder.build();
     }
 
     pub fn selected(&self, entity: segmented_button::Entity) -> Option<&str> {
@@ -114,4 +155,9 @@ impl MainScrn {
         }
         builder.build()
     }
+}
+
+struct SortingResult {
+    media_name: String,
+    scope: i64,
 }
