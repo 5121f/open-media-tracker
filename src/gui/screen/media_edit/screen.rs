@@ -53,7 +53,12 @@ impl MediaEditScrn {
 
         let media = self.editable_media(media_list);
         let top = row![
-            container(button::link("< Back").on_press(Msg::Back)).width(Length::Fill),
+            container(
+                button::text("Back")
+                    .leading_icon(icon::from_name("go-previous-symbolic"))
+                    .on_press(Msg::Back)
+            )
+            .width(Length::Fill),
             text(media.name()),
             container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
                 .width(Length::Fill)
