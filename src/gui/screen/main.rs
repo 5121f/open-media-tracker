@@ -5,7 +5,8 @@
  */
 
 use cosmic::iced::{Alignment, Length};
-use cosmic::widget::{Column, button, container, segmented_button};
+use cosmic::iced_widget::column;
+use cosmic::widget::{button, container, segmented_button};
 use cosmic::{Element, theme};
 
 use crate::model::MediaHandler;
@@ -35,21 +36,18 @@ impl MainScrn {
     pub fn view(&self) -> Element<Msg> {
         let spacing = theme::active().cosmic().spacing;
 
-        Column::new()
-            .push(
-                container(button::suggested("Add media").on_press(Msg::AddMedia))
-                    .width(Length::Fill)
-                    .align_x(Alignment::Center),
-            )
-            .push(
-                segmented_button::vertical(&self.media_list_seg_button)
-                    .on_activate(Msg::MenuButton)
-                    .button_padding([spacing.space_s, 0, 0, spacing.space_s]),
-            )
-            .spacing(spacing.space_xs)
-            .padding(spacing.space_xs)
-            .height(Length::Fill)
-            .into()
+        column![
+            container(button::suggested("Add media").on_press(Msg::AddMedia))
+                .width(Length::Fill)
+                .align_x(Alignment::Center),
+            segmented_button::vertical(&self.media_list_seg_button)
+                .on_activate(Msg::MenuButton)
+                .button_padding([spacing.space_s, 0, 0, spacing.space_s]),
+        ]
+        .spacing(spacing.space_xs)
+        .padding(spacing.space_xs)
+        .height(Length::Fill)
+        .into()
     }
 
     pub fn selected(&self, entity: segmented_button::Entity) -> Option<&str> {
