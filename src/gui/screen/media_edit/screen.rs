@@ -36,14 +36,13 @@ pub struct MediaEditScrn {
 impl MediaEditScrn {
     pub fn new(media: &[MediaHandler], editable_media_id: usize) -> Self {
         let editable_media = &media[editable_media_id];
-        let editable_episode_name = editable_media.name().to_string();
-        let episodes = editable_media.episode_list();
+
         Self {
             confirm: ConfirmDlg::closed(),
             warning: WarningDlg::closed(),
             editable_media_id,
-            episodes,
-            buffer_name: editable_episode_name,
+            episodes: editable_media.episode_list(),
+            buffer_name: editable_media.name().to_string(),
             chapter: editable_media.chapter().get(),
             episode: editable_media.episode().get(),
         }
