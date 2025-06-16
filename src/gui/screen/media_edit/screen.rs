@@ -11,7 +11,7 @@ use cosmic::iced::font::Weight;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
-    Column, button, container, horizontal_space, icon, popover, spin_button, text,
+    Column, button, container, divider, horizontal_space, icon, popover, spin_button, text,
 };
 use cosmic::{Element, style, theme};
 
@@ -101,6 +101,7 @@ impl MediaEditScrn {
         container(
             column![
                 signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
+                divider::horizontal::default(),
                 row![
                     "Chapter",
                     horizontal_space(),
@@ -115,6 +116,7 @@ impl MediaEditScrn {
                 ]
                 .spacing(spacing.space_xs)
                 .align_y(Alignment::Center),
+                divider::horizontal::default(),
                 row![
                     "Episode",
                     horizontal_space(),
@@ -129,6 +131,7 @@ impl MediaEditScrn {
                 ]
                 .spacing(spacing.space_xxs)
                 .align_y(Alignment::Center),
+                divider::horizontal::default(),
                 row![
                     signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
                     button::standard("")
