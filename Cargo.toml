@@ -18,7 +18,7 @@ fuzzy-matcher = "0.3.7"
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
-features = ["winit"]
+features = ["winit", "wgpu"]
 
 [dependencies.derive_more]
 version = "2.0.1"
