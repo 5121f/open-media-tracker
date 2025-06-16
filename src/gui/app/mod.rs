@@ -53,8 +53,12 @@ impl Application for OpenMediaTracker {
         &mut self.core
     }
 
-    fn init(core: cosmic::Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
-        Self::new(core)
+    fn init(core: Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
+        Self::init2(core).unwrap_or_else(|error| {
+            let mut omt = Self::placeholder();
+            omt.error_dialog(error);
+            (omt, Task::none())
+        })
     }
 
     fn view(&self) -> Element<Self::Message> {
@@ -211,7 +215,7 @@ impl OpenMediaTracker {
         }
     }
 
-    fn new2(core: Core) -> Result<(Self, Task<Msg>), Error> {
+    fn init2(core: Core) -> Result<(Self, Task<Msg>), Error> {
         let config = Config::read().map_err(Error::critical)?;
         let config = config.into();
         let mut omt = Self {
@@ -225,14 +229,6 @@ impl OpenMediaTracker {
         };
         let command = Task::batch(vec![omt.read_media()]);
         Ok((omt, command))
-    }
-
-    pub fn new(core: Core) -> (Self, Task<Msg>) {
-        Self::new2(core).unwrap_or_else(|error| {
-            let mut omt = Self::placeholder();
-            omt.error_dialog(error);
-            (omt, Task::none())
-        })
     }
 
     pub fn view(&self) -> Element<Msg> {
