@@ -5,8 +5,8 @@
  */
 
 use cosmic::iced::{Alignment, Length};
-use cosmic::iced_widget::column;
-use cosmic::widget::{button, container, segmented_button};
+use cosmic::iced_widget::{column, row};
+use cosmic::widget::{button, container, horizontal_space, icon, segmented_button};
 use cosmic::{Element, theme};
 
 use crate::model::MediaHandler;
@@ -15,21 +15,33 @@ use crate::model::MediaHandler;
 pub enum Msg {
     AddMedia,
     MenuButton(segmented_button::Entity),
+    SortButton,
+}
+
+enum SortType {
+    Alphabet,
+}
+
+struct Sorting {
+    _type: SortType,
+    reverse: bool,
 }
 
 #[derive(Default)]
 pub struct MainScrn {
     media_list_seg_button: segmented_button::Model<segmented_button::SingleSelect>,
+    sorting: Option<Sorting>,
 }
 
 impl MainScrn {
     pub fn new(media_list: &[MediaHandler]) -> Self {
         Self {
             media_list_seg_button: Self::build(media_list),
+            sorting: None,
         }
     }
 
-    pub fn update(&mut self, media_list: &[MediaHandler]) {
+    pub fn update_media(&mut self, media_list: &[MediaHandler]) {
         self.media_list_seg_button = Self::build(media_list);
     }
 
@@ -37,9 +49,25 @@ impl MainScrn {
         let spacing = theme::active().cosmic().spacing;
 
         column![
-            container(button::suggested("Add media").on_press(Msg::AddMedia))
-                .width(Length::Fill)
-                .align_x(Alignment::Center),
+            container(row![
+                horizontal_space(),
+                button::suggested("Add media").on_press(Msg::AddMedia),
+                row![
+                    horizontal_space(),
+                    button::icon(match &self.sorting {
+                        Some(sorting) =>
+                            if sorting.reverse {
+                                icon::from_name("view-sort-descending-symbolic")
+                            } else {
+                                icon::from_name("view-sort-ascending-symbolic")
+                            },
+                        None => icon::from_name("view-sort-ascending-symbolic"),
+                    })
+                    .on_press(Msg::SortButton)
+                ],
+            ])
+            .width(Length::Fill)
+            .align_x(Alignment::Center),
             segmented_button::vertical(&self.media_list_seg_button)
                 .on_activate(Msg::MenuButton)
                 .button_padding([spacing.space_s, 0, 0, spacing.space_s]),
@@ -48,6 +76,34 @@ impl MainScrn {
         .padding(spacing.space_xs)
         .height(Length::Fill)
         .into()
+    }
+
+    pub fn update(&mut self, message: &Msg, media_list: &mut Vec<MediaHandler>) {
+        match message {
+            Msg::SortButton => {
+                if let Some(sorting) = &mut self.sorting {
+                    sorting.reverse = !sorting.reverse;
+                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
+                    if sorting.reverse {
+                        media_list.reverse();
+                    }
+                } else {
+                    self.sorting = Some(Sorting {
+                        _type: SortType::Alphabet,
+                        reverse: true,
+                    });
+                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
+                    media_list.reverse();
+                }
+
+                let mut builder = segmented_button::Model::builder();
+                for media in media_list {
+                    builder = builder.insert(|b| b.text(media.name().to_owned()));
+                }
+                self.media_list_seg_button = builder.build();
+            }
+            Msg::AddMedia | Msg::MenuButton(_) => {}
+        }
     }
 
     pub fn selected(&self, entity: segmented_button::Entity) -> Option<&str> {

@@ -160,6 +160,11 @@ impl OpenMediaTracker {
                     self.change_media_screen(id);
                 }
             }
+            MainScrnMsg::SortButton => {
+                if let Screens::Main(screen) = &mut self.screen {
+                    screen.update(message, &mut self.media);
+                }
+            }
         }
         Ok(())
     }
@@ -194,7 +199,7 @@ impl OpenMediaTracker {
                 error = res.error.map(Into::into);
                 self.loading.complete(&LoadingKind::ReadMedia);
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.update(&self.media);
+                    screen.update_media(&self.media);
                 }
             }
             Msg::Loading => {}
