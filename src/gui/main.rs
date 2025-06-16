@@ -162,7 +162,7 @@ impl OpenMediaTracker {
             }
             MainScrnMsg::SortButton => {
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.update(message, &mut self.media);
+                    screen.sort(&mut self.media);
                 }
             }
         }

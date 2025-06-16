@@ -78,32 +78,27 @@ impl MainScrn {
         .into()
     }
 
-    pub fn update(&mut self, message: &Msg, media_list: &mut Vec<MediaHandler>) {
-        match message {
-            Msg::SortButton => {
-                if let Some(sorting) = &mut self.sorting {
-                    sorting.reverse = !sorting.reverse;
-                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
-                    if sorting.reverse {
-                        media_list.reverse();
-                    }
-                } else {
-                    self.sorting = Some(Sorting {
-                        _type: SortType::Alphabet,
-                        reverse: true,
-                    });
-                    media_list.sort_by(|a, b| a.name().cmp(b.name()));
-                    media_list.reverse();
-                }
-
-                let mut builder = segmented_button::Model::builder();
-                for media in media_list {
-                    builder = builder.insert(|b| b.text(media.name().to_owned()));
-                }
-                self.media_list_seg_button = builder.build();
+    pub fn sort(&mut self, media_list: &mut Vec<MediaHandler>) {
+        if let Some(sorting) = &mut self.sorting {
+            sorting.reverse = !sorting.reverse;
+            media_list.sort_by(|a, b| a.name().cmp(b.name()));
+            if sorting.reverse {
+                media_list.reverse();
             }
-            Msg::AddMedia | Msg::MenuButton(_) => {}
+        } else {
+            self.sorting = Some(Sorting {
+                _type: SortType::Alphabet,
+                reverse: true,
+            });
+            media_list.sort_by(|a, b| a.name().cmp(b.name()));
+            media_list.reverse();
         }
+
+        let mut builder = segmented_button::Model::builder();
+        for media in media_list {
+            builder = builder.insert(|b| b.text(media.name().to_owned()));
+        }
+        self.media_list_seg_button = builder.build();
     }
 
     pub fn selected(&self, entity: segmented_button::Entity) -> Option<&str> {
