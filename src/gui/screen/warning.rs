@@ -32,7 +32,7 @@ impl<T: Display> Screen for WarningScrn<T> {
     type Message = Message;
 
     fn view(&self) -> Element<Message> {
-        let spacing = theme::active().cosmic().spacing;
+        let spacing = theme::spacing();
 
         container(
             column![

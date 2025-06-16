@@ -51,7 +51,7 @@ impl MainScrn {
     }
 
     pub fn view(&self) -> Element<Msg> {
-        let spacing = theme::active().cosmic().spacing;
+        let spacing = theme::spacing();
 
         column![
             container(row![

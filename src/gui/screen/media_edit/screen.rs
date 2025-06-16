@@ -49,7 +49,7 @@ impl MediaEditScrn {
     }
 
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
-        let spacing = theme::active().cosmic().spacing;
+        let spacing = theme::spacing();
 
         let media = self.editable_media(media_list);
         let top = row![
@@ -101,7 +101,7 @@ impl MediaEditScrn {
     }
 
     fn edit_view(&self, chapter_path: &str) -> Element<Msg> {
-        let spacing = theme::active().cosmic().spacing;
+        let spacing = theme::spacing();
 
         container(
             column![
