@@ -9,6 +9,7 @@ use std::path::PathBuf;
 
 use cosmic::iced::font::Weight;
 use cosmic::iced::{Alignment, Length};
+use cosmic::iced_core::text::Wrapping;
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
     Column, button, container, divider, horizontal_space, icon, popover, spin_button, text,
@@ -75,7 +76,7 @@ impl MediaEditScrn {
         .width(Length::Fill)
         .align_x(Alignment::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(text(watch_sign).size(13))
+            container(text(watch_sign).size(13).wrapping(Wrapping::WordOrGlyph))
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
         });
