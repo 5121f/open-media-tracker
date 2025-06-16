@@ -4,8 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::char::ToLowercase;
-
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
@@ -92,7 +90,7 @@ impl MainScrn {
         .into()
     }
 
-    pub fn update(&mut self, message: &Msg, media_list: &mut Vec<MediaHandler>) {
+    pub fn update(&mut self, message: Msg, media_list: &mut Vec<MediaHandler>) {
         match message {
             Msg::SortButton => {
                 if let Some(sorting) = &mut self.sorting {
@@ -117,7 +115,7 @@ impl MainScrn {
                 self.media_list_seg_button = builder.build();
             }
             Msg::SearchBarChanged(value) => {
-                self.search_bar = value.clone();
+                self.search_bar = value;
 
                 let matcher = SkimMatcherV2::default();
                 let mut search_result: Vec<(String, i64)> = media_list
@@ -125,7 +123,7 @@ impl MainScrn {
                     .map(MediaHandler::name)
                     .map(ToOwned::to_owned)
                     .filter_map(|n| {
-                        let scope = matcher.fuzzy_match(&n, value);
+                        let scope = matcher.fuzzy_match(&n, &self.search_bar);
                         scope.map(|s| (n, s))
                     })
                     .collect();
@@ -155,9 +153,4 @@ impl MainScrn {
         }
         builder.build()
     }
-}
-
-struct SortingResult {
-    media_name: String,
-    scope: i64,
 }

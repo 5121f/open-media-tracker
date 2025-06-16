@@ -135,7 +135,7 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn main_screen_update(&mut self, message: &MainScrnMsg) -> Result<(), ErrorKind> {
+    fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<(), ErrorKind> {
         match message {
             MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
@@ -147,7 +147,7 @@ impl OpenMediaTracker {
                 let Screens::Main(screen) = &self.screen else {
                     return Ok(());
                 };
-                let Some(selected_media_name) = screen.selected(*entity) else {
+                let Some(selected_media_name) = screen.selected(entity) else {
                     return Ok(());
                 };
                 let selected_media_id = self
@@ -174,7 +174,7 @@ impl OpenMediaTracker {
 
         match message {
             Msg::MainScreen(message) => {
-                if let Err(err) = self.main_screen_update(&message) {
+                if let Err(err) = self.main_screen_update(message) {
                     error = Some(err.into());
                 }
             }
