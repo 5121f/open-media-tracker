@@ -215,7 +215,7 @@ impl OpenMediaTracker {
         let config = Config::read().map_err(Error::critical)?;
         let config = config.into();
         let mut omt = Self {
-            core,
+            core: custom_core(core),
             media: MediaList::new(),
             screen: Screens::default(),
             confirm: ConfirmDlg::closed(),
@@ -262,7 +262,7 @@ impl OpenMediaTracker {
 impl Placeholder for OpenMediaTracker {
     fn placeholder() -> Self {
         Self {
-            core: Core::default(),
+            core: custom_core(Core::default()),
             media: MediaList::placeholder(),
             screen: Screens::placeholder(),
             confirm: ConfirmDlg::placeholder(),
@@ -271,6 +271,11 @@ impl Placeholder for OpenMediaTracker {
             config: Config::placeholder().into(),
         }
     }
+}
+
+fn custom_core(mut core: Core) -> Core {
+    core.window.header_title = String::from("Open Media Tracker");
+    core
 }
 
 fn close_app() -> Task<Msg> {
