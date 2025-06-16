@@ -7,14 +7,16 @@
 use cosmic::Element;
 use derive_more::derive::From;
 
-use crate::gui::screen::{MainScrn, MediaEditScrn};
+use crate::gui::Screen;
+use crate::gui::screen::{ErrorScrn, MainScrn, MediaEditScrn};
 use crate::message::Msg;
-use crate::model::{MediaHandler, MediaList};
+use crate::model::{Error, MediaHandler, MediaList};
 
 #[derive(From)]
 pub enum Screens {
     Main(MainScrn),
     MediaChange(MediaEditScrn),
+    Error(ErrorScrn),
 }
 
 impl Screens {
@@ -22,11 +24,16 @@ impl Screens {
         match self {
             Self::Main(screen) => screen.view().map(Into::into),
             Self::MediaChange(screen) => screen.view(media).map(Into::into),
+            Self::Error(screen) => screen.view_into(),
         }
     }
 
     pub fn change_media(media: &[MediaHandler], id: usize) -> Self {
         MediaEditScrn::new(media, id).into()
+    }
+
+    pub fn error(error: impl Into<Error>) -> Self {
+        Self::Error(ErrorScrn::from(error.into()))
     }
 }
 

@@ -54,11 +54,30 @@ impl Application for OpenMediaTracker {
     }
 
     fn init(core: Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
-        Self::init2(core).unwrap_or_else(|error| {
-            let mut omt = Self::placeholder();
-            omt.error_dialog(error);
-            (omt, Task::none())
-        })
+        let config;
+        let screen;
+        match Config::read().map_err(Error::critical) {
+            Ok(c) => {
+                config = c;
+                screen = Screens::default();
+            }
+            Err(err) => {
+                config = Config::placeholder();
+                screen = Screens::error(err);
+            }
+        }
+        let config = config.into();
+        let mut omt = Self {
+            core: custom_core(core),
+            media: MediaList::new(),
+            screen,
+            confirm: ConfirmDlg::closed(),
+            error: Dialog::closed(),
+            loading: LoadingDialog::closed(),
+            config,
+        };
+        let command = Task::batch(vec![omt.read_media()]);
+        (omt, command)
     }
 
     fn view(&self) -> Element<Self::Message> {
@@ -213,22 +232,6 @@ impl OpenMediaTracker {
             value: Task::none(),
             error,
         }
-    }
-
-    fn init2(core: Core) -> Result<(Self, Task<Msg>), Error> {
-        let config = Config::read().map_err(Error::critical)?;
-        let config = config.into();
-        let mut omt = Self {
-            core: custom_core(core),
-            media: MediaList::new(),
-            screen: Screens::default(),
-            confirm: ConfirmDlg::closed(),
-            error: Dialog::closed(),
-            loading: LoadingDialog::closed(),
-            config,
-        };
-        let command = Task::batch(vec![omt.read_media()]);
-        Ok((omt, command))
     }
 
     pub fn view(&self) -> Element<Msg> {
