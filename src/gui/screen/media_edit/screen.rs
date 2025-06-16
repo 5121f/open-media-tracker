@@ -7,6 +7,7 @@
 use std::num::NonZeroU8;
 use std::path::PathBuf;
 
+use cosmic::iced::font::Weight;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{Column, button, container, icon, popover, text};
@@ -111,14 +112,14 @@ impl MediaEditScrn {
                 signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
                 row![
                     signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
-                    button::standard("-").on_press(Msg::ChapterDec),
-                    button::standard("+").on_press(Msg::ChapterInc)
+                    square_button("-").on_press(Msg::ChapterDec),
+                    square_button("+").on_press(Msg::ChapterInc)
                 ]
                 .spacing(spacing.space_xxs),
                 row![
                     signed_text_input("Episode", &episode, Msg::EpisodeChanged),
-                    button::standard("-").on_press(Msg::EpisodeDec),
-                    button::standard("+").on_press(Msg::EpisodeInc)
+                    square_button("-").on_press(Msg::EpisodeDec),
+                    square_button("+").on_press(Msg::EpisodeInc)
                 ]
                 .spacing(spacing.space_xxs),
                 row![
@@ -129,6 +130,8 @@ impl MediaEditScrn {
                         .on_press(Msg::OpenChapterDirectory),
                     button::standard("...")
                         .height(30)
+                        .font_size(20)
+                        .font_weight(Weight::Bold)
                         .on_press(Msg::ChapterPathSelect),
                 ]
                 .spacing(spacing.space_xxs)
@@ -390,4 +393,8 @@ impl MediaEditScrn {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
+}
+
+fn square_button<M>(sign: &str) -> button::TextButton<M> {
+    button::standard(sign).height(30).font_size(30)
 }
