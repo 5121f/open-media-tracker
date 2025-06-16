@@ -44,11 +44,12 @@ impl Media {
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
         let path = path.as_ref();
 
-        let content = serde_json::to_string_pretty(&self)
-            .map_err(|source| ErrorKind::serialize(source, &self.name))?;
-        if !path.parent().unwrap_or_else(|| Path::new("/")).exists() {
+        let parent = path.parent().ok_or_else(|| ErrorKind::data_dir(path))?;
+        if !parent.exists() {
             fs::create_dir(path)?;
         }
+        let content = serde_json::to_string_pretty(&self)
+            .map_err(|source| ErrorKind::serialize(source, &self.name))?;
         fs::write(path, content)?;
         Ok(())
     }

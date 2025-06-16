@@ -56,6 +56,8 @@ pub enum ErrorKind {
     MediaNameIsUsed { name: String },
     #[error("Eisode not found")]
     EpisodeNotFound,
+    #[error("Failed to determinate data directory: {path}")]
+    DataDir { path: PathBuf },
     #[error(transparent)]
     Open(#[from] OpenError),
     #[error(transparent)]
@@ -79,6 +81,10 @@ impl ErrorKind {
 
     pub fn media_name_is_used(name: impl Into<String>) -> Self {
         Self::MediaNameIsUsed { name: name.into() }
+    }
+
+    pub fn data_dir(path: impl Into<PathBuf>) -> Self {
+        Self::DataDir { path: path.into() }
     }
 }
 
