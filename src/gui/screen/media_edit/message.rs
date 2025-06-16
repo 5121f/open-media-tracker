@@ -18,15 +18,11 @@ pub enum Msg {
         path: PathBuf,
     },
     NameChanged(String),
-    ChapterChanged(String),
-    EpisodeChanged(String),
+    ChapterChanged(u8),
+    EpisodeChanged(u8),
     ChapterPathChanged(String),
     ChapterPathSelect,
     OpenChapterDirectory,
-    ChapterInc,
-    ChapterDec,
-    EpisodeInc,
-    EpisodeDec,
     #[from]
     ConfirmScreen(ConfirmScrnMsg),
     #[from]

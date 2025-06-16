@@ -78,10 +78,6 @@ impl Media {
         EpisodeList::read(self.chapter_path.clone().into_path_buf())
     }
 
-    pub fn set_chapter_to_one(&mut self) {
-        self.chapter = NonZeroU8::MIN;
-    }
-
     pub fn set_episode_to_one(&mut self) {
         self.episode = NonZeroU8::MIN;
     }

@@ -10,13 +10,15 @@ use std::path::PathBuf;
 use cosmic::iced::font::Weight;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{Column, button, container, icon, popover, text};
+use cosmic::widget::{
+    Column, button, container, horizontal_space, icon, popover, spin_button, text,
+};
 use cosmic::{Element, style, theme};
 
 use super::kind::{ConfirmKind, WarningKind};
 use super::message::Msg;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
-use crate::gui::utils::{signed_text_input, square_button};
+use crate::gui::utils::signed_text_input;
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
 use crate::open;
 
@@ -96,32 +98,37 @@ impl MediaEditScrn {
     fn edit_view(&self, chapter_path: &str) -> Element<Msg> {
         let spacing = theme::active().cosmic().spacing;
 
-        let chapter = if self.chapter == 0 {
-            String::new()
-        } else {
-            self.chapter.to_string()
-        };
-        let episode = if self.episode == 0 {
-            String::new()
-        } else {
-            self.episode.to_string()
-        };
-
         container(
             column![
                 signed_text_input("Name", &self.buffer_name, Msg::NameChanged),
                 row![
-                    signed_text_input("Chapter", &chapter, Msg::ChapterChanged),
-                    square_button("-").on_press(Msg::ChapterDec),
-                    square_button("+").on_press(Msg::ChapterInc)
+                    "Chapter",
+                    horizontal_space(),
+                    spin_button(
+                        self.chapter.to_string(),
+                        self.chapter,
+                        1,
+                        1,
+                        u8::MAX,
+                        Msg::ChapterChanged
+                    ),
                 ]
-                .spacing(spacing.space_xxs),
+                .spacing(spacing.space_xs)
+                .align_y(Alignment::Center),
                 row![
-                    signed_text_input("Episode", &episode, Msg::EpisodeChanged),
-                    square_button("-").on_press(Msg::EpisodeDec),
-                    square_button("+").on_press(Msg::EpisodeInc)
+                    "Episode",
+                    horizontal_space(),
+                    spin_button(
+                        self.episode.to_string(),
+                        self.episode,
+                        1,
+                        1,
+                        u8::MAX,
+                        Msg::EpisodeChanged
+                    ),
                 ]
-                .spacing(spacing.space_xxs),
+                .spacing(spacing.space_xxs)
+                .align_y(Alignment::Center),
                 row![
                     signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
                     button::standard("")
@@ -160,44 +167,16 @@ impl MediaEditScrn {
                     self.warning.close();
                 }
             }
-            Msg::ChapterChanged(value) if value.is_empty() => {
-                // TODO: Warning: Chapter can not be zero
-                self.chapter = 0;
-                self.editable_media_mut(media_list).set_chapter_to_one();
-            }
             Msg::ChapterChanged(value) => {
-                if let Ok(number) = value.parse::<NonZeroU8>() {
-                    self.chapter = number.get();
+                self.chapter = value;
+                if let Some(number) = NonZeroU8::new(value) {
                     self.editable_media_mut(media_list).set_chapter(number)?;
                 }
             }
-            Msg::EpisodeChanged(value) if value.is_empty() => {
-                // TODO: Warning: Episode can not be zero
-                self.episode = 0;
-                self.editable_media_mut(media_list).set_episode_to_one();
-            }
             Msg::EpisodeChanged(value) => {
-                if let Ok(number) = value.parse::<NonZeroU8>() {
-                    self.episode = number.get();
+                self.episode = value;
+                if let Some(number) = NonZeroU8::new(value) {
                     self.set_episode(media_list, number)?;
-                }
-            }
-            Msg::ChapterInc => self.increase_chapter(media_list)?,
-            Msg::ChapterDec => {
-                let media = self.editable_media_mut(media_list);
-                let new_value = media.chapter().get() - 1;
-                self.chapter = new_value;
-                if let Some(number) = NonZeroU8::new(new_value) {
-                    media.set_chapter(number)?;
-                }
-            }
-            Msg::EpisodeInc => self.increase_episode(media_list)?,
-            Msg::EpisodeDec => {
-                let media = self.editable_media_mut(media_list);
-                let new_value = media.episode().get() - 1;
-                self.episode = new_value;
-                if let Some(number) = NonZeroU8::new(new_value) {
-                    media.set_episode(number)?;
                 }
             }
             Msg::ChapterPathChanged(value) => {
@@ -307,17 +286,6 @@ impl MediaEditScrn {
 
     fn warning(&mut self, kind: WarningKind) {
         self.warning = WarningDlg::from_kind(kind);
-    }
-
-    fn increase_episode(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
-        if self.episode == 0 {
-            self.episode = 1;
-            return Ok(());
-        }
-
-        let media = self.editable_media(media_list);
-        let next_episode = media.episode().saturating_add(1);
-        self.set_episode(media_list, next_episode)
     }
 
     fn is_episode_overflow(&self, value: NonZeroU8) -> bool {

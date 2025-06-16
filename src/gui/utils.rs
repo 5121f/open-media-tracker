@@ -7,7 +7,7 @@
 use cosmic::iced::Alignment;
 use cosmic::iced_widget::{row, text_input};
 use cosmic::theme;
-use cosmic::widget::{Row, button, text};
+use cosmic::widget::{Row, text};
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
 where
@@ -19,8 +19,4 @@ where
     row![text(sign), text_input(sign, value).on_input(on_input)]
         .spacing(spacing.space_xxs)
         .align_y(Alignment::Center)
-}
-
-pub fn square_button<M>(sign: &str) -> button::TextButton<M> {
-    button::standard(sign).height(30).font_size(30)
 }
