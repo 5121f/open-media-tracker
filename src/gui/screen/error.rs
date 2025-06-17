@@ -6,7 +6,7 @@
 
 use cosmic::Element;
 use cosmic::iced_widget::center;
-use cosmic::widget::{Dialog, button};
+use cosmic::widget::{button, dialog};
 
 use crate::gui::Screen;
 use crate::model::Error;
@@ -31,7 +31,7 @@ impl Screen for ErrorScrn {
 
     fn view(&self) -> Element<Msg> {
         center(
-            Dialog::new()
+            dialog()
                 .title("Error")
                 .body(self.error.to_string())
                 .primary_action(
