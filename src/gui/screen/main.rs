@@ -72,8 +72,11 @@ impl MainScrn {
                 row![
                     Space::new(Length::Fixed(40.0), Length::Shrink),
                     text_input("Search", &self.search_bar)
+                        .style(theme::TextInput::Search)
                         .leading_icon(
-                            button::icon(icon::from_name("system-search-symbolic")).into()
+                            container(icon::from_name("system-search-symbolic").size(16))
+                                .padding([0, 0, 0, 3])
+                                .into()
                         )
                         .on_input(Msg::SearchBarChanged),
                 ],
