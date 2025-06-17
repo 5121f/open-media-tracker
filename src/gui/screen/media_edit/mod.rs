@@ -17,7 +17,7 @@ use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
     Column, button, container, divider, horizontal_space, icon, popover, spin_button, text,
 };
-use cosmic::{Element, style, theme};
+use cosmic::{Element, font, style, theme};
 
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
@@ -78,9 +78,14 @@ impl MediaEditScrn {
         .width(Length::Fill)
         .align_x(Alignment::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(text(watch_sign).size(13).wrapping(Wrapping::WordOrGlyph))
-                .width(Length::Fill)
-                .align_x(Alignment::Center)
+            container(
+                text(watch_sign)
+                    .font(font::light())
+                    .size(13)
+                    .wrapping(Wrapping::WordOrGlyph),
+            )
+            .width(Length::Fill)
+            .align_x(Alignment::Center)
         });
         let edit_view = self.edit_view(media.chapter_path());
 
