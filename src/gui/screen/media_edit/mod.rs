@@ -78,14 +78,12 @@ impl MediaEditScrn {
         .width(Length::Fill)
         .align_x(Alignment::Center);
         let watch_sign = self.watch_sign(media_list).map(|watch_sign| {
-            container(
-                text(watch_sign)
-                    .font(font::light())
-                    .size(13)
-                    .wrapping(Wrapping::WordOrGlyph),
-            )
-            .width(Length::Fill)
-            .align_x(Alignment::Center)
+            text(watch_sign)
+                .font(font::light())
+                .size(13)
+                .wrapping(Wrapping::WordOrGlyph)
+                .align_x(Alignment::Center)
+                .width(Length::Fill)
         });
         let edit_view = self.edit_view(media.chapter_path());
 
