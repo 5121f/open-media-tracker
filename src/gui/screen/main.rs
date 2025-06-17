@@ -93,7 +93,7 @@ impl MainScrn {
         .into()
     }
 
-    pub fn update(&mut self, message: Msg, media_list: &mut Vec<MediaHandler>) {
+    pub fn update(&mut self, message: Msg, media_list: &mut [MediaHandler]) {
         match message {
             Msg::SortButton => {
                 if let Some(sorting) = &mut self.sorting {
@@ -111,11 +111,7 @@ impl MainScrn {
                     media_list.reverse();
                 }
 
-                let mut builder = segmented_button::Model::builder();
-                for media in media_list {
-                    builder = builder.insert(|b| b.text(media.name().to_owned()));
-                }
-                self.media_list_seg_button = builder.build();
+                self.media_list_seg_button = Self::build(media_list);
             }
             Msg::SearchBarChanged(value) => {
                 self.search_bar = value;
