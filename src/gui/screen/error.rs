@@ -7,6 +7,7 @@
 use cosmic::Element;
 use cosmic::iced_widget::center;
 use cosmic::widget::{button, dialog};
+use derive_more::From;
 
 use crate::gui::Screen;
 use crate::model::Error;
@@ -22,6 +23,7 @@ impl Msg {
     }
 }
 
+#[derive(From)]
 pub struct ErrorScrn {
     error: Error,
 }
@@ -44,11 +46,5 @@ impl Screen for ErrorScrn {
                 ),
         )
         .into()
-    }
-}
-
-impl From<Error> for ErrorScrn {
-    fn from(value: Error) -> Self {
-        Self { error: value }
     }
 }
