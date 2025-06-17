@@ -135,7 +135,7 @@ impl MainScrn {
                 }
                 self.media_list_seg_button = builder.build();
             }
-            Msg::AddMedia | Msg::MenuButton(_) => {}
+            _ => {}
         }
     }
 

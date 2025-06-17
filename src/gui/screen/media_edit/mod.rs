@@ -215,7 +215,7 @@ impl MediaEditScrn {
                 }
                 open(chapter_path)?;
             }
-            Msg::Back | Msg::Delete(_) | Msg::Watch { .. } => {}
+            _ => {}
         }
         Ok(())
     }
