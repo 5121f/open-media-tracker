@@ -193,7 +193,8 @@ impl MediaEditScrn {
             Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, &message)?,
             Msg::ChapterPathSelect => {
                 return Ok(cosmic::task::future(async {
-                    match file_chooser::open::Dialog::new().open_folder().await {
+                    let dialog = file_chooser::open::Dialog::new().title("Select chapter path");
+                    match dialog.open_folder().await {
                         Ok(responce) => Msg::ChapterPathSelected(responce.url().to_owned()),
                         Err(file_chooser::Error::Cancelled) => Msg::OpenDialogCanceled,
                         Err(err) => Msg::OpenDialogError(Arc::new(err)),
