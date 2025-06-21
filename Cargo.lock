@@ -284,17 +284,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-fs"
-version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebcd09b382f40fcd159c2d695175b2ae620ffa5f3bd6f664131efff4e8b9e04a"
-dependencies = [
- "async-lock 3.4.0",
- "blocking",
- "futures-lite 2.6.0",
-]
-
-[[package]]
 name = "async-io"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3360,7 +3349,6 @@ dependencies = [
 name = "open_media_tracker"
 version = "0.1.0"
 dependencies = [
- "async-fs",
  "async-io 2.4.1",
  "derive_more",
  "etcetera",
@@ -3372,6 +3360,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.12",
+ "tokio",
 ]
 
 [[package]]
