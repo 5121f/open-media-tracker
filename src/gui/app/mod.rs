@@ -140,7 +140,10 @@ impl OpenMediaTracker {
         Ok(())
     }
 
-    fn media_edit_screen_update(&mut self, message: MediaEditScrnMsg) -> Result<(), ErrorKind> {
+    fn media_edit_screen_update(
+        &mut self,
+        message: MediaEditScrnMsg,
+    ) -> Result<Task<Msg>, ErrorKind> {
         match message {
             MediaEditScrnMsg::Delete(id) => {
                 let media = &self.media_list[id];
@@ -151,11 +154,12 @@ impl OpenMediaTracker {
             MediaEditScrnMsg::Watch { path } => crate::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
-                    dialog.update(&mut self.media_list, message)?;
+                    let task = dialog.update(&mut self.media_list, message)?;
+                    return Ok(task.map(|m| Action::App(Msg::MediaEditScreen(m))));
                 }
             }
         }
-        Ok(())
+        Ok(Task::none())
     }
 
     fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<(), ErrorKind> {
@@ -201,11 +205,10 @@ impl OpenMediaTracker {
                     error = Some(err.into());
                 }
             }
-            Msg::MediaEditScreen(message) => {
-                if let Err(err) = self.media_edit_screen_update(message) {
-                    error = Some(err.into());
-                }
-            }
+            Msg::MediaEditScreen(message) => match self.media_edit_screen_update(message) {
+                Ok(task) => return MaybeError::success(task),
+                Err(err) => error = Some(err.into()),
+            },
             Msg::ErrorScreen(ErrorScrnMsg::Ok { critical }) => {
                 if critical {
                     return MaybeError::success(close_app());

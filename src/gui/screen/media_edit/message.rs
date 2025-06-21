@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
+use cosmic::dialog::ashpd::url::Url;
+use cosmic::dialog::file_chooser;
 use derive_more::derive::From;
 
 use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
@@ -22,11 +24,14 @@ pub enum Msg {
     EpisodeChanged(u8),
     ChapterPathChanged(String),
     ChapterPathSelect,
+    ChapterPathSelected(Url),
     OpenChapterDirectory,
     #[from]
     ConfirmScreen(ConfirmScrnMsg),
     #[from]
     Warning(WarningMsg),
+    OpenDialogCanceled,
+    OpenDialogError(Arc<file_chooser::Error>),
 }
 
 impl Msg {

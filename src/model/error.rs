@@ -8,6 +8,7 @@ use std::io;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use cosmic::dialog::file_chooser;
 use derive_more::Display;
 
 use crate::model::config::UserDataDirNotFoundError;
@@ -64,6 +65,11 @@ pub enum ErrorKind {
     Io(#[from] Arc<io::Error>),
     #[error(transparent)]
     UserDataDirNotFound(#[from] UserDataDirNotFoundError),
+    #[error("Open dialog error: {source}")]
+    OpenDialog {
+        #[from]
+        source: Arc<file_chooser::Error>,
+    },
 }
 
 impl ErrorKind {
@@ -85,6 +91,11 @@ impl ErrorKind {
 
     pub fn data_dir(path: impl Into<PathBuf>) -> Self {
         Self::DataDir { path: path.into() }
+    }
+
+    pub fn open_dialog(source: impl Into<Arc<file_chooser::Error>>) -> Self {
+        let source = source.into();
+        Self::OpenDialog { source }
     }
 }
 

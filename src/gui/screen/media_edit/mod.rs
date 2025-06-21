@@ -9,7 +9,9 @@ mod message;
 
 use std::num::NonZeroU8;
 use std::path::PathBuf;
+use std::sync::Arc;
 
+use cosmic::dialog::file_chooser;
 use cosmic::iced::font::Weight;
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_core::text::Wrapping;
@@ -17,7 +19,7 @@ use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
     Column, TextButton, button, container, divider, horizontal_space, popover, spin_button, text,
 };
-use cosmic::{Element, font, style, theme};
+use cosmic::{Element, Task, font, style, theme};
 
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
@@ -156,7 +158,7 @@ impl MediaEditScrn {
         .into()
     }
 
-    pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<()> {
+    pub fn update(&mut self, media_list: &mut MediaList, message: Msg) -> Result<Task<Msg>> {
         match message {
             Msg::NameChanged(value) => {
                 self.buffer_name.clone_from(&value);
@@ -165,7 +167,7 @@ impl MediaEditScrn {
                     Ok(()) => {}
                     Err(ErrorKind::MediaNameIsUsed { .. }) => {
                         self.warning(WarningKind::NameUsed);
-                        return Ok(());
+                        return Ok(Task::none());
                     }
                     Err(err) => return Err(err),
                 }
@@ -190,9 +192,13 @@ impl MediaEditScrn {
             }
             Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, &message)?,
             Msg::ChapterPathSelect => {
-                if let Some(folder) = rfd::FileDialog::new().pick_folder() {
-                    self.set_chapter_path(media_list, folder)?;
-                }
+                return Ok(cosmic::task::future(async {
+                    match file_chooser::open::Dialog::new().open_folder().await {
+                        Ok(responce) => Msg::ChapterPathSelected(responce.url().to_owned()),
+                        Err(file_chooser::Error::Cancelled) => Msg::OpenDialogCanceled,
+                        Err(err) => Msg::OpenDialogError(Arc::new(err)),
+                    }
+                }));
             }
             Msg::Warning(WarningMsg::Close) => self.warning.close(),
             Msg::OpenChapterDirectory => {
@@ -203,13 +209,21 @@ impl MediaEditScrn {
                     .into_path_buf();
                 if !chapter_path.is_dir() {
                     self.warning(WarningKind::WrongChapterPath);
-                    return Ok(());
+                    return Ok(Task::none());
                 }
                 open(chapter_path)?;
             }
+            Msg::ChapterPathSelected(url) => {
+                if let Ok(path) = url.to_file_path() {
+                    self.set_chapter_path(media_list, path)?;
+                } else {
+                    self.warning(WarningKind::WrongChapterPath);
+                }
+            }
+            Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             _ => {}
         }
-        Ok(())
+        Ok(Task::none())
     }
 
     fn watch_sign(&self, media: &[MediaHandler]) -> Option<String> {
