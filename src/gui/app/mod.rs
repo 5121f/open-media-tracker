@@ -81,7 +81,26 @@ impl Application for OpenMediaTracker {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        self.view()
+        // Error -> Loading -> Confirm
+
+        let dialog = match (
+            self.error.as_ref(),
+            self.loading.as_ref(),
+            self.confirm.as_ref(),
+        ) {
+            (Some(error_screen), _, _) => Some(error_screen.view_into()),
+            (None, Some(loading_screen), _) => return loading_screen.view_into(),
+            (None, None, Some(confirm_screen)) => Some(confirm_screen.view_into()),
+            (None, None, None) => None,
+        };
+
+        let screen_view = self.screen.view(&self.media_list);
+
+        if let Some(dialog) = dialog {
+            return Popover::new(screen_view).popup(dialog).into();
+        }
+
+        screen_view
     }
 
     fn update(&mut self, message: Self::Message) -> Task<Self::Message> {
@@ -235,29 +254,6 @@ impl OpenMediaTracker {
             value: Task::none(),
             error,
         }
-    }
-
-    pub fn view(&self) -> Element<Msg> {
-        // Error -> Loading -> Confirm
-
-        let dialog = match (
-            self.error.as_ref(),
-            self.loading.as_ref(),
-            self.confirm.as_ref(),
-        ) {
-            (Some(error_screen), _, _) => Some(error_screen.view_into()),
-            (None, Some(loading_screen), _) => return loading_screen.view_into(),
-            (None, None, Some(confirm_screen)) => Some(confirm_screen.view_into()),
-            (None, None, None) => None,
-        };
-
-        let screen_view = self.screen.view(&self.media_list);
-
-        if let Some(dialog) = dialog {
-            return Popover::new(screen_view).popup(dialog).into();
-        }
-
-        screen_view
     }
 }
 
