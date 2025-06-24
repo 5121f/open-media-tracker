@@ -705,6 +705,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-link",
 ]
@@ -3350,6 +3351,7 @@ name = "open_media_tracker"
 version = "0.1.0"
 dependencies = [
  "async-io 2.4.1",
+ "chrono",
  "derive_more",
  "etcetera",
  "fs-err",

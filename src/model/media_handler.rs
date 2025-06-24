@@ -44,6 +44,11 @@ impl MediaHandler {
         Ok(())
     }
 
+    fn changed(&mut self) -> Result<()> {
+        self.changing_date = chrono::Local::now();
+        self.save()
+    }
+
     pub async fn read(path: impl AsRef<Path>, config: Arc<Config>) -> Result<Self> {
         let path = path.as_ref();
         let media = Self {
@@ -62,7 +67,7 @@ impl MediaHandler {
         let new_path = self.config.path_to_media(&new_file_name);
         fs::rename(self.path(), &new_path)?;
         self.media.name = new_name;
-        self.save()?;
+        self.changed()?;
         Ok(())
     }
 
@@ -97,17 +102,17 @@ impl MediaHandler {
 
     pub fn set_chapter(&mut self, value: NonZeroU8) -> Result<()> {
         self.media.chapter = value;
-        self.save()
+        self.changed()
     }
 
     pub fn set_episode(&mut self, value: NonZeroU8) -> Result<()> {
         self.media.episode = value;
-        self.save()
+        self.changed()
     }
 
     pub fn set_chapter_path(&mut self, value: impl Into<UserPath>) -> Result<()> {
         self.media.chapter_path = value.into();
-        self.save()
+        self.changed()
     }
 
     fn path(&self) -> PathBuf {

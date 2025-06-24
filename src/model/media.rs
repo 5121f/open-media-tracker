@@ -7,6 +7,7 @@
 use std::num::NonZeroU8;
 use std::path::{Path, PathBuf};
 
+use chrono::DateTime;
 use fs_err as fs;
 use serde::{Deserialize, Serialize};
 
@@ -21,6 +22,8 @@ pub struct Media {
     pub chapter: NonZeroU8,
     pub episode: NonZeroU8,
     pub chapter_path: UserPath,
+    pub adding_date: DateTime<chrono::Local>,
+    pub changing_date: DateTime<chrono::Local>,
 }
 
 impl Media {
@@ -31,6 +34,8 @@ impl Media {
             chapter: one,
             episode: one,
             chapter_path: UserPath::default(),
+            adding_date: chrono::Local::now(),
+            changing_date: chrono::Local::now(),
         }
     }
 
