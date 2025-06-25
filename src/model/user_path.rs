@@ -14,7 +14,7 @@ pub struct UserPath(String);
 
 impl UserPath {
     pub fn into_path_buf(self) -> PathBuf {
-        if self.0.starts_with("~/") {
+        if self.0.starts_with("~/") || self.0.starts_with("~\\") {
             let Ok(home_dir) = etcetera::home_dir() else {
                 return PathBuf::from(self.0);
             };
