@@ -14,15 +14,17 @@ pub struct UserPath(String);
 
 impl UserPath {
     pub fn into_path_buf(self) -> PathBuf {
-        if self.0.starts_with('~') {
+        if self.0.starts_with("~/") {
             let Ok(home_dir) = etcetera::home_dir() else {
                 return PathBuf::from(self.0);
             };
-            let relative_path = if self.0.starts_with("~/") {
-                &self.0[2..]
-            } else {
-                &self.0[1..]
+            let relative_path = &self.0[2..];
+            return home_dir.join(relative_path);
+        } else if self.0.starts_with('~') {
+            let Ok(home_dir) = etcetera::home_dir() else {
+                return PathBuf::from(self.0);
             };
+            let relative_path = &self.0[1..];
             return home_dir.join(relative_path);
         }
         PathBuf::from(self.0)
