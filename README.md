@@ -3,6 +3,10 @@
 Keep track of where you left off while watching TV shows or listening to audio
 books.
 
+## Dependencies
+
+On unix systems you need `cosmic-icon-theme` package.
+
 ## Building
 
 Open Media Tracker written in Rust so you need
