@@ -31,7 +31,15 @@ impl UserPath {
 
 impl From<PathBuf> for UserPath {
     fn from(value: PathBuf) -> Self {
-        Self(value.to_string_lossy().to_string())
+        let value = value.to_string_lossy().to_string();
+        let Some(home_dir) = std::env::home_dir() else {
+            return Self(value);
+        };
+        let home_dir = home_dir.to_string_lossy().to_string();
+        if let Some(value) = value.strip_prefix(&home_dir) {
+            return Self(format!("~{value}"));
+        }
+        Self(value)
     }
 }
 
