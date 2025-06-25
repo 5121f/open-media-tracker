@@ -60,3 +60,7 @@ pub fn back() -> icon::Handle {
 pub fn folder() -> icon::Handle {
     cosmic_icon!("folder-symbolic")
 }
+
+pub fn close() -> icon::Handle {
+    cosmic_icon!("window-close-symbolic")
+}

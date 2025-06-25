@@ -7,11 +7,11 @@
 use std::fmt::Display;
 
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{button, container, horizontal_space, icon, text};
+use cosmic::widget::{button, container, horizontal_space, text};
 use cosmic::{Element, font, style, theme};
 
-use crate::gui::Screen;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
+use crate::gui::{self, Screen};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -39,7 +39,7 @@ impl<T: Display> Screen for WarningScrn<T> {
                 row![
                     text::text("Warning").size(17).font(font::bold()),
                     horizontal_space(),
-                    close_button().on_press(Message::Close)
+                    button::icon(gui::icon::close()).on_press(Message::Close)
                 ],
                 text(self.kind.to_string())
             ]
@@ -66,13 +66,3 @@ impl<T> From<T> for WarningScrn<T> {
 }
 
 pub type WarningDlg<T> = DialogWithKind<WarningScrn<T>>;
-
-#[cfg(unix)]
-fn close_button<'a, M>() -> cosmic::widget::IconButton<'a, M> {
-    button::icon(icon::from_name("window-close-symbolic"))
-}
-
-#[cfg(not(unix))]
-fn close_button<'a, M>() -> cosmic::widget::TextButton<'a, M> {
-    button::text("x").height(30).font_size(20)
-}
