@@ -6,39 +6,39 @@
 
 use cosmic::widget::icon;
 
-#[cfg(unix)]
+#[cfg(all(unix, not(feature = "embed_icons")))]
 macro_rules! cosmic_icon {
     ($name:expr) => {
         icon::from_name($name).handle()
     };
 }
 
-#[cfg(not(unix))]
-macro_rules! icon_path {
-    ($path:expr) => {
-        include_bytes!(concat!("../../assets/icons/", $path))
-    };
-}
+#[cfg(any(not(unix), feature = "embed_icons"))]
+#[macro_use]
+mod embed_icons {
+    macro_rules! icon_path {
+        ($path:expr) => {
+            include_bytes!(concat!("../../assets/icons/", $path))
+        };
+    }
 
-#[cfg(not(unix))]
-macro_rules! cosmic_icon_path {
-    ($path:expr) => {
-        icon_path!(concat!("cosmic/", $path))
-    };
-}
+    macro_rules! cosmic_icon_path {
+        ($path:expr) => {
+            icon_path!(concat!("cosmic/", $path))
+        };
+    }
 
-#[cfg(not(unix))]
-macro_rules! svg_name {
-    ($name:expr) => {
-        concat!($name, ".svg")
-    };
-}
+    macro_rules! svg_name {
+        ($name:expr) => {
+            concat!($name, ".svg")
+        };
+    }
 
-#[cfg(not(unix))]
-macro_rules! cosmic_icon {
-    ($name:expr) => {
-        icon::from_svg_bytes(cosmic_icon_path!(svg_name!($name))).symbolic(true)
-    };
+    macro_rules! cosmic_icon {
+        ($name:expr) => {
+            icon::from_svg_bytes(cosmic_icon_path!(svg_name!($name))).symbolic(true)
+        };
+    }
 }
 
 pub fn sort_descending() -> icon::Handle {
