@@ -5,7 +5,8 @@ books.
 
 ## Dependencies
 
-On unix systems you need `cosmic-icon-theme` package.
+On unix systems you need `cosmic-icon-theme` package or you can build Open
+Media Tracker with `embed_icons` feature.
 
 ## Building
 
