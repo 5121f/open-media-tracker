@@ -4,15 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::borrow::Cow;
-
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{Space, TextInput, button, container, segmented_button, text_input};
+use cosmic::widget::{Space, button, container, icon, segmented_button, text_input};
 use cosmic::{Element, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
+use crate::gui;
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -61,11 +60,11 @@ impl MainScrn {
                     match &self.sorting {
                         Some(sorting) =>
                             if sorting.reverse {
-                                sort_descending_button()
+                                button::icon(gui::icon::sort_descending())
                             } else {
-                                sort_ascending_button()
+                                button::icon(gui::icon::sort_ascending())
                             },
-                        None => sort_ascending_button(),
+                        None => button::icon(gui::icon::sort_ascending()),
                     }
                     .on_press(Msg::SortButton)
                 )
@@ -73,7 +72,14 @@ impl MainScrn {
                 button::suggested("Add media").on_press(Msg::AddMedia),
                 row![
                     Space::new(Length::Fixed(40.0), Length::Shrink),
-                    search_bar(&self.search_bar).on_input(Msg::SearchBarChanged),
+                    text_input("Search", &self.search_bar)
+                        .style(theme::TextInput::Search)
+                        .leading_icon(
+                            container(icon::icon(gui::icon::search()).size(16))
+                                .padding([0, 0, 0, 3])
+                                .into(),
+                        )
+                        .on_input(Msg::SearchBarChanged),
                 ],
             ])
             .width(Length::Fill)
@@ -147,52 +153,4 @@ impl MainScrn {
         }
         builder.build()
     }
-}
-
-#[cfg(unix)]
-fn search_bar<'a, 'b: 'a, M>(value: impl Into<Cow<'b, str>>) -> TextInput<'a, M>
-where
-    M: Clone + 'static,
-{
-    text_input("Search", value)
-        .style(theme::TextInput::Search)
-        .leading_icon(
-            container(cosmic::widget::icon::from_name("system-search-symbolic").size(16))
-                .padding([0, 0, 0, 3])
-                .into(),
-        )
-}
-
-#[cfg(not(unix))]
-fn search_bar<'a, 'b: 'a, M>(value: impl Into<Cow<'b, str>>) -> TextInput<'a, M>
-where
-    M: Clone + 'static,
-{
-    text_input("Search", value).style(theme::TextInput::Search)
-}
-
-#[cfg(unix)]
-use cosmic::widget::{IconButton, icon};
-
-#[cfg(unix)]
-pub fn sort_ascending_button<'a, M>() -> IconButton<'a, M> {
-    button::icon(icon::from_name("view-sort-ascending-symbolic"))
-}
-
-#[cfg(unix)]
-pub fn sort_descending_button<'a, M>() -> IconButton<'a, M> {
-    button::icon(icon::from_name("view-sort-descending-symbolic"))
-}
-
-#[cfg(not(unix))]
-use cosmic::widget::TextButton;
-
-#[cfg(not(unix))]
-pub fn sort_ascending_button<'a, M>() -> TextButton<'a, M> {
-    button::standard("^").height(30).font_size(20)
-}
-
-#[cfg(not(unix))]
-pub fn sort_descending_button<'a, M>() -> TextButton<'a, M> {
-    button::standard("v").height(30).font_size(20)
 }

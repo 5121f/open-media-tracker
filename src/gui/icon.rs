@@ -1,0 +1,62 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+use cosmic::widget::icon;
+
+#[cfg(unix)]
+macro_rules! cosmic_icon {
+    ($name:expr) => {
+        icon::from_name($name).handle()
+    };
+}
+
+#[cfg(not(unix))]
+macro_rules! icon_path {
+    ($path:expr) => {
+        include_bytes!(concat!("../../assets/icons/", $path))
+    };
+}
+
+#[cfg(not(unix))]
+macro_rules! cosmic_icon_path {
+    ($path:expr) => {
+        icon_path!(concat!("cosmic/", $path))
+    };
+}
+
+#[cfg(not(unix))]
+macro_rules! svg_name {
+    ($name:expr) => {
+        concat!($name, ".svg")
+    };
+}
+
+#[cfg(not(unix))]
+macro_rules! cosmic_icon {
+    ($name:expr) => {
+        icon::from_svg_bytes(cosmic_icon_path!(svg_name!($name))).symbolic(true)
+    };
+}
+
+pub fn sort_descending() -> icon::Handle {
+    cosmic_icon!("view-sort-descending-symbolic")
+}
+
+pub fn sort_ascending() -> icon::Handle {
+    cosmic_icon!("view-sort-ascending-symbolic")
+}
+
+pub fn search() -> icon::Handle {
+    cosmic_icon!("system-search-symbolic")
+}
+
+pub fn back() -> icon::Handle {
+    cosmic_icon!("go-previous-symbolic")
+}
+
+pub fn folder() -> icon::Handle {
+    cosmic_icon!("folder-symbolic")
+}

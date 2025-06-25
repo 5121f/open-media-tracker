@@ -9,6 +9,7 @@ pub mod dialog;
 pub mod screen;
 pub mod utils;
 
+mod icon;
 mod loading;
 
 pub use dialog::Dialog;

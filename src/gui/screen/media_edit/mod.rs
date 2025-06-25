@@ -17,14 +17,14 @@ use cosmic::iced::{Alignment, Length};
 use cosmic::iced_core::text::Wrapping;
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
-    Column, TextButton, button, container, divider, horizontal_space, popover, spin_button, text,
+    Column, button, container, divider, horizontal_space, popover, spin_button, text,
 };
 use cosmic::{Element, Task, font, style, theme};
 
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
-use crate::open;
+use crate::{gui, open};
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
 
@@ -58,7 +58,12 @@ impl MediaEditScrn {
 
         let media = self.editable_media(media_list);
         let top = row![
-            container(back_button().on_press(Msg::Back)).width(Length::Fill),
+            container(
+                button::text("Back")
+                    .leading_icon(gui::icon::back())
+                    .on_press(Msg::Back)
+            )
+            .width(Length::Fill),
             text(media.name()),
             container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
                 .width(Length::Fill)
@@ -142,7 +147,10 @@ impl MediaEditScrn {
                 divider::horizontal::default(),
                 row![
                     signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
-                    open_folder_button().on_press(Msg::OpenChapterDirectory),
+                    button::standard("")
+                        .leading_icon(gui::icon::folder())
+                        .height(30)
+                        .on_press(Msg::OpenChapterDirectory),
                     button::standard("...")
                         .height(30)
                         .font_size(20)
@@ -382,29 +390,4 @@ impl MediaEditScrn {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
-}
-
-#[cfg(unix)]
-use cosmic::widget::icon;
-
-#[cfg(unix)]
-fn open_folder_button<'a, M>() -> TextButton<'a, M> {
-    button::standard("")
-        .leading_icon(icon::from_name("folder-symbolic"))
-        .height(30)
-}
-
-#[cfg(not(unix))]
-fn open_folder_button<'a, M>() -> cosmic::widget::TextButton<'a, M> {
-    button::standard(">").height(30).font_size(20)
-}
-
-#[cfg(unix)]
-fn back_button<'a, M>() -> TextButton<'a, M> {
-    button::text("Back").leading_icon(icon::from_name("go-previous-symbolic"))
-}
-
-#[cfg(not(unix))]
-fn back_button<'a, M>() -> TextButton<'a, M> {
-    button::text("< Back")
 }
