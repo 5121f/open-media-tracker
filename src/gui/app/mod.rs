@@ -257,20 +257,6 @@ impl OpenMediaTracker {
     }
 }
 
-impl Placeholder for OpenMediaTracker {
-    fn placeholder() -> Self {
-        Self {
-            core: custom_core(Core::default()),
-            media_list: MediaList::placeholder(),
-            screen: Screens::placeholder(),
-            confirm: ConfirmDlg::placeholder(),
-            error: Dialog::placeholder(),
-            loading: LoadingDialog::placeholder(),
-            config: Config::placeholder().into(),
-        }
-    }
-}
-
 fn custom_core(mut core: Core) -> Core {
     core.window.header_title = String::from("Open Media Tracker");
     core
