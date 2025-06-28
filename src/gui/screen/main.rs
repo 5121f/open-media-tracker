@@ -91,7 +91,7 @@ impl MainScrn {
             ),
         ]
         .spacing(spacing.space_xs)
-        .padding(spacing.space_xs)
+        .padding(spacing.space_xxxs)
         .height(Length::Fill)
         .into()
     }
