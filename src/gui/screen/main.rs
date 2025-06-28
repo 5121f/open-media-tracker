@@ -88,7 +88,8 @@ impl MainScrn {
                 segmented_button::vertical(&self.media_list_seg_button)
                     .on_activate(Msg::MenuButton)
                     .button_padding([spacing.space_s, 0, 0, spacing.space_s])
-            ),
+            )
+            .spacing(spacing.space_xxs),
         ]
         .spacing(spacing.space_xs)
         .padding(spacing.space_xxxs)
