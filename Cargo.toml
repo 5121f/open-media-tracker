@@ -26,11 +26,13 @@ features = ["deref", "deref_mut", "display", "from"]
 
 [target.'cfg(unix)'.dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
+rev = "b0f62a5109ef5f184a44e7571358bb843e282617"
 default-features = false
 features = ["winit", "wgpu", "tokio", "xdg-portal"]
 
 [target.'cfg(windows)'.dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
+rev = "b0f62a5109ef5f184a44e7571358bb843e282617"
 default-features = false
 features = ["winit", "wgpu", "tokio", "rfd"]
 
