@@ -6,7 +6,7 @@
 
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{Space, button, container, icon, segmented_button, text_input};
+use cosmic::widget::{Space, button, container, icon, scrollable, segmented_button, text_input};
 use cosmic::{Element, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
@@ -84,9 +84,11 @@ impl MainScrn {
             ])
             .width(Length::Fill)
             .align_x(Alignment::Center),
-            segmented_button::vertical(&self.media_list_seg_button)
-                .on_activate(Msg::MenuButton)
-                .button_padding([spacing.space_s, 0, 0, spacing.space_s]),
+            scrollable(
+                segmented_button::vertical(&self.media_list_seg_button)
+                    .on_activate(Msg::MenuButton)
+                    .button_padding([spacing.space_s, 0, 0, spacing.space_s])
+            ),
         ]
         .spacing(spacing.space_xs)
         .padding(spacing.space_xs)
