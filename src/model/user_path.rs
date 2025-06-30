@@ -19,6 +19,18 @@ const HOME_PREFIX: &str = "~\\";
 pub struct UserPath(String);
 
 impl UserPath {
+    pub fn userify(path: impl Into<PathBuf>) -> Self {
+        let path = path.into().to_string_lossy().to_string();
+        let Some(home_dir) = std::env::home_dir() else {
+            return Self(path);
+        };
+        let home_dir = home_dir.to_string_lossy().to_string();
+        if let Some(value) = path.strip_prefix(&home_dir) {
+            return Self(format!("~{value}"));
+        }
+        Self(path)
+    }
+
     pub fn into_path_buf(self) -> PathBuf {
         if self.0.starts_with(HOME_PREFIX) {
             let Ok(home_dir) = etcetera::home_dir() else {
@@ -33,15 +45,7 @@ impl UserPath {
 
 impl From<PathBuf> for UserPath {
     fn from(value: PathBuf) -> Self {
-        let value = value.to_string_lossy().to_string();
-        let Some(home_dir) = std::env::home_dir() else {
-            return Self(value);
-        };
-        let home_dir = home_dir.to_string_lossy().to_string();
-        if let Some(value) = value.strip_prefix(&home_dir) {
-            return Self(format!("~{value}"));
-        }
-        Self(value)
+        Self(value.to_string_lossy().to_string())
     }
 }
 

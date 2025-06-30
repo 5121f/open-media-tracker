@@ -22,7 +22,7 @@ use cosmic::{Element, Task, font, style, theme};
 
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
-use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result};
+use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result, UserPath};
 use crate::{gui, open};
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
@@ -196,7 +196,7 @@ impl MediaEditScrn {
                 self.set_episode(media_list, value)?;
             }
             Msg::ChapterPathChanged(value) => {
-                self.set_chapter_path(media_list, PathBuf::from(value))?;
+                self.set_chapter_path(media_list, UserPath::from(value))?;
             }
             Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, &message)?,
             Msg::ChapterPathSelect => {
@@ -224,7 +224,7 @@ impl MediaEditScrn {
             }
             Msg::ChapterPathSelected(url) => {
                 if let Ok(path) = url.to_file_path() {
-                    self.set_chapter_path(media_list, path)?;
+                    self.set_chapter_path(media_list, UserPath::userify(path))?;
                 } else {
                     self.warning(WarningKind::WrongChapterPath);
                 }
@@ -269,7 +269,7 @@ impl MediaEditScrn {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm.close();
-                self.set_chapter_path(media, path)
+                self.set_chapter_path(media, UserPath::userify(path))
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm.close();
@@ -304,10 +304,10 @@ impl MediaEditScrn {
     fn set_chapter_path(
         &mut self,
         media: &mut [MediaHandler],
-        chapter_path: impl Into<PathBuf>,
+        chapter_path: UserPath,
     ) -> Result<()> {
         self.editable_media_mut(media)
-            .set_chapter_path(chapter_path.into())?;
+            .set_chapter_path(chapter_path)?;
         let editable_media = self.editable_media(media);
         self.episodes = editable_media.episode_list();
         Ok(())

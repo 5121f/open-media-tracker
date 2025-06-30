@@ -109,8 +109,8 @@ impl MediaHandler {
         self.changed()
     }
 
-    pub fn set_chapter_path(&mut self, value: impl Into<UserPath>) -> Result<()> {
-        self.media.chapter_path = value.into();
+    pub fn set_chapter_path(&mut self, value: UserPath) -> Result<()> {
+        self.media.chapter_path = value;
         self.changed()
     }
 
