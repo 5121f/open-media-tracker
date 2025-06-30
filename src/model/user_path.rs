@@ -20,12 +20,6 @@ impl UserPath {
             };
             let relative_path = &self.0[2..];
             return home_dir.join(relative_path);
-        } else if self.0.starts_with('~') {
-            let Ok(home_dir) = etcetera::home_dir() else {
-                return PathBuf::from(self.0);
-            };
-            let relative_path = &self.0[1..];
-            return home_dir.join(relative_path);
         }
         PathBuf::from(self.0)
     }
