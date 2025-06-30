@@ -7,7 +7,6 @@
 mod kind;
 mod message;
 
-use std::num::NonZeroU8;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -48,8 +47,8 @@ impl MediaEditScrn {
             editable_media_id,
             episodes: editable_media.episode_list(),
             buffer_name: editable_media.name().to_string(),
-            chapter: editable_media.chapter().get(),
-            episode: editable_media.episode().get(),
+            chapter: editable_media.chapter(),
+            episode: editable_media.episode(),
         }
     }
 
@@ -190,15 +189,11 @@ impl MediaEditScrn {
             }
             Msg::ChapterChanged(value) => {
                 self.chapter = value;
-                if let Some(number) = NonZeroU8::new(value) {
-                    self.editable_media_mut(media_list).set_chapter(number)?;
-                }
+                self.editable_media_mut(media_list).set_chapter(value)?;
             }
             Msg::EpisodeChanged(value) => {
                 self.episode = value;
-                if let Some(number) = NonZeroU8::new(value) {
-                    self.set_episode(media_list, number)?;
-                }
+                self.set_episode(media_list, value)?;
             }
             Msg::ChapterPathChanged(value) => {
                 self.set_chapter_path(media_list, PathBuf::from(value))?;
@@ -303,7 +298,7 @@ impl MediaEditScrn {
     }
 
     const fn episode_id(&self, media: &[MediaHandler]) -> usize {
-        (self.editable_media(media).episode().get() - 1) as usize
+        (self.editable_media(media).episode() - 1) as usize
     }
 
     fn set_chapter_path(
@@ -322,21 +317,20 @@ impl MediaEditScrn {
         self.warning = WarningDlg::from_kind(kind);
     }
 
-    fn is_episode_overflow(&self, value: NonZeroU8) -> bool {
-        self.episodes_count()
-            .is_some_and(|ec| ec < value.get() as usize)
+    fn is_episode_overflow(&self, value: u8) -> bool {
+        self.episodes_count().is_some_and(|ec| ec < value as usize)
     }
 
-    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: NonZeroU8) -> Result<()> {
+    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: u8) -> Result<()> {
         let media = self.editable_media_mut(media_list);
 
         match self.episodes_count() {
-            Some(episodes_count) if value.get() as usize <= episodes_count => {
-                self.episode = value.get();
+            Some(episodes_count) if value as usize <= episodes_count => {
+                self.episode = value;
                 media.set_episode(value)?;
             }
             None => {
-                self.episode = value.get();
+                self.episode = value;
                 media.set_episode(value)?;
             }
             Some(_) => {
@@ -370,9 +364,9 @@ impl MediaEditScrn {
 
         self.episode = 1;
         let media = self.editable_media_mut(media_list);
-        media.set_episode_to_one();
+        media.set_episode(1)?;
         let next_chapter = media.chapter().saturating_add(1);
-        self.chapter = next_chapter.get();
+        self.chapter = next_chapter;
         media.set_chapter(next_chapter)?;
         if media.chapter_path().is_empty() {
             return Ok(());

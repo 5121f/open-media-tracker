@@ -5,7 +5,6 @@
  */
 
 use std::fmt::Display;
-use std::num::NonZeroU8;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -80,11 +79,11 @@ impl MediaHandler {
         &self.media.name
     }
 
-    pub const fn chapter(&self) -> NonZeroU8 {
+    pub const fn chapter(&self) -> u8 {
         self.media.chapter
     }
 
-    pub const fn episode(&self) -> NonZeroU8 {
+    pub const fn episode(&self) -> u8 {
         self.media.episode
     }
 
@@ -100,12 +99,12 @@ impl MediaHandler {
         file_name(&self.media.name)
     }
 
-    pub fn set_chapter(&mut self, value: NonZeroU8) -> Result<()> {
+    pub fn set_chapter(&mut self, value: u8) -> Result<()> {
         self.media.chapter = value;
         self.changed()
     }
 
-    pub fn set_episode(&mut self, value: NonZeroU8) -> Result<()> {
+    pub fn set_episode(&mut self, value: u8) -> Result<()> {
         self.media.episode = value;
         self.changed()
     }

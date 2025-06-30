@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::num::NonZeroU8;
 use std::path::{Path, PathBuf};
 
 use chrono::DateTime;
@@ -19,8 +18,8 @@ use super::{EpisodeList, UserPath};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
     pub name: String,
-    pub chapter: NonZeroU8,
-    pub episode: NonZeroU8,
+    pub chapter: u8,
+    pub episode: u8,
     pub chapter_path: UserPath,
     pub adding_date: DateTime<chrono::Local>,
     pub changing_date: DateTime<chrono::Local>,
@@ -28,11 +27,10 @@ pub struct Media {
 
 impl Media {
     pub fn new(name: impl Into<String>) -> Self {
-        let one = NonZeroU8::MIN;
         Self {
             name: name.into(),
-            chapter: one,
-            episode: one,
+            chapter: 1,
+            episode: 1,
             chapter_path: UserPath::default(),
             adding_date: chrono::Local::now(),
             changing_date: chrono::Local::now(),
@@ -81,9 +79,5 @@ impl Media {
 
     pub fn episode_list(&self) -> Result<EpisodeList> {
         EpisodeList::read(self.chapter_path.clone().into_path_buf())
-    }
-
-    pub fn set_episode_to_one(&mut self) {
-        self.episode = NonZeroU8::MIN;
     }
 }
