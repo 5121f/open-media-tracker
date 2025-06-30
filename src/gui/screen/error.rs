@@ -37,12 +37,12 @@ impl Screen for ErrorScrn {
                 .title("Error")
                 .body(self.error.to_string())
                 .primary_action(
-                    if self.error.critical {
+                    if self.error.fatal {
                         button::destructive("Ok")
                     } else {
                         button::suggested("Ok")
                     }
-                    .on_press(Msg::ok(self.error.critical)),
+                    .on_press(Msg::ok(self.error.fatal)),
                 ),
         )
         .into()

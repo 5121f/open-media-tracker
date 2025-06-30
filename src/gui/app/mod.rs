@@ -56,7 +56,7 @@ impl Application for OpenMediaTracker {
     fn init(core: Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
         let config;
         let screen;
-        match Config::read().map_err(Error::critical) {
+        match Config::read().map_err(Error::fatal) {
             Ok(c) => {
                 config = c;
                 screen = Screens::default();

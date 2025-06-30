@@ -18,18 +18,24 @@ use crate::open::OpenError;
 #[display("{}", self.kind)]
 pub struct Error {
     pub kind: ErrorKind,
-    pub critical: bool,
+    pub fatal: bool,
 }
 
 impl Error {
-    pub const fn critical(kind: ErrorKind) -> Self {
+    pub const fn fatal(kind: ErrorKind) -> Self {
         let critical = true;
-        Self { kind, critical }
+        Self {
+            kind,
+            fatal: critical,
+        }
     }
 
     pub const fn common(kind: ErrorKind) -> Self {
         let critical = false;
-        Self { kind, critical }
+        Self {
+            kind,
+            fatal: critical,
+        }
     }
 }
 
