@@ -34,16 +34,13 @@ impl Screen for ErrorScrn {
     fn view(&self) -> Element<Msg> {
         center(
             dialog()
-                .title("Error")
+                .title(if self.error.fatal {
+                    "Fatal error"
+                } else {
+                    "Error"
+                })
                 .body(self.error.to_string())
-                .primary_action(
-                    if self.error.fatal {
-                        button::destructive("Ok")
-                    } else {
-                        button::suggested("Ok")
-                    }
-                    .on_press(Msg::ok(self.error.fatal)),
-                ),
+                .primary_action(button::suggested("Ok").on_press(Msg::ok(self.error.fatal))),
         )
         .into()
     }
