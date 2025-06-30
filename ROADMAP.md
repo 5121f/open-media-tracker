@@ -7,5 +7,4 @@
     - by last change date
     - by hand?
 - drag and Drop folder on chapter path
-- use trashcan icon for "Delete" button
-  - now cosmic `user-trash-symbolic` seems ugly
+- Make error message selectable
