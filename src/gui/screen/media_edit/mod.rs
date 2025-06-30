@@ -17,7 +17,7 @@ use cosmic::iced::{Alignment, Length};
 use cosmic::iced_core::text::Wrapping;
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
-    Column, button, container, divider, horizontal_space, popover, spin_button, text,
+    Column, button, container, divider, horizontal_space, popover, spin_button, text, tooltip,
 };
 use cosmic::{Element, Task, font, style, theme};
 
@@ -150,12 +150,17 @@ impl MediaEditScrn {
                     button::standard("")
                         .leading_icon(gui::icon::folder())
                         .height(30)
+                        .tooltip("Open folder")
                         .on_press(Msg::OpenChapterDirectory),
-                    button::standard("...")
-                        .height(30)
-                        .font_size(20)
-                        .font_weight(Weight::Bold)
-                        .on_press(Msg::ChapterPathSelect),
+                    tooltip(
+                        button::standard("...")
+                            .height(30)
+                            .font_size(20)
+                            .font_weight(Weight::Bold)
+                            .on_press(Msg::ChapterPathSelect),
+                        text("Select folder"),
+                        tooltip::Position::Top
+                    )
                 ]
                 .spacing(spacing.space_xxs)
             ]
