@@ -14,12 +14,12 @@ use crate::model::Error;
 
 #[derive(Debug, Clone)]
 pub enum Msg {
-    Ok { critical: bool },
+    Ok { fatal: bool },
 }
 
 impl Msg {
-    const fn ok(critical: bool) -> Self {
-        Self::Ok { critical }
+    const fn ok(fatal: bool) -> Self {
+        Self::Ok { fatal }
     }
 }
 
