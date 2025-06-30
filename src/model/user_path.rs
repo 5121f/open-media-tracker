@@ -9,12 +9,18 @@ use std::path::PathBuf;
 use derive_more::{Deref, From};
 use serde::{Deserialize, Serialize};
 
+#[cfg(unix)]
+const HOME_PREFIX: &str = "~/";
+
+#[cfg(windows)]
+const HOME_PREFIX: &str = "~\\";
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Deref, From)]
 pub struct UserPath(String);
 
 impl UserPath {
     pub fn into_path_buf(self) -> PathBuf {
-        if self.0.starts_with("~/") || self.0.starts_with("~\\") {
+        if self.0.starts_with(HOME_PREFIX) {
             let Ok(home_dir) = etcetera::home_dir() else {
                 return PathBuf::from(self.0);
             };
