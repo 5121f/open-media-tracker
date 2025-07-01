@@ -134,8 +134,7 @@ impl OpenMediaTracker {
     fn read_media(&mut self) -> Task<Msg> {
         self.loading.insert(LoadingKind::ReadMedia);
         let config = self.config.clone();
-        let read_media_future = MediaList::read(config);
-        Task::perform(read_media_future, |res| Action::App(Msg::MediaLoaded(res)))
+        cosmic::task::future(async move { Msg::MediaLoaded(MediaList::read(config).await) })
     }
 
     fn confirm_screen_update(&mut self, message: &ConfirmScrnMsg) -> Result<(), ErrorKind> {
