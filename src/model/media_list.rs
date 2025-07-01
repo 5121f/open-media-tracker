@@ -10,7 +10,7 @@ use derive_more::derive::{Deref, DerefMut, From};
 
 use crate::model::error::{ErrorKind, Result};
 use crate::model::{Config, MaybeError, MediaHandler};
-use crate::read_dir;
+use crate::utils::read_dir;
 
 #[derive(Deref, DerefMut, Debug, Clone, From, Default)]
 pub struct MediaList(Vec<MediaHandler>);

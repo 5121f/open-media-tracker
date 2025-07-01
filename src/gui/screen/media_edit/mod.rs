@@ -20,10 +20,11 @@ use cosmic::widget::{
 };
 use cosmic::{Element, Task, font, style, theme};
 
+use crate::gui;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
 use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result, UserPath};
-use crate::{gui, open};
+use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
 
@@ -220,7 +221,7 @@ impl MediaEditScrn {
                     self.warning(WarningKind::WrongChapterPath);
                     return Ok(Task::none());
                 }
-                open(chapter_path)?;
+                utils::open(chapter_path)?;
             }
             Msg::ChapterPathSelected(url) => {
                 if let Ok(path) = url.to_file_path() {

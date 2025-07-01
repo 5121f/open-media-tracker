@@ -25,6 +25,7 @@ use crate::gui::screen::MainScrnMsg;
 use crate::gui::screen::MediaEditScrnMsg;
 use crate::gui::{Dialog, LoadingDialog, Screen};
 use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
+use crate::utils;
 use confirm_kind::ConfirmKind;
 use loading_kind::LoadingKind;
 pub use message::Msg;
@@ -171,7 +172,7 @@ impl OpenMediaTracker {
                 self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
             MediaEditScrnMsg::Back => self.main_screen(),
-            MediaEditScrnMsg::Watch { path } => crate::open(path)?,
+            MediaEditScrnMsg::Watch { path } => utils::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
                     let task = dialog.update(&mut self.media_list, message)?;

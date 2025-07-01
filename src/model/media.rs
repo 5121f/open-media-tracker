@@ -11,7 +11,7 @@ use fs_err as fs;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{ErrorKind, Result};
-use crate::read_dir;
+use crate::utils;
 
 use super::{EpisodeList, UserPath};
 
@@ -61,7 +61,7 @@ impl Media {
         let chapter_path = self.chapter_path.clone().into_path_buf();
         let chapter_dir_name = chapter_path.file_name().unwrap_or_default();
         let parent = chapter_path.parent().unwrap_or_else(|| Path::new("/"));
-        let mut paths = read_dir::read_dir_with_filter(parent, Path::is_dir)?;
+        let mut paths = utils::read_dir_with_filter(parent, Path::is_dir)?;
         paths.sort();
         let (current_dir_index, _) = paths
             .iter()

@@ -12,7 +12,7 @@ use cosmic::dialog::file_chooser;
 use derive_more::Display;
 
 use crate::model::config::UserDataDirNotFoundError;
-use crate::open::OpenError;
+use crate::utils::OpenError;
 
 #[derive(Display)]
 #[display("{}", self.kind)]
