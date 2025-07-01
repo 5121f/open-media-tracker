@@ -81,16 +81,14 @@ impl Application for OpenMediaTracker {
     fn view(&self) -> Element<Self::Message> {
         // Error -> Loading -> Confirm
 
-        let dialog = match (
-            self.error.as_ref(),
-            self.loading.as_ref(),
-            self.confirm.as_ref(),
-        ) {
-            (Some(error_screen), _, _) => Some(error_screen.view_into()),
-            (None, Some(loading_screen), _) => return loading_screen.view_into(),
-            (None, None, Some(confirm_screen)) => Some(confirm_screen.view_into()),
-            (None, None, None) => None,
-        };
+        if let Some(loading_screen) = self.loading.as_ref() {
+            return loading_screen.view_into();
+        }
+
+        let dialog = self.error.as_ref().map_or_else(
+            || self.confirm.as_ref().map(Screen::view_into),
+            |screen| Some(screen.view_into()),
+        );
 
         let screen_view = self.screen.view(&self.media_list);
 
