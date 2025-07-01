@@ -8,8 +8,8 @@ use cosmic::Element;
 use derive_more::derive::From;
 
 use crate::gui::Screen;
+use crate::gui::app::Msg;
 use crate::gui::screen::{ErrorScrn, MainScrn, MediaEditScrn};
-use crate::message::Msg;
 use crate::model::{Error, MediaHandler, MediaList};
 
 #[derive(From)]

@@ -6,6 +6,7 @@
 
 mod confirm_kind;
 mod loading_kind;
+mod message;
 mod screens;
 
 use std::sync::Arc;
@@ -23,10 +24,10 @@ use crate::gui::screen::MainScrn;
 use crate::gui::screen::MainScrnMsg;
 use crate::gui::screen::MediaEditScrnMsg;
 use crate::gui::{Dialog, LoadingDialog, Screen};
-use crate::message::Msg;
 use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
 use confirm_kind::ConfirmKind;
 use loading_kind::LoadingKind;
+pub use message::Msg;
 use screens::Screens;
 
 pub struct OpenMediaTracker {

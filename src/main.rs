@@ -8,7 +8,6 @@
 #![warn(clippy::pedantic)]
 
 mod gui;
-mod message;
 mod model;
 mod open;
 mod read_dir;
