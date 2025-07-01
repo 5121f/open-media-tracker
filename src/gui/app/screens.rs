@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use cosmic::Element;
+use cosmic::{Element, Task};
 use derive_more::derive::From;
 
 use crate::gui::Screen;
@@ -28,8 +28,9 @@ impl Screens {
         }
     }
 
-    pub fn change_media(media: &[MediaHandler], id: usize) -> Self {
-        MediaEditScrn::new(media, id).into()
+    pub fn change_media(media: &[MediaHandler], id: usize) -> (Self, Task<Msg>) {
+        let (screen, task) = MediaEditScrn::new(media, id);
+        (Self::MediaChange(screen), task.map(Msg::MediaEditScreen))
     }
 
     pub fn error(error: impl Into<Error>) -> Self {

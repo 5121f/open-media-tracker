@@ -28,7 +28,7 @@ impl MediaList {
     }
 
     pub async fn read(config: Arc<Config>) -> MaybeError<Self, ErrorKind> {
-        let dir_content = match read_dir(&config.data_dir) {
+        let dir_content = match read_dir(&config.data_dir).await {
             Ok(dir_content) => dir_content,
             Err(err) => return MaybeError::error(err.into()),
         };

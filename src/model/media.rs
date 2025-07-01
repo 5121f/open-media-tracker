@@ -63,8 +63,9 @@ impl Media {
         async { utils::next_dir(path).await.map_err(Into::into) }
     }
 
-    pub fn episode_list(&self) -> Result<Vec<Episode>> {
-        read_episodes(self.chapter_path.clone().into_path_buf())
+    pub fn episode_list<'a>(&self) -> impl Future<Output = Result<Vec<Episode>>> + 'a {
+        let path = self.chapter_path.clone().into_path_buf();
+        read_episodes(path)
     }
 }
 

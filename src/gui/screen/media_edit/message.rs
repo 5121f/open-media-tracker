@@ -11,7 +11,7 @@ use derive_more::derive::From;
 use url::Url;
 
 use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
-use crate::model::Result;
+use crate::model::{Episode, Result};
 
 #[derive(Debug, Clone, From)]
 pub enum Msg {
@@ -34,6 +34,8 @@ pub enum Msg {
     OpenDialogCanceled,
     OpenDialogError(Arc<file_chooser::Error>),
     NextChapterPath(Result<PathBuf>),
+    EpisodeListLoaded(Result<Vec<Episode>>),
+    CheckOverflow(Result<Vec<Episode>>),
 }
 
 impl Msg {

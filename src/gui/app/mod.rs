@@ -109,8 +109,10 @@ impl Application for OpenMediaTracker {
 }
 
 impl OpenMediaTracker {
-    fn change_media_screen(&mut self, id: usize) {
-        self.screen = Screens::change_media(&self.media_list, id);
+    fn change_media_screen(&mut self, id: usize) -> Task<Msg> {
+        let (screen, task) = Screens::change_media(&self.media_list, id);
+        self.screen = screen;
+        task.map(Action::App)
     }
 
     fn main_screen(&mut self) {
@@ -176,20 +178,20 @@ impl OpenMediaTracker {
         Ok(Task::none())
     }
 
-    fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<(), ErrorKind> {
+    fn main_screen_update(&mut self, message: MainScrnMsg) -> Result<Task<Msg>, ErrorKind> {
         match message {
             MainScrnMsg::AddMedia => {
                 let config = self.config.clone();
                 let media = MediaHandler::with_default_name(config)?;
                 let new_media_index = self.media_list.insert(media);
-                self.change_media_screen(new_media_index);
+                return Ok(self.change_media_screen(new_media_index));
             }
             MainScrnMsg::MenuButton(entity) => {
                 let Screens::Main(screen) = &self.screen else {
-                    return Ok(());
+                    return Ok(Task::none());
                 };
                 let Some(selected_media_name) = screen.selected(entity) else {
-                    return Ok(());
+                    return Ok(Task::none());
                 };
                 let selected_media_id = self
                     .media_list
@@ -198,7 +200,7 @@ impl OpenMediaTracker {
                     .find(|(_id, media)| media.name() == selected_media_name)
                     .map(|(id, _media)| id);
                 if let Some(id) = selected_media_id {
-                    self.change_media_screen(id);
+                    return Ok(self.change_media_screen(id));
                 }
             }
             MainScrnMsg::SortButton | MainScrnMsg::SearchBarChanged(_) => {
@@ -207,18 +209,17 @@ impl OpenMediaTracker {
                 }
             }
         }
-        Ok(())
+        Ok(Task::none())
     }
 
     fn update2(&mut self, message: Msg) -> MaybeError<Task<Msg>, Error> {
         let mut error = None;
 
         match message {
-            Msg::MainScreen(message) => {
-                if let Err(err) = self.main_screen_update(message) {
-                    error = Some(err.into());
-                }
-            }
+            Msg::MainScreen(message) => match self.main_screen_update(message) {
+                Ok(task) => return MaybeError::success(task),
+                Err(err) => error = Some(err.into()),
+            },
             Msg::MediaEditScreen(message) => match self.media_edit_screen_update(message) {
                 Ok(task) => return MaybeError::success(task),
                 Err(err) => error = Some(err.into()),

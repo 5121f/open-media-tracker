@@ -9,30 +9,7 @@ use std::path::{Path, PathBuf};
 
 use fs_err as fs;
 
-pub fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> io::Result<Vec<PathBuf>>
-where
-    P: Into<PathBuf>,
-{
-    let read_dir = fs::read_dir(path)?;
-    let mut paths = Vec::new();
-    for entry in read_dir {
-        let entry = entry?;
-        let path = entry.path();
-        if filter(&path) {
-            paths.push(path);
-        }
-    }
-    Ok(paths)
-}
-
-pub fn read_dir(path: impl Into<PathBuf>) -> io::Result<Vec<PathBuf>> {
-    read_dir_with_filter(path, |_| true)
-}
-
-pub async fn read_dir_with_filter_async<P>(
-    path: P,
-    filter: fn(&Path) -> bool,
-) -> io::Result<Vec<PathBuf>>
+pub async fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> io::Result<Vec<PathBuf>>
 where
     P: AsRef<Path>,
 {
@@ -45,4 +22,8 @@ where
         }
     }
     Ok(paths)
+}
+
+pub async fn read_dir(path: impl AsRef<Path>) -> io::Result<Vec<PathBuf>> {
+    read_dir_with_filter(path, |_| true).await
 }

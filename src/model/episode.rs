@@ -11,7 +11,7 @@ use mime_guess::mime;
 use crate::model::ErrorKind;
 use crate::utils::read_dir;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Episode {
     path: PathBuf,
 }
@@ -49,9 +49,9 @@ fn is_media_file(path: impl AsRef<Path>) -> bool {
     mtype == mime::VIDEO || mtype == mime::AUDIO
 }
 
-pub fn read_episodes(path: impl AsRef<Path>) -> Result<Vec<Episode>, ErrorKind> {
+pub async fn read_episodes(path: impl AsRef<Path>) -> Result<Vec<Episode>, ErrorKind> {
     let media_path = path.as_ref();
-    let episode_paths = read_dir(media_path)?;
+    let episode_paths = read_dir(media_path).await?;
     let mut episodes: Vec<_> = episode_paths
         .into_iter()
         .filter_map(|path| Episode::new(path).ok())

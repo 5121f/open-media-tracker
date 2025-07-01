@@ -10,4 +10,4 @@ mod read_dir;
 
 pub use next_dir::{NextDirError, next_dir};
 pub use open::{OpenError, open};
-pub use read_dir::{read_dir, read_dir_with_filter_async};
+pub use read_dir::{read_dir, read_dir_with_filter};

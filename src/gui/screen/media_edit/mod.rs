@@ -18,7 +18,7 @@ use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
     Column, button, container, divider, horizontal_space, popover, spin_button, text, tooltip,
 };
-use cosmic::{Element, Task, font, style, theme};
+use cosmic::{Apply, Element, Task, font, style, theme};
 
 use crate::gui;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
@@ -32,25 +32,28 @@ pub struct MediaEditScrn {
     confirm: ConfirmDlg<ConfirmKind>,
     warning: WarningDlg<WarningKind>,
     editable_media_id: usize,
-    episodes: Result<Vec<Episode>>,
+    episodes: Option<Result<Vec<Episode>>>,
     buffer_name: String,
     chapter: u8,
     episode: u8,
 }
 
 impl MediaEditScrn {
-    pub fn new(media: &[MediaHandler], editable_media_id: usize) -> Self {
+    pub fn new(media: &[MediaHandler], editable_media_id: usize) -> (Self, Task<Msg>) {
         let editable_media = &media[editable_media_id];
-
-        Self {
-            confirm: ConfirmDlg::closed(),
-            warning: WarningDlg::closed(),
-            editable_media_id,
-            episodes: editable_media.episode_list(),
-            buffer_name: editable_media.name().to_string(),
-            chapter: editable_media.chapter(),
-            episode: editable_media.episode(),
-        }
+        let task = load_episodes(editable_media);
+        (
+            Self {
+                confirm: ConfirmDlg::closed(),
+                warning: WarningDlg::closed(),
+                editable_media_id,
+                episodes: None,
+                buffer_name: editable_media.name().to_string(),
+                chapter: editable_media.chapter(),
+                episode: editable_media.episode(),
+            },
+            task,
+        )
     }
 
     pub fn view<'a>(&'a self, media_list: &'a [MediaHandler]) -> Element<'a, Msg> {
@@ -72,9 +75,7 @@ impl MediaEditScrn {
         let watch = container(
             button::suggested("Watch").on_press_maybe(
                 self.episode(media_list)
-                    .ok()
-                    .map(Episode::path)
-                    .map(Msg::watch),
+                    .and_then(|res| res.ok().map(Episode::path).map(Msg::watch)),
             ),
         )
         .width(Length::Fill)
@@ -194,10 +195,10 @@ impl MediaEditScrn {
             }
             Msg::EpisodeChanged(value) => {
                 self.episode = value;
-                self.set_episode(media_list, value)?;
+                return self.set_episode(media_list, value);
             }
             Msg::ChapterPathChanged(value) => {
-                self.set_chapter_path(media_list, UserPath::from(value))?;
+                return self.set_chapter_path(media_list, UserPath::from(value));
             }
             Msg::ConfirmScreen(message) => return self.confirm_screen_update(media_list, &message),
             Msg::ChapterPathSelect => {
@@ -225,13 +226,23 @@ impl MediaEditScrn {
             }
             Msg::ChapterPathSelected(url) => {
                 if let Ok(path) = url.to_file_path() {
-                    self.set_chapter_path(media_list, UserPath::userify(path))?;
-                } else {
-                    self.warning(WarningKind::WrongChapterPath);
+                    return self.set_chapter_path(media_list, UserPath::userify(path));
                 }
+                self.warning(WarningKind::WrongChapterPath);
             }
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
+            Msg::EpisodeListLoaded(res) => self.episodes = Some(res),
+            Msg::CheckOverflow(res) => {
+                self.episodes = Some(res);
+                if !self.is_episode_overflow(self.episode) {
+                    return Ok(Task::none());
+                }
+                let Some(episodes_count) = self.episodes_count() else {
+                    return Ok(Task::none());
+                };
+                self.confirm_episode_overflow(episodes_count);
+            }
             _ => {}
         }
         Ok(Task::none())
@@ -241,7 +252,7 @@ impl MediaEditScrn {
         if self.editable_media(media).chapter_path().is_empty() {
             return None;
         }
-        let watch_sign = match self.episode(media) {
+        let watch_sign = match self.episode(media)? {
             Ok(episode) => episode.name(),
             Err(ErrorKind::Io(err)) => {
                 format!("Chapter path is incorrect: {err}")
@@ -275,14 +286,13 @@ impl MediaEditScrn {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm.close();
-                self.set_chapter_path(media, UserPath::userify(path))?;
+                self.set_chapter_path(media, UserPath::userify(path))
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm.close();
-                return self.increase_chapter(media);
+                self.increase_chapter(media)
             }
         }
-        Ok(cosmic::task::none())
     }
 
     const fn editable_media<'a>(&self, media: &'a [MediaHandler]) -> &'a MediaHandler {
@@ -293,15 +303,22 @@ impl MediaEditScrn {
         &mut media[self.editable_media_id]
     }
 
-    fn episodes(&self) -> Result<&[Episode]> {
-        let episodes = self.episodes.as_ref().map_err(Clone::clone)?;
-        Ok(episodes)
+    fn episodes(&self) -> Option<Result<&Vec<Episode>>> {
+        self.episodes
+            .as_ref()?
+            .as_ref()
+            .map_err(Clone::clone)
+            .apply(Some)
     }
 
-    fn episode(&self, media: &[MediaHandler]) -> Result<&Episode> {
-        self.episodes()?
-            .get(self.episode_id(media))
-            .ok_or(ErrorKind::EpisodeNotFound)
+    fn episode(&self, media: &[MediaHandler]) -> Option<Result<&Episode>> {
+        match self.episodes()? {
+            Ok(episodes) => episodes
+                .get(self.episode_id(media))
+                .ok_or(ErrorKind::EpisodeNotFound)
+                .apply(Some),
+            Err(err) => Some(Err(err)),
+        }
     }
 
     const fn episode_id(&self, media: &[MediaHandler]) -> usize {
@@ -312,11 +329,10 @@ impl MediaEditScrn {
         &mut self,
         media: &mut [MediaHandler],
         chapter_path: UserPath,
-    ) -> Result<()> {
+    ) -> Result<Task<Msg>> {
         let editable_media = self.editable_media_mut(media);
         editable_media.set_chapter_path(chapter_path)?;
-        self.episodes = editable_media.episode_list();
-        Ok(())
+        Ok(load_episodes(editable_media))
     }
 
     fn warning(&mut self, kind: WarningKind) {
@@ -327,7 +343,7 @@ impl MediaEditScrn {
         self.episodes_count().is_some_and(|ec| ec < value as usize)
     }
 
-    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: u8) -> Result<()> {
+    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: u8) -> Result<Task<Msg>> {
         let media = self.editable_media_mut(media_list);
 
         match self.episodes_count() {
@@ -340,25 +356,23 @@ impl MediaEditScrn {
                 media.set_episode(value)?;
             }
             Some(_) => {
-                if !self.is_episode_overflow(value) {
-                    return Ok(());
+                if self.is_episode_overflow(value) {
+                    return Ok(self.test_overflow(media_list));
                 }
-                self.episodes = media.episode_list();
-                if !self.is_episode_overflow(value) {
-                    return Ok(());
-                }
-                let Some(episodes_count) = self.episodes_count() else {
-                    return Ok(());
-                };
-                self.confirm_episode_overflow(episodes_count);
             }
         }
 
-        Ok(())
+        Ok(Task::none())
+    }
+
+    fn test_overflow(&self, media_list: &[MediaHandler]) -> Task<Msg> {
+        let media = self.editable_media(media_list);
+        let future = media.episode_list();
+        cosmic::task::future(async { Msg::CheckOverflow(future.await) })
     }
 
     fn episodes_count(&self) -> Option<usize> {
-        let count = self.episodes.as_ref().ok()?.len();
+        let count = self.episodes.as_ref()?.as_ref().ok()?.len();
         Some(count)
     }
 
@@ -396,4 +410,9 @@ impl MediaEditScrn {
         let kind = ConfirmKind::episode_overflow(episodes_count);
         self.confirm(kind);
     }
+}
+
+fn load_episodes(media: &MediaHandler) -> Task<Msg> {
+    let future = media.episode_list();
+    cosmic::task::future(async { Msg::EpisodeListLoaded(future.await) })
 }
