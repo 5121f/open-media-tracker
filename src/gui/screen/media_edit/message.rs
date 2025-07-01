@@ -11,6 +11,7 @@ use derive_more::derive::From;
 use url::Url;
 
 use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
+use crate::model::Result;
 
 #[derive(Debug, Clone, From)]
 pub enum Msg {
@@ -32,6 +33,7 @@ pub enum Msg {
     Warning(WarningMsg),
     OpenDialogCanceled,
     OpenDialogError(Arc<file_chooser::Error>),
+    NextChapterPath(Result<PathBuf>),
 }
 
 impl Msg {

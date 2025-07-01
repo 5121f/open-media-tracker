@@ -57,8 +57,9 @@ impl Media {
         Ok(())
     }
 
-    pub fn next_chapter_path(&self) -> Result<PathBuf> {
-        utils::next_dir(self.chapter_path.clone().into_path_buf()).map_err(Into::into)
+    pub fn next_chapter_path<'a>(&self) -> impl Future<Output = Result<PathBuf>> + 'a {
+        let path = self.chapter_path.clone().into_path_buf();
+        async { utils::next_dir(path).await.map_err(Into::into) }
     }
 
     pub fn episode_list(&self) -> Result<EpisodeList> {

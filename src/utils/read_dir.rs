@@ -28,3 +28,21 @@ where
 pub fn read_dir(path: impl Into<PathBuf>) -> io::Result<Vec<PathBuf>> {
     read_dir_with_filter(path, |_| true)
 }
+
+pub async fn read_dir_with_filter_async<P>(
+    path: P,
+    filter: fn(&Path) -> bool,
+) -> io::Result<Vec<PathBuf>>
+where
+    P: AsRef<Path>,
+{
+    let mut read_dir = fs::tokio::read_dir(path).await?;
+    let mut paths = Vec::new();
+    while let Some(entry) = read_dir.next_entry().await? {
+        let path = entry.path();
+        if filter(&path) {
+            paths.push(path);
+        }
+    }
+    Ok(paths)
+}

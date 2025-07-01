@@ -91,7 +91,7 @@ impl MediaHandler {
         &self.media.chapter_path
     }
 
-    pub fn next_chapter_path(&self) -> Result<PathBuf> {
+    pub fn next_chapter_path<'a>(&self) -> impl Future<Output = Result<PathBuf>> + 'a {
         self.media.next_chapter_path()
     }
 

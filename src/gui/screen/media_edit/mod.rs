@@ -199,7 +199,7 @@ impl MediaEditScrn {
             Msg::ChapterPathChanged(value) => {
                 self.set_chapter_path(media_list, UserPath::from(value))?;
             }
-            Msg::ConfirmScreen(message) => self.confirm_screen_update(media_list, &message)?,
+            Msg::ConfirmScreen(message) => return self.confirm_screen_update(media_list, &message),
             Msg::ChapterPathSelect => {
                 return Ok(cosmic::task::future(async {
                     let dialog = file_chooser::open::Dialog::new().title("Select chapter path");
@@ -231,6 +231,7 @@ impl MediaEditScrn {
                 }
             }
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
+            Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
             _ => {}
         }
         Ok(Task::none())
@@ -254,29 +255,34 @@ impl MediaEditScrn {
         &mut self,
         media: &mut [MediaHandler],
         message: &ConfirmScrnMsg,
-    ) -> Result<()> {
+    ) -> Result<Task<Msg>> {
         match message {
             ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm.kind() {
-                    self.confirm_kind_update(media, kind.clone())?;
+                    return self.confirm_kind_update(media, kind.clone());
                 }
             }
             ConfirmScrnMsg::Cancel => self.confirm.close(),
         }
-        Ok(())
+        Ok(Task::none())
     }
 
-    fn confirm_kind_update(&mut self, media: &mut [MediaHandler], kind: ConfirmKind) -> Result<()> {
+    fn confirm_kind_update(
+        &mut self,
+        media: &mut [MediaHandler],
+        kind: ConfirmKind,
+    ) -> Result<Task<Msg>> {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm.close();
-                self.set_chapter_path(media, UserPath::userify(path))
+                self.set_chapter_path(media, UserPath::userify(path))?;
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm.close();
-                self.increase_chapter(media)
+                return self.increase_chapter(media);
             }
         }
+        Ok(cosmic::task::none())
     }
 
     const fn editable_media<'a>(&self, media: &'a [MediaHandler]) -> &'a MediaHandler {
@@ -357,10 +363,10 @@ impl MediaEditScrn {
         Some(count)
     }
 
-    fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<()> {
+    fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<Task<Msg>> {
         if self.chapter == 0 {
             self.chapter = 1;
-            return Ok(());
+            return Ok(cosmic::task::none());
         }
 
         self.episode = 1;
@@ -370,11 +376,12 @@ impl MediaEditScrn {
         self.chapter = next_chapter;
         media.set_chapter(next_chapter)?;
         if media.chapter_path().is_empty() {
-            return Ok(());
+            return Ok(cosmic::task::none());
         }
-        let next_chapter_path = media.next_chapter_path()?;
-        self.confirm_switch_to_next_chapter(next_chapter_path);
-        Ok(())
+        let next_chapter_path = media.next_chapter_path();
+        Ok(cosmic::task::future(async {
+            Msg::NextChapterPath(next_chapter_path.await)
+        }))
     }
 
     fn confirm(&mut self, kind: ConfirmKind) {
