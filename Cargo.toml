@@ -19,6 +19,8 @@ async-io = "2.4.1"
 tokio = { version = "1.45.1", features = ["fs"] }
 url = "2.5.4"
 chrono = { version = "0.4.41", features = ["serde"] }
+log = "0.4.27"
+env_logger = "0.11.8"
 
 [dependencies.derive_more]
 version = "2.0.1"

@@ -10,8 +10,15 @@ use std::path::{Path, PathBuf};
 use crate::utils;
 
 pub async fn next_dir(path: impl Into<PathBuf>) -> Result<PathBuf, NextDirError> {
-    let path = path.into();
-    let parent = path.parent().unwrap_or_else(|| Path::new("/"));
+    let path: PathBuf = path.into();
+
+    let parent = path.parent().unwrap_or_else(|| {
+        log::warn!(
+            "{}: Failed to find parent of dir. Try to use root",
+            path.to_string_lossy()
+        );
+        Path::new("/")
+    });
     let mut paths = utils::read_dir_with_filter_async(parent, Path::is_dir).await?;
     let dir_name = path.file_name().unwrap_or_default();
     paths.sort();
