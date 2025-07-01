@@ -4,13 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::io;
 use std::path::{Path, PathBuf};
 
 use fs_err as fs;
 
-use crate::model::Result;
-
-pub fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> Result<Vec<PathBuf>>
+pub fn read_dir_with_filter<P>(path: P, filter: fn(&Path) -> bool) -> io::Result<Vec<PathBuf>>
 where
     P: Into<PathBuf>,
 {
@@ -26,6 +25,6 @@ where
     Ok(paths)
 }
 
-pub fn read_dir(path: impl Into<PathBuf>) -> Result<Vec<PathBuf>> {
+pub fn read_dir(path: impl Into<PathBuf>) -> io::Result<Vec<PathBuf>> {
     read_dir_with_filter(path, |_| true)
 }

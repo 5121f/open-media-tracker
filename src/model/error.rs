@@ -12,7 +12,7 @@ use cosmic::dialog::file_chooser;
 use derive_more::Display;
 
 use crate::model::config::UserDataDirNotFoundError;
-use crate::utils::OpenError;
+use crate::utils::{NextDirError, OpenError};
 
 #[derive(Display)]
 #[display("{}", self.kind)]
@@ -57,8 +57,8 @@ pub enum ErrorKind {
         path: PathBuf,
         source: Arc<serde_json::Error>,
     },
-    #[error("Failed to find next chapter path")]
-    FindNextChapterPath,
+    #[error("{path}: Failed to find next chapter path")]
+    FindNextChapterPath { path: PathBuf },
     #[error("Name \"{name}\" is used")]
     MediaNameIsUsed { name: String },
     #[error("Eisode not found")]
@@ -108,6 +108,15 @@ impl ErrorKind {
 impl From<io::Error> for ErrorKind {
     fn from(value: io::Error) -> Self {
         Self::Io(Arc::new(value))
+    }
+}
+
+impl From<NextDirError> for ErrorKind {
+    fn from(value: NextDirError) -> Self {
+        match value {
+            NextDirError::Io(error) => Self::Io(error.into()),
+            NextDirError::FindNextDir { path } => Self::FindNextChapterPath { path },
+        }
     }
 }
 

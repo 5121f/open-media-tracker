@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+mod next_dir;
 mod open;
 mod read_dir;
 
+pub use next_dir::{NextDirError, next_dir};
 pub use open::{OpenError, open};
 pub use read_dir::{read_dir, read_dir_with_filter};

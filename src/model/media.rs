@@ -58,23 +58,7 @@ impl Media {
     }
 
     pub fn next_chapter_path(&self) -> Result<PathBuf> {
-        let chapter_path = self.chapter_path.clone().into_path_buf();
-        let chapter_dir_name = chapter_path.file_name().unwrap_or_default();
-        let parent = chapter_path.parent().unwrap_or_else(|| Path::new("/"));
-        let mut paths = utils::read_dir_with_filter(parent, Path::is_dir)?;
-        paths.sort();
-        let (current_dir_index, _) = paths
-            .iter()
-            .filter_map(|path| path.file_name())
-            .enumerate()
-            .find(|(_, file_name)| *file_name == chapter_dir_name)
-            .ok_or(ErrorKind::FindNextChapterPath)?;
-        let next_chapter_index = current_dir_index + 1;
-        if next_chapter_index >= paths.len() {
-            return Err(ErrorKind::FindNextChapterPath);
-        }
-        let next_dir = paths.into_iter().take(next_chapter_index + 1).collect();
-        Ok(next_dir)
+        utils::next_dir(self.chapter_path.clone().into_path_buf()).map_err(Into::into)
     }
 
     pub fn episode_list(&self) -> Result<EpisodeList> {

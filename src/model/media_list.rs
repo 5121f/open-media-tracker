@@ -30,7 +30,7 @@ impl MediaList {
     pub async fn read(config: Arc<Config>) -> MaybeError<Self, ErrorKind> {
         let dir_content = match read_dir(&config.data_dir) {
             Ok(dir_content) => dir_content,
-            Err(err) => return MaybeError::error(err),
+            Err(err) => return MaybeError::error(err.into()),
         };
         let mut error = None;
         let mut media_list = Vec::with_capacity(dir_content.len());
