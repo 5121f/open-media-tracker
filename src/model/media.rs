@@ -11,7 +11,7 @@ use fs_err as fs;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{ErrorKind, Result};
-use crate::utils;
+use crate::utils::{self, NextDirError};
 
 use super::{EpisodeList, UserPath};
 
@@ -64,5 +64,15 @@ impl Media {
 
     pub fn episode_list(&self) -> Result<EpisodeList> {
         EpisodeList::read(self.chapter_path.clone().into_path_buf())
+    }
+}
+
+impl From<NextDirError> for ErrorKind {
+    fn from(value: NextDirError) -> Self {
+        match value {
+            NextDirError::Io(error) => Self::Io(error.into()),
+            NextDirError::FindNextDir { path } => Self::FindNextChapterPath { path },
+            NextDirError::FindParent { path } => Self::FindParent { path },
+        }
     }
 }

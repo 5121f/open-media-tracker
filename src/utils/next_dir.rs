@@ -12,13 +12,9 @@ use crate::utils;
 pub async fn next_dir(path: impl Into<PathBuf>) -> Result<PathBuf, NextDirError> {
     let path: PathBuf = path.into();
 
-    let parent = path.parent().unwrap_or_else(|| {
-        log::warn!(
-            "{}: Failed to find parent of dir. Try to use root",
-            path.to_string_lossy()
-        );
-        Path::new("/")
-    });
+    let parent = path
+        .parent()
+        .ok_or_else(|| NextDirError::find_parent(&path))?;
     let mut paths = utils::read_dir_with_filter_async(parent, Path::is_dir).await?;
     let dir_name = path.file_name().unwrap_or_default();
     paths.sort();
@@ -42,10 +38,16 @@ pub enum NextDirError {
     Io(#[from] io::Error),
     #[error("{path}: Failed to find next directory")]
     FindNextDir { path: PathBuf },
+    #[error("{path}: Falied to find parent directory")]
+    FindParent { path: PathBuf },
 }
 
 impl NextDirError {
     fn find_next_dir(path: impl Into<PathBuf>) -> Self {
         Self::FindNextDir { path: path.into() }
+    }
+
+    fn find_parent(path: impl Into<PathBuf>) -> Self {
+        Self::FindParent { path: path.into() }
     }
 }

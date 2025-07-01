@@ -12,7 +12,7 @@ use cosmic::dialog::file_chooser;
 use derive_more::Display;
 
 use crate::model::config::UserDataDirNotFoundError;
-use crate::utils::{NextDirError, OpenError};
+use crate::utils::OpenError;
 
 #[derive(Display)]
 #[display("{}", self.kind)]
@@ -76,6 +76,8 @@ pub enum ErrorKind {
         #[from]
         source: Arc<file_chooser::Error>,
     },
+    #[error("{path}: Falied to find parent directory")]
+    FindParent { path: PathBuf },
 }
 
 impl ErrorKind {
@@ -108,15 +110,6 @@ impl ErrorKind {
 impl From<io::Error> for ErrorKind {
     fn from(value: io::Error) -> Self {
         Self::Io(Arc::new(value))
-    }
-}
-
-impl From<NextDirError> for ErrorKind {
-    fn from(value: NextDirError) -> Self {
-        match value {
-            NextDirError::Io(error) => Self::Io(error.into()),
-            NextDirError::FindNextDir { path } => Self::FindNextChapterPath { path },
-        }
     }
 }
 
