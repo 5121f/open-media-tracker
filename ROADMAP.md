@@ -1,6 +1,7 @@
 # Roadmap
 
-- on chapter decrement try to switch to previos chapter folder
+- search now sensetive to case for non-ascii symbols
+- on chapter decrement try to switch to previos chapter folder?
 - sorting series
     - by name
     - by added date
