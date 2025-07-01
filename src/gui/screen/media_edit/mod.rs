@@ -313,9 +313,8 @@ impl MediaEditScrn {
         media: &mut [MediaHandler],
         chapter_path: UserPath,
     ) -> Result<()> {
-        self.editable_media_mut(media)
-            .set_chapter_path(chapter_path)?;
-        let editable_media = self.editable_media(media);
+        let editable_media = self.editable_media_mut(media);
+        editable_media.set_chapter_path(chapter_path)?;
         self.episodes = editable_media.episode_list();
         Ok(())
     }
