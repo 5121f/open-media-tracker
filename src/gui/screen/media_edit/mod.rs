@@ -23,7 +23,7 @@ use cosmic::{Element, Task, font, style, theme};
 use crate::gui;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
-use crate::model::{Episode, EpisodeList, ErrorKind, MediaHandler, MediaList, Result, UserPath};
+use crate::model::{Episode, ErrorKind, MediaHandler, MediaList, Result, UserPath};
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
@@ -32,7 +32,7 @@ pub struct MediaEditScrn {
     confirm: ConfirmDlg<ConfirmKind>,
     warning: WarningDlg<WarningKind>,
     editable_media_id: usize,
-    episodes: Result<EpisodeList>,
+    episodes: Result<Vec<Episode>>,
     buffer_name: String,
     chapter: u8,
     episode: u8,
@@ -293,7 +293,7 @@ impl MediaEditScrn {
         &mut media[self.editable_media_id]
     }
 
-    fn episodes(&self) -> Result<&EpisodeList> {
+    fn episodes(&self) -> Result<&[Episode]> {
         let episodes = self.episodes.as_ref().map_err(Clone::clone)?;
         Ok(episodes)
     }

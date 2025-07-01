@@ -13,7 +13,8 @@ use serde::{Deserialize, Serialize};
 use crate::model::{ErrorKind, Result};
 use crate::utils::{self, NextDirError};
 
-use super::{EpisodeList, UserPath};
+use super::episode::read_episodes;
+use super::{Episode, UserPath};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
@@ -62,8 +63,8 @@ impl Media {
         async { utils::next_dir(path).await.map_err(Into::into) }
     }
 
-    pub fn episode_list(&self) -> Result<EpisodeList> {
-        EpisodeList::read(self.chapter_path.clone().into_path_buf())
+    pub fn episode_list(&self) -> Result<Vec<Episode>> {
+        read_episodes(self.chapter_path.clone().into_path_buf())
     }
 }
 

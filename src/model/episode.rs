@@ -8,6 +8,9 @@ use std::path::{Path, PathBuf};
 
 use mime_guess::mime;
 
+use crate::model::ErrorKind;
+use crate::utils::read_dir;
+
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Episode {
     path: PathBuf,
@@ -44,6 +47,20 @@ fn is_media_file(path: impl AsRef<Path>) -> bool {
     };
     let mtype = mime.type_();
     mtype == mime::VIDEO || mtype == mime::AUDIO
+}
+
+pub fn read_episodes(path: impl AsRef<Path>) -> Result<Vec<Episode>, ErrorKind> {
+    let media_path = path.as_ref();
+    let episode_paths = read_dir(media_path)?;
+    let mut episodes: Vec<_> = episode_paths
+        .into_iter()
+        .filter_map(|path| Episode::new(path).ok())
+        .collect();
+    if episodes.is_empty() {
+        return Err(ErrorKind::EpisodeNotFound);
+    }
+    episodes.sort();
+    Ok(episodes)
 }
 
 #[derive(Debug, Clone, thiserror::Error)]

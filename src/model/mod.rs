@@ -6,7 +6,6 @@
 
 mod config;
 mod episode;
-mod episode_list;
 mod error;
 mod loading;
 mod maybe_error;
@@ -18,7 +17,6 @@ mod user_path;
 
 pub use config::Config;
 pub use episode::Episode;
-pub use episode_list::EpisodeList;
 pub use error::{Error, ErrorKind, Result};
 pub use loading::{LoadingKind, LoadingQueue};
 pub use maybe_error::MaybeError;
