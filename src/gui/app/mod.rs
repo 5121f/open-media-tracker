@@ -230,11 +230,10 @@ impl OpenMediaTracker {
                 }
                 self.error.close();
             }
-            Msg::ConfirmScreen(message) => {
-                if let Err(err) = self.confirm_screen_update(&message) {
-                    error = Some(err.into());
-                }
-            }
+            Msg::ConfirmScreen(message) => match self.confirm_screen_update(&message) {
+                Ok(()) => {}
+                Err(err) => error = Some(err.into()),
+            },
             Msg::MediaLoaded(res) => {
                 self.media_list = res.value;
                 error = res.error.map(Into::into);
