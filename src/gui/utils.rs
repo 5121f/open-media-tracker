@@ -5,11 +5,11 @@
  */
 
 use cosmic::iced::Alignment;
-use cosmic::iced_widget::{row, text_input};
+use cosmic::iced_widget::row;
 use cosmic::theme;
-use cosmic::widget::{Row, text};
+use cosmic::widget::{Row, text, text_input};
 
-pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &str, on_input: F) -> Row<'a, M>
+pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &'a str, on_input: F) -> Row<'a, M>
 where
     M: Clone + 'static,
     F: Fn(String) -> M + 'a,

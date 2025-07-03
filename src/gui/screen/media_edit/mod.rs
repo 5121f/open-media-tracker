@@ -109,7 +109,7 @@ impl MediaEditScrn {
         layout.into()
     }
 
-    fn edit_view(&self, chapter_path: &str) -> Element<Msg> {
+    fn edit_view<'a>(&'a self, chapter_path: &'a str) -> Element<'a, Msg> {
         let spacing = theme::spacing();
 
         container(
@@ -163,7 +163,8 @@ impl MediaEditScrn {
                         tooltip::Position::Top
                     )
                 ]
-                .spacing(spacing.space_xxs)
+                .align_y(Alignment::Center)
+                .spacing(spacing.space_xs)
             ]
             .spacing(spacing.space_xs),
         )
