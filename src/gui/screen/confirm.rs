@@ -7,7 +7,6 @@
 use std::fmt::Display;
 
 use cosmic::Element;
-use cosmic::iced_widget::center;
 use cosmic::widget::{Dialog, button};
 
 use crate::gui::Screen;
@@ -33,14 +32,12 @@ impl<T: Display> Screen for ConfirmScrn<T> {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {
-        center(
-            Dialog::new()
-                .title("Delte media")
-                .body(self.kind.to_string())
-                .primary_action(button::suggested("Confirm").on_press(Msg::Confirm))
-                .secondary_action(button::destructive("Cancel").on_press(Msg::Cancel)),
-        )
-        .into()
+        Dialog::new()
+            .title("Delte media")
+            .body(self.kind.to_string())
+            .primary_action(button::suggested("Confirm").on_press(Msg::Confirm))
+            .secondary_action(button::destructive("Cancel").on_press(Msg::Cancel))
+            .into()
     }
 }
 

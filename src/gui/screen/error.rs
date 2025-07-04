@@ -5,7 +5,6 @@
  */
 
 use cosmic::Element;
-use cosmic::iced_widget::center;
 use cosmic::widget::{button, dialog};
 use derive_more::From;
 
@@ -32,16 +31,14 @@ impl Screen for ErrorScrn {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {
-        center(
-            dialog()
-                .title(if self.error.fatal {
-                    "Fatal error"
-                } else {
-                    "Error"
-                })
-                .body(self.error.to_string())
-                .primary_action(button::suggested("Ok").on_press(Msg::ok(self.error.fatal))),
-        )
-        .into()
+        dialog()
+            .title(if self.error.fatal {
+                "Fatal error"
+            } else {
+                "Error"
+            })
+            .body(self.error.to_string())
+            .primary_action(button::suggested("Ok").on_press(Msg::ok(self.error.fatal)))
+            .into()
     }
 }
