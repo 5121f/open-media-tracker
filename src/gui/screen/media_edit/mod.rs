@@ -233,10 +233,10 @@ impl MediaEditScrn {
             }
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
-            Msg::EpisodeListLoaded(res) => self.episodes = Episodes::Some(res.map(Arc::new)),
+            Msg::EpisodeListLoaded(res) => self.episodes = res.map(Arc::new).into(),
             Msg::CheckOverflow(res) => {
                 let res = res.map(Arc::new);
-                self.episodes = Episodes::Some(res);
+                self.episodes = res.into();
                 if !self.is_episode_overflow(self.episode) {
                     return Ok(Task::none());
                 }
@@ -403,14 +403,16 @@ fn load_episodes(media: &MediaHandler) -> Task<Msg> {
     cosmic::task::future(async { Msg::EpisodeListLoaded(future.await) })
 }
 
+#[derive(Clone, Debug)]
 enum Episodes {
     Loading,
-    Some(Result<Arc<Vec<Episode>>>),
+    Some(Arc<Vec<Episode>>),
+    Err(ErrorKind),
 }
 
 impl Episodes {
     fn len(&self) -> Option<usize> {
-        if let Self::Some(Ok(episodes)) = &self {
+        if let Self::Some(episodes) = &self {
             Some(episodes.len())
         } else {
             None
@@ -419,12 +421,21 @@ impl Episodes {
 
     fn get(&self, id: usize) -> Option<Result<&Episode>> {
         match self {
-            Self::Some(Ok(episodes)) => episodes
+            Self::Some(episodes) => episodes
                 .get(id)
                 .ok_or(ErrorKind::EpisodeNotFound)
                 .apply(Some),
-            Self::Some(Err(err)) => Some(Err(err.clone())),
-            _ => None,
+            Self::Err(err) => Some(Err(err.clone())),
+            Self::Loading => None,
+        }
+    }
+}
+
+impl From<Result<Arc<Vec<Episode>>>> for Episodes {
+    fn from(value: Result<Arc<Vec<Episode>>>) -> Self {
+        match value {
+            Ok(value) => Self::Some(value),
+            Err(err) => Self::Err(err),
         }
     }
 }
