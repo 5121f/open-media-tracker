@@ -12,6 +12,7 @@ use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
 use crate::gui;
+use crate::gui::Screen;
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -49,52 +50,6 @@ impl MainScrn {
 
     pub fn update_media(&mut self, media_list: &[MediaHandler]) {
         self.media_list_seg_button = Self::build(media_list);
-    }
-
-    pub fn view(&self) -> Element<Msg> {
-        let spacing = theme::spacing();
-
-        column![
-            container(row![
-                container(
-                    match &self.sorting {
-                        Some(sorting) =>
-                            if sorting.reverse {
-                                button::icon(gui::icon::sort_descending())
-                            } else {
-                                button::icon(gui::icon::sort_ascending())
-                            },
-                        None => button::icon(gui::icon::sort_ascending()),
-                    }
-                    .on_press(Msg::SortButton)
-                )
-                .width(Length::Fill),
-                button::suggested("Add media").on_press(Msg::AddMedia),
-                row![
-                    Space::new(Length::Fixed(40.0), Length::Shrink),
-                    text_input("Search", &self.search_bar)
-                        .style(theme::TextInput::Search)
-                        .leading_icon(
-                            container(icon::icon(gui::icon::search()).size(16))
-                                .padding([0, 0, 0, 3])
-                                .into(),
-                        )
-                        .on_input(Msg::SearchBarChanged),
-                ],
-            ])
-            .width(Length::Fill)
-            .align_x(Alignment::Center),
-            scrollable(
-                segmented_button::vertical(&self.media_list_seg_button)
-                    .on_activate(Msg::MenuButton)
-                    .button_padding([spacing.space_s, 0, 0, spacing.space_s])
-            )
-            .spacing(spacing.space_xxs),
-        ]
-        .spacing(spacing.space_xs)
-        .padding(spacing.space_xxxs)
-        .height(Length::Fill)
-        .into()
     }
 
     pub fn update(&mut self, message: Msg, media_list: &mut [MediaHandler]) {
@@ -155,5 +110,55 @@ impl MainScrn {
             builder = builder.insert(|b| b.text(media.name().to_owned()));
         }
         builder.build()
+    }
+}
+
+impl Screen for MainScrn {
+    type Message = Msg;
+
+    fn view(&self) -> Element<Self::Message> {
+        let spacing = theme::spacing();
+
+        column![
+            container(row![
+                container(
+                    match &self.sorting {
+                        Some(sorting) =>
+                            if sorting.reverse {
+                                button::icon(gui::icon::sort_descending())
+                            } else {
+                                button::icon(gui::icon::sort_ascending())
+                            },
+                        None => button::icon(gui::icon::sort_ascending()),
+                    }
+                    .on_press(Msg::SortButton)
+                )
+                .width(Length::Fill),
+                button::suggested("Add media").on_press(Msg::AddMedia),
+                row![
+                    Space::new(Length::Fixed(40.0), Length::Shrink),
+                    text_input("Search", &self.search_bar)
+                        .style(theme::TextInput::Search)
+                        .leading_icon(
+                            container(icon::icon(gui::icon::search()).size(16))
+                                .padding([0, 0, 0, 3])
+                                .into(),
+                        )
+                        .on_input(Msg::SearchBarChanged),
+                ],
+            ])
+            .width(Length::Fill)
+            .align_x(Alignment::Center),
+            scrollable(
+                segmented_button::vertical(&self.media_list_seg_button)
+                    .on_activate(Msg::MenuButton)
+                    .button_padding([spacing.space_s, 0, 0, spacing.space_s])
+            )
+            .spacing(spacing.space_xxs),
+        ]
+        .spacing(spacing.space_xs)
+        .padding(spacing.space_xxxs)
+        .height(Length::Fill)
+        .into()
     }
 }

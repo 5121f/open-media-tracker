@@ -22,7 +22,7 @@ pub enum Screens {
 impl Screens {
     pub fn view<'a>(&'a self, media: &'a MediaList) -> Element<'a, Msg> {
         match self {
-            Self::Main(screen) => screen.view().map(Into::into),
+            Self::Main(screen) => screen.view_into(),
             Self::MediaChange(screen) => screen.view(media).map(Into::into),
             Self::Error(screen) => screen.view_into(),
         }
