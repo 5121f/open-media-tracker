@@ -18,7 +18,7 @@ use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
     Column, button, container, divider, horizontal_space, popover, spin_button, text, tooltip,
 };
-use cosmic::{Apply, Element, Task, font, style, theme};
+use cosmic::{Element, Task, font, style, theme};
 use derive_more::From;
 
 use crate::gui;
@@ -417,13 +417,9 @@ impl Episodes {
     }
 
     fn get(&self, id: usize) -> Option<Result<&Episode>> {
-        match &self.0 {
-            LoadedData::Some(episodes) => episodes
-                .get(id)
-                .ok_or(ErrorKind::EpisodeNotFound)
-                .apply(Some),
-            LoadedData::Err(err) => Some(Err(err.clone())),
-            LoadedData::Loading => None,
-        }
+        self.0.get().map(|res| {
+            res.map_err(Clone::clone)
+                .and_then(|episodes| episodes.get(id).ok_or(ErrorKind::EpisodeNotFound))
+        })
     }
 }
