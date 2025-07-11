@@ -54,14 +54,14 @@ impl Application for OpenMediaTracker {
     fn init(core: Core, _flags: Self::Flags) -> (Self, Task<Self::Message>) {
         let config;
         let screen;
-        match Config::read().map_err(Error::fatal) {
+        match Config::read() {
             Ok(c) => {
                 config = c;
                 screen = Screens::default();
             }
             Err(err) => {
                 config = Config::placeholder();
-                screen = Screens::error(err);
+                screen = Screens::error(Error::fatal(err));
             }
         }
         let config = config.into();
