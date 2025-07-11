@@ -74,8 +74,8 @@ impl Application for OpenMediaTracker {
             loading: LoadingDialog::closed(),
             config,
         };
-        let command = Task::batch(vec![omt.read_media()]);
-        (omt, command)
+        let task = omt.read_media();
+        (omt, task)
     }
 
     fn view(&self) -> Element<Self::Message> {
