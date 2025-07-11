@@ -7,6 +7,7 @@
 mod config;
 mod episode;
 mod error;
+mod loaded_data;
 mod loading;
 mod maybe_error;
 mod media;
@@ -18,6 +19,7 @@ mod user_path;
 pub use config::Config;
 pub use episode::Episode;
 pub use error::{Error, ErrorKind, Result};
+pub use loaded_data::LoadedData;
 pub use loading::{LoadingKind, LoadingQueue};
 pub use maybe_error::MaybeError;
 pub use media_handler::MediaHandler;

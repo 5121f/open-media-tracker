@@ -19,11 +19,12 @@ use cosmic::widget::{
     Column, button, container, divider, horizontal_space, popover, spin_button, text, tooltip,
 };
 use cosmic::{Apply, Element, Task, font, style, theme};
+use derive_more::From;
 
 use crate::gui;
 use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
 use crate::gui::utils::signed_text_input;
-use crate::model::{Episode, ErrorKind, MediaHandler, MediaList, Result, UserPath};
+use crate::model::{Episode, ErrorKind, LoadedData, MediaHandler, MediaList, Result, UserPath};
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
@@ -47,7 +48,7 @@ impl MediaEditScrn {
                 confirm: ConfirmDlg::closed(),
                 warning: WarningDlg::closed(),
                 editable_media_id,
-                episodes: Episodes::Loading,
+                episodes: LoadedData::Loading.into(),
                 buffer_name: editable_media.name().to_string(),
                 chapter: editable_media.chapter(),
                 episode: editable_media.episode(),
@@ -233,10 +234,10 @@ impl MediaEditScrn {
             }
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
-            Msg::EpisodeListLoaded(res) => self.episodes = res.map(Arc::new).into(),
+            Msg::EpisodeListLoaded(res) => self.episodes = Episodes(res.map(Arc::new).into()),
             Msg::CheckOverflow(res) => {
                 let res = res.map(Arc::new);
-                self.episodes = res.into();
+                self.episodes = Episodes(res.into());
                 if !self.is_episode_overflow(self.episode) {
                     return Ok(Task::none());
                 }
@@ -254,7 +255,7 @@ impl MediaEditScrn {
         if self.editable_media(media).chapter_path().is_empty() {
             return None;
         }
-        if matches!(self.episodes, Episodes::Loading) {
+        if matches!(self.episodes.0, LoadedData::Loading) {
             return Some(String::from("Loading..."));
         }
         let watch_sign = match self.episodes.get(self.episode_id(media))? {
@@ -403,16 +404,12 @@ fn load_episodes(media: &MediaHandler) -> Task<Msg> {
     cosmic::task::future(async { Msg::EpisodeListLoaded(future.await) })
 }
 
-#[derive(Clone, Debug)]
-enum Episodes {
-    Loading,
-    Some(Arc<Vec<Episode>>),
-    Err(ErrorKind),
-}
+#[derive(Debug, Clone, From)]
+struct Episodes(LoadedData<Arc<Vec<Episode>>, ErrorKind>);
 
 impl Episodes {
     fn len(&self) -> Option<usize> {
-        if let Self::Some(episodes) = &self {
+        if let LoadedData::Some(episodes) = &self.0 {
             Some(episodes.len())
         } else {
             None
@@ -420,22 +417,13 @@ impl Episodes {
     }
 
     fn get(&self, id: usize) -> Option<Result<&Episode>> {
-        match self {
-            Self::Some(episodes) => episodes
+        match &self.0 {
+            LoadedData::Some(episodes) => episodes
                 .get(id)
                 .ok_or(ErrorKind::EpisodeNotFound)
                 .apply(Some),
-            Self::Err(err) => Some(Err(err.clone())),
-            Self::Loading => None,
-        }
-    }
-}
-
-impl From<Result<Arc<Vec<Episode>>>> for Episodes {
-    fn from(value: Result<Arc<Vec<Episode>>>) -> Self {
-        match value {
-            Ok(value) => Self::Some(value),
-            Err(err) => Self::Err(err),
+            LoadedData::Err(err) => Some(Err(err.clone())),
+            LoadedData::Loading => None,
         }
     }
 }
