@@ -16,7 +16,7 @@ use cosmic::iced::{Alignment, Length};
 use cosmic::iced_core::text::Wrapping;
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
-    Column, button, container, divider, horizontal_space, popover, spin_button, text, tooltip,
+    Column, button, container, divider, horizontal_space, popover, text, tooltip,
 };
 use cosmic::{Element, Task, font, style, theme};
 use derive_more::From;
@@ -121,14 +121,7 @@ impl MediaEditScrn {
                 row![
                     "Chapter",
                     horizontal_space(),
-                    spin_button(
-                        self.chapter.to_string(),
-                        self.chapter,
-                        1,
-                        1,
-                        u8::MAX,
-                        Msg::ChapterChanged
-                    ),
+                    gui::utils::spin_button(self.chapter, Msg::ChapterChanged),
                 ]
                 .spacing(spacing.space_xs)
                 .align_y(Alignment::Center),
@@ -136,14 +129,7 @@ impl MediaEditScrn {
                 row![
                     "Episode",
                     horizontal_space(),
-                    spin_button(
-                        self.episode.to_string(),
-                        self.episode,
-                        1,
-                        1,
-                        u8::MAX,
-                        Msg::EpisodeChanged
-                    ),
+                    gui::utils::spin_button(self.episode, Msg::EpisodeChanged),
                 ]
                 .spacing(spacing.space_xxs)
                 .align_y(Alignment::Center),

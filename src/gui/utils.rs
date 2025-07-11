@@ -7,7 +7,7 @@
 use cosmic::iced::Alignment;
 use cosmic::iced_widget::row;
 use cosmic::theme;
-use cosmic::widget::{Row, text, text_input};
+use cosmic::widget::{Row, SpinButton, text, text_input};
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &'a str, on_input: F) -> Row<'a, M>
 where
@@ -17,4 +17,11 @@ where
     row![text(sign), text_input(sign, value).on_input(on_input)]
         .spacing(theme::spacing().space_xs)
         .align_y(Alignment::Center)
+}
+
+pub fn spin_button<'a, M>(
+    value: u8,
+    on_press: impl Fn(u8) -> M + 'static,
+) -> SpinButton<'a, u8, M> {
+    cosmic::widget::spin_button(value.to_string(), value, 1, 1, u8::MAX, on_press)
 }
