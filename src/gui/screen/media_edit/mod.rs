@@ -72,7 +72,8 @@ impl MediaEditScrn {
             container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
                 .width(Length::Fill)
                 .align_x(Alignment::End),
-        ];
+        ]
+        .align_y(Alignment::Center);
         let watch = container(
             button::suggested("Watch").on_press_maybe(
                 self.episode(media_list)
