@@ -309,7 +309,10 @@ impl MediaEditScrn {
         &mut media[self.editable_media_id]
     }
 
-    fn episode(&self, media_list: &[MediaHandler]) -> Option<Result<&Episode>> {
+    fn episode(
+        &self,
+        media_list: &[MediaHandler],
+    ) -> Option<std::result::Result<&Episode, &ErrorKind>> {
         self.episodes.get(self.episode_id(media_list))
     }
 
@@ -416,10 +419,9 @@ impl Episodes {
         }
     }
 
-    fn get(&self, id: usize) -> Option<Result<&Episode>> {
-        self.0.get().map(|res| {
-            res.map_err(Clone::clone)
-                .and_then(|episodes| episodes.get(id).ok_or(ErrorKind::EpisodeNotFound))
-        })
+    fn get(&self, id: usize) -> Option<std::result::Result<&Episode, &ErrorKind>> {
+        self.0
+            .get()
+            .map(|res| res.and_then(|episodes| episodes.get(id).ok_or(&ErrorKind::EpisodeNotFound)))
     }
 }
