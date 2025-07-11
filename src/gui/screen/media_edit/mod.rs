@@ -40,8 +40,8 @@ pub struct MediaEditScrn {
 }
 
 impl MediaEditScrn {
-    pub fn new(media: &[MediaHandler], editable_media_id: usize) -> (Self, Task<Msg>) {
-        let editable_media = &media[editable_media_id];
+    pub fn new(media_list: &[MediaHandler], editable_media_id: usize) -> (Self, Task<Msg>) {
+        let editable_media = &media_list[editable_media_id];
         let task = load_episodes(editable_media);
         (
             Self {
@@ -251,14 +251,14 @@ impl MediaEditScrn {
         Ok(Task::none())
     }
 
-    fn watch_sign(&self, media: &[MediaHandler]) -> Option<String> {
-        if self.editable_media(media).chapter_path().is_empty() {
+    fn watch_sign(&self, media_list: &[MediaHandler]) -> Option<String> {
+        if self.editable_media(media_list).chapter_path().is_empty() {
             return None;
         }
         if matches!(self.episodes.0, LoadedData::Loading) {
             return Some(String::from("Loading..."));
         }
-        let watch_sign = match self.episodes.get(self.episode_id(media))? {
+        let watch_sign = match self.episodes.get(self.episode_id(media_list))? {
             Ok(episode) => episode.name(),
             Err(ErrorKind::Io(err)) => {
                 format!("Chapter path is incorrect: {err}")
@@ -270,13 +270,13 @@ impl MediaEditScrn {
 
     fn confirm_screen_update(
         &mut self,
-        media: &mut [MediaHandler],
+        media_list: &mut [MediaHandler],
         message: &ConfirmScrnMsg,
     ) -> Result<Task<Msg>> {
         match message {
             ConfirmScrnMsg::Confirm => {
                 if let Some(kind) = self.confirm.kind() {
-                    return self.confirm_kind_update(media, kind.clone());
+                    return self.confirm_kind_update(media_list, kind.clone());
                 }
             }
             ConfirmScrnMsg::Cancel => self.confirm.close(),
@@ -286,27 +286,27 @@ impl MediaEditScrn {
 
     fn confirm_kind_update(
         &mut self,
-        media: &mut [MediaHandler],
+        media_lost: &mut [MediaHandler],
         kind: ConfirmKind,
     ) -> Result<Task<Msg>> {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm.close();
-                self.set_chapter_path(media, UserPath::userify(path))
+                self.set_chapter_path(media_lost, UserPath::userify(path))
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm.close();
-                self.increase_chapter(media)
+                self.increase_chapter(media_lost)
             }
         }
     }
 
-    const fn editable_media<'a>(&self, media: &'a [MediaHandler]) -> &'a MediaHandler {
-        &media[self.editable_media_id]
+    const fn editable_media<'a>(&self, media_list: &'a [MediaHandler]) -> &'a MediaHandler {
+        &media_list[self.editable_media_id]
     }
 
-    fn editable_media_mut<'a>(&self, media: &'a mut [MediaHandler]) -> &'a mut MediaHandler {
-        &mut media[self.editable_media_id]
+    fn editable_media_mut<'a>(&self, media_list: &'a mut [MediaHandler]) -> &'a mut MediaHandler {
+        &mut media_list[self.editable_media_id]
     }
 
     fn episode(
@@ -316,16 +316,16 @@ impl MediaEditScrn {
         self.episodes.get(self.episode_id(media_list))
     }
 
-    const fn episode_id(&self, media: &[MediaHandler]) -> usize {
-        (self.editable_media(media).episode() - 1) as usize
+    const fn episode_id(&self, media_list: &[MediaHandler]) -> usize {
+        (self.editable_media(media_list).episode() - 1) as usize
     }
 
     fn set_chapter_path(
         &mut self,
-        media: &mut [MediaHandler],
+        media_list: &mut [MediaHandler],
         chapter_path: UserPath,
     ) -> Result<Task<Msg>> {
-        let editable_media = self.editable_media_mut(media);
+        let editable_media = self.editable_media_mut(media_list);
         editable_media.set_chapter_path(chapter_path)?;
         Ok(load_episodes(editable_media))
     }
