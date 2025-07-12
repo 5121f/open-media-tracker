@@ -140,7 +140,9 @@ impl MediaEditScrn {
                         .leading_icon(gui::icon::folder())
                         .height(30)
                         .tooltip("Open folder")
-                        .on_press(Msg::OpenChapterDirectory),
+                        .on_press_maybe(
+                            (!chapter_path.is_empty()).then(|| Msg::OpenChapterDirectory)
+                        ),
                     tooltip(
                         button::standard("...")
                             .height(30)
