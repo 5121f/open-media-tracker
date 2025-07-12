@@ -136,13 +136,6 @@ impl MediaEditScrn {
                 divider::horizontal::default(),
                 row![
                     signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
-                    button::standard("")
-                        .leading_icon(gui::icon::folder())
-                        .height(30)
-                        .tooltip("Open folder")
-                        .on_press_maybe(
-                            (!chapter_path.is_empty()).then(|| Msg::OpenChapterDirectory)
-                        ),
                     tooltip(
                         button::standard("...")
                             .height(30)
@@ -151,7 +144,14 @@ impl MediaEditScrn {
                             .on_press(Msg::ChapterPathSelect),
                         text("Select folder"),
                         tooltip::Position::Top
-                    )
+                    ),
+                    button::standard("")
+                        .leading_icon(gui::icon::folder())
+                        .height(30)
+                        .tooltip("Open folder")
+                        .on_press_maybe(
+                            (!chapter_path.is_empty()).then(|| Msg::OpenChapterDirectory)
+                        ),
                 ]
                 .align_y(Alignment::Center)
                 .spacing(spacing.space_xs)
