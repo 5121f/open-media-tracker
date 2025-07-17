@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use chrono::DateTime;
@@ -52,9 +53,10 @@ impl Media {
         if !parent.exists() {
             fs::create_dir(path)?;
         }
-        let content = serde_json::to_string_pretty(&self)
+        let mut file = fs::File::create(path)?;
+        serde_json::to_writer_pretty(&file, &self)
             .map_err(|source| ErrorKind::serialize(source, &self.name))?;
-        fs::write(path, content)?;
+        file.write_all(b"\n")?;
         Ok(())
     }
 
