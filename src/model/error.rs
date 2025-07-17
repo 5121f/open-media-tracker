@@ -72,10 +72,7 @@ pub enum ErrorKind {
     #[error(transparent)]
     UserDataDirNotFound(#[from] UserDataDirNotFoundError),
     #[error("Open dialog error: {source}")]
-    OpenDialog {
-        #[from]
-        source: Arc<file_chooser::Error>,
-    },
+    OpenDialog { source: Arc<file_chooser::Error> },
     #[error("{path}: Falied to find parent directory")]
     FindParent { path: PathBuf },
 }
