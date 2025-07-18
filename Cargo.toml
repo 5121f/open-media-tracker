@@ -16,7 +16,7 @@ etcetera = "0.10.0"
 serde_json = "1.0.140"
 fuzzy-matcher = "0.3.7"
 async-io = "2.4.1"
-tokio = { version = "1.45.1", features = ["fs"] }
+tokio = { version = "1.46.1", features = ["fs"] }
 url = "2.5.4"
 chrono = { version = "0.4.41", features = ["serde"] }
 log = "0.4.27"
@@ -28,13 +28,11 @@ features = ["deref", "deref_mut", "display", "from"]
 
 [target.'cfg(unix)'.dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
-rev = "12317d8103c34d66f005ee868df578abe693c84a"
 default-features = false
 features = ["winit", "wgpu", "tokio", "xdg-portal"]
 
 [target.'cfg(windows)'.dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
-rev = "12317d8103c34d66f005ee868df578abe693c84a"
 default-features = false
 features = ["winit", "wgpu", "tokio", "rfd"]
 

@@ -252,8 +252,9 @@ impl OpenMediaTracker {
     }
 }
 
-fn custom_core(mut core: Core) -> Core {
-    core.window.header_title = String::from("Open Media Tracker");
+fn custom_core(core: Core) -> Core {
+    // Uncoment when header bar will be fixed
+    // core.window.header_title = String::from("Open Media Tracker");
     core
 }
 
