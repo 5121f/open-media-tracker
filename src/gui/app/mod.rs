@@ -65,8 +65,10 @@ impl Application for OpenMediaTracker {
             }
         }
         let config = config.into();
+        // TODO: Uncoment when header bar will be fixed
+        // core.window.header_title = String::from("Open Media Tracker");
         let mut omt = Self {
-            core: custom_core(core),
+            core,
             media_list: MediaList::new(),
             screen,
             confirm: ConfirmDlg::closed(),
@@ -79,8 +81,6 @@ impl Application for OpenMediaTracker {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        // Error -> Loading -> Confirm
-
         if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
         }
@@ -250,12 +250,6 @@ impl OpenMediaTracker {
             error,
         }
     }
-}
-
-fn custom_core(core: Core) -> Core {
-    // Uncoment when header bar will be fixed
-    // core.window.header_title = String::from("Open Media Tracker");
-    core
 }
 
 fn close_app() -> Task<Msg> {
