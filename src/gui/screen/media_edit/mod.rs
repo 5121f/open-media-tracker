@@ -16,7 +16,7 @@ use cosmic::iced::{Alignment, Length};
 use cosmic::iced_core::text::Wrapping;
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{
-    Column, button, container, divider, horizontal_space, popover, text, tooltip,
+    Column, Space, button, container, divider, horizontal_space, popover, text, tooltip,
 };
 use cosmic::{Element, Task, font, style, theme};
 use derive_more::From;
@@ -94,6 +94,7 @@ impl MediaEditScrn {
 
         let layout = Column::new()
             .push(top)
+            .push(Space::with_height(Length::Fixed(spacing.space_xxs.into())))
             .push(watch)
             .push_maybe(watch_sign)
             .push_maybe(self.warning.view_into())
