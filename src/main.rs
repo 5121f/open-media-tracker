@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#![windows_subsystem = "windows"] // Do not open console window on startup on Windows
 #![warn(clippy::pedantic)]
 
 mod gui;
