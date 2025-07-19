@@ -56,7 +56,7 @@ impl MediaList {
         Ok(())
     }
 
-    /// Insert media to the `MediaList` and return his index
+    /// Insert media to the `MediaList` and return its index
     pub fn insert(&mut self, media: MediaHandler) -> usize {
         let index = self.0.len();
         self.0.insert(index, media);
