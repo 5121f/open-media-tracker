@@ -41,6 +41,10 @@ impl UserPath {
         }
         PathBuf::from(self.0)
     }
+
+    pub fn to_path_buf(&self) -> PathBuf {
+        self.clone().into_path_buf()
+    }
 }
 
 impl From<PathBuf> for UserPath {
