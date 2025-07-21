@@ -4,10 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::{path::PathBuf, sync::Arc};
+use std::path::PathBuf;
+use std::sync::Arc;
 
 use cosmic::dialog::file_chooser;
-use derive_more::derive::From;
+use derive_more::From;
 use url::Url;
 
 use crate::gui::page::{ConfirmPageMsg, WarningPageMsg};
