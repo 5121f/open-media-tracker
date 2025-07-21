@@ -11,16 +11,16 @@ pub mod main;
 pub mod media_edit;
 pub mod warning;
 
-pub use confirm::{ConfirmDlg, Msg as ConfirmScrnMsg};
-pub use error::{ErrorScrn, Msg as ErrorScrnMsg};
-pub use loading::{LoadingScrn, Msg as LoadingMsg};
-pub use main::{MainScrn, Msg as MainScrnMsg};
-pub use media_edit::{MediaEditScrn, Msg as MediaEditScrnMsg};
-pub use warning::{Message as WarningMsg, WarningDlg};
+pub use confirm::{ConfirmDlg, Msg as ConfirmPageMsg};
+pub use error::{ErrorPage, Msg as ErrorPageMsg};
+pub use loading::{LoadingPage, Msg as LoadingPageMsg};
+pub use main::{MainPage, Msg as MainPageMsg};
+pub use media_edit::{MediaEditPage, Msg as MediaEditPageMsg};
+pub use warning::{Message as WarningPageMsg, WarningDlg};
 
 use cosmic::Element;
 
-pub trait Screen {
+pub trait Page {
     type Message;
 
     fn view(&self) -> Element<Self::Message>;

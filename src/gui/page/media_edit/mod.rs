@@ -22,14 +22,14 @@ use cosmic::{Element, Task, font, style, theme};
 use derive_more::From;
 
 use crate::gui;
-use crate::gui::screen::{ConfirmDlg, ConfirmScrnMsg, WarningDlg, WarningMsg};
+use crate::gui::page::{ConfirmDlg, ConfirmPageMsg, WarningDlg, WarningPageMsg};
 use crate::gui::utils::signed_text_input;
 use crate::model::{Episode, ErrorKind, LoadedData, MediaHandler, MediaList, Result, UserPath};
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
 
-pub struct MediaEditScrn {
+pub struct MediaEditPage {
     confirm: ConfirmDlg<ConfirmKind>,
     warning: WarningDlg<WarningKind>,
     editable_media_id: usize,
@@ -39,7 +39,7 @@ pub struct MediaEditScrn {
     episode: u8,
 }
 
-impl MediaEditScrn {
+impl MediaEditPage {
     pub fn new(media_list: &[MediaHandler], editable_media_id: usize) -> (Self, Task<Msg>) {
         let editable_media = &media_list[editable_media_id];
         let task = load_episodes(editable_media);
@@ -203,7 +203,7 @@ impl MediaEditScrn {
                     }
                 }));
             }
-            Msg::Warning(WarningMsg::Close) => self.warning.close(),
+            Msg::Warning(WarningPageMsg::Close) => self.warning.close(),
             Msg::OpenChapterDirectory => {
                 let chapter_path = self.editable_media(media_list).chapter_path().to_path_buf();
                 if !chapter_path.is_dir() {
@@ -257,15 +257,15 @@ impl MediaEditScrn {
     fn confirm_screen_update(
         &mut self,
         media_list: &mut [MediaHandler],
-        message: &ConfirmScrnMsg,
+        message: &ConfirmPageMsg,
     ) -> Result<Task<Msg>> {
         match message {
-            ConfirmScrnMsg::Confirm => {
+            ConfirmPageMsg::Confirm => {
                 if let Some(kind) = self.confirm.kind() {
                     return self.confirm_kind_update(media_list, kind.clone());
                 }
             }
-            ConfirmScrnMsg::Cancel => self.confirm.close(),
+            ConfirmPageMsg::Cancel => self.confirm.close(),
         }
         Ok(Task::none())
     }

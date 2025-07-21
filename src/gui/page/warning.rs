@@ -11,24 +11,24 @@ use cosmic::widget::{button, container, horizontal_space, text};
 use cosmic::{Element, font, style, theme};
 
 use crate::gui::dialog::{DialogWithKind, HaveKind};
-use crate::gui::{self, Screen};
+use crate::gui::{self, Page};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     Close,
 }
 
-pub struct WarningScrn<T> {
+pub struct WarningPage<T> {
     kind: T,
 }
 
-impl<T> WarningScrn<T> {
+impl<T> WarningPage<T> {
     pub const fn new(kind: T) -> Self {
         Self { kind }
     }
 }
 
-impl<T: Display> Screen for WarningScrn<T> {
+impl<T: Display> Page for WarningPage<T> {
     type Message = Message;
 
     fn view(&self) -> Element<Message> {
@@ -51,7 +51,7 @@ impl<T: Display> Screen for WarningScrn<T> {
     }
 }
 
-impl<T> HaveKind for WarningScrn<T> {
+impl<T> HaveKind for WarningPage<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {
@@ -59,10 +59,10 @@ impl<T> HaveKind for WarningScrn<T> {
     }
 }
 
-impl<T> From<T> for WarningScrn<T> {
+impl<T> From<T> for WarningPage<T> {
     fn from(value: T) -> Self {
         Self::new(value)
     }
 }
 
-pub type WarningDlg<T> = DialogWithKind<WarningScrn<T>>;
+pub type WarningDlg<T> = DialogWithKind<WarningPage<T>>;

@@ -8,7 +8,7 @@ use cosmic::Element;
 use cosmic::widget::{button, dialog};
 use derive_more::From;
 
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::model::Error;
 
 #[derive(Debug, Clone)]
@@ -23,11 +23,11 @@ impl Msg {
 }
 
 #[derive(From)]
-pub struct ErrorScrn {
+pub struct ErrorPage {
     error: Error,
 }
 
-impl Screen for ErrorScrn {
+impl Page for ErrorPage {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {

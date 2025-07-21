@@ -8,7 +8,7 @@ use std::ops::{Deref, DerefMut};
 
 use cosmic::Element;
 
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::gui::dialog::HaveKind;
 
 pub struct Dialog<T>(Option<T>);
@@ -27,9 +27,9 @@ impl<T> Dialog<T> {
     }
 }
 
-impl<T: Screen> Dialog<T> {
+impl<T: Page> Dialog<T> {
     pub fn view(&self) -> Option<Element<T::Message>> {
-        self.0.as_ref().map(Screen::view)
+        self.0.as_ref().map(Page::view)
     }
 
     pub fn view_map<'a, B: 'a>(

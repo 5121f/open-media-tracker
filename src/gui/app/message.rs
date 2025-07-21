@@ -6,25 +6,27 @@
 
 use derive_more::derive::From;
 
-use crate::gui::screen::{ConfirmScrnMsg, ErrorScrnMsg, LoadingMsg, MainScrnMsg, MediaEditScrnMsg};
+use crate::gui::page::{
+    ConfirmPageMsg, ErrorPageMsg, LoadingPageMsg, MainPageMsg, MediaEditPageMsg,
+};
 use crate::model::{ErrorKind, MaybeError, MediaList};
 
 #[derive(Debug, Clone, From)]
 pub enum Msg {
-    MainScreen(MainScrnMsg),
-    MediaEditScreen(MediaEditScrnMsg),
-    ConfirmScreen(ConfirmScrnMsg),
-    ErrorScreen(ErrorScrnMsg),
+    MainScreen(MainPageMsg),
+    MediaEditScreen(MediaEditPageMsg),
+    ConfirmScreen(ConfirmPageMsg),
+    ErrorScreen(ErrorPageMsg),
     MediaLoaded(MaybeError<MediaList, ErrorKind>),
     Loading,
 }
 
-impl From<LoadingMsg> for Msg {
+impl From<LoadingPageMsg> for Msg {
     #[allow(clippy::match_single_binding)]
-    fn from(value: LoadingMsg) -> Self {
+    fn from(value: LoadingPageMsg) -> Self {
         // We want to get a warning if LoadingMsg changes
         match value {
-            LoadingMsg {} => {}
+            LoadingPageMsg {} => {}
         }
 
         Self::Loading

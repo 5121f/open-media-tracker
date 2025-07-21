@@ -6,7 +6,7 @@
 
 pub mod app;
 pub mod dialog;
-pub mod screen;
+pub mod page;
 pub mod utils;
 
 mod icon;
@@ -14,4 +14,4 @@ mod loading;
 
 pub use dialog::Dialog;
 pub use loading::LoadingDialog;
-pub use screen::Screen;
+pub use page::Page;

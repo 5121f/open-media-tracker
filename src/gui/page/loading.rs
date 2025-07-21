@@ -9,14 +9,14 @@ use cosmic::iced::Length;
 use cosmic::iced_widget::center;
 use cosmic::widget::text;
 
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::model::{LoadingKind, LoadingQueue};
 
 pub struct Msg;
 
-pub type LoadingScrn<T> = LoadingQueue<T>;
+pub type LoadingPage<T> = LoadingQueue<T>;
 
-impl<T> Screen for LoadingScrn<T>
+impl<T> Page for LoadingPage<T>
 where
     T: LoadingKind,
 {

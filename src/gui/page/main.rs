@@ -12,7 +12,7 @@ use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
 use crate::gui;
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -33,13 +33,13 @@ struct Sorting {
 }
 
 #[derive(Default)]
-pub struct MainScrn {
+pub struct MainPage {
     media_list_seg_button: segmented_button::Model<segmented_button::SingleSelect>,
     sorting: Option<Sorting>,
     search_bar: String,
 }
 
-impl MainScrn {
+impl MainPage {
     pub fn new(media_list: &[MediaHandler]) -> Self {
         Self {
             media_list_seg_button: Self::build(media_list),
@@ -113,7 +113,7 @@ impl MainScrn {
     }
 }
 
-impl Screen for MainScrn {
+impl Page for MainPage {
     type Message = Msg;
 
     fn view(&self) -> Element<Self::Message> {

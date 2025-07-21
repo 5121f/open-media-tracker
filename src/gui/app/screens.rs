@@ -7,16 +7,16 @@
 use cosmic::{Element, Task};
 use derive_more::derive::From;
 
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::gui::app::Msg;
-use crate::gui::screen::{ErrorScrn, MainScrn, MediaEditScrn};
+use crate::gui::page::{ErrorPage, MainPage, MediaEditPage};
 use crate::model::{Error, MediaHandler, MediaList};
 
 #[derive(From)]
 pub enum Screens {
-    Main(MainScrn),
-    MediaChange(MediaEditScrn),
-    Error(ErrorScrn),
+    Main(MainPage),
+    MediaChange(MediaEditPage),
+    Error(ErrorPage),
 }
 
 impl Screens {
@@ -29,17 +29,17 @@ impl Screens {
     }
 
     pub fn change_media(media: &[MediaHandler], id: usize) -> (Self, Task<Msg>) {
-        let (screen, task) = MediaEditScrn::new(media, id);
+        let (screen, task) = MediaEditPage::new(media, id);
         (Self::MediaChange(screen), task.map(Msg::MediaEditScreen))
     }
 
     pub fn error(error: impl Into<Error>) -> Self {
-        Self::Error(ErrorScrn::from(error.into()))
+        Self::Error(ErrorPage::from(error.into()))
     }
 }
 
 impl Default for Screens {
     fn default() -> Self {
-        Self::Main(MainScrn::default())
+        Self::Main(MainPage::default())
     }
 }

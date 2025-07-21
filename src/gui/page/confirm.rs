@@ -9,7 +9,7 @@ use std::fmt::Display;
 use cosmic::Element;
 use cosmic::widget::{Dialog, button};
 
-use crate::gui::Screen;
+use crate::gui::Page;
 use crate::gui::dialog::{DialogWithKind, HaveKind};
 
 #[derive(Debug, Clone)]
@@ -18,17 +18,17 @@ pub enum Msg {
     Cancel,
 }
 
-pub struct ConfirmScrn<T> {
+pub struct ConfirmPage<T> {
     kind: T,
 }
 
-impl<T> ConfirmScrn<T> {
+impl<T> ConfirmPage<T> {
     pub const fn new(kind: T) -> Self {
         Self { kind }
     }
 }
 
-impl<T: Display> Screen for ConfirmScrn<T> {
+impl<T: Display> Page for ConfirmPage<T> {
     type Message = Msg;
 
     fn view(&self) -> Element<Msg> {
@@ -41,7 +41,7 @@ impl<T: Display> Screen for ConfirmScrn<T> {
     }
 }
 
-impl<T> HaveKind for ConfirmScrn<T> {
+impl<T> HaveKind for ConfirmPage<T> {
     type Kind = T;
 
     fn kind(&self) -> &Self::Kind {
@@ -49,10 +49,10 @@ impl<T> HaveKind for ConfirmScrn<T> {
     }
 }
 
-impl<T> From<T> for ConfirmScrn<T> {
+impl<T> From<T> for ConfirmPage<T> {
     fn from(value: T) -> Self {
         Self::new(value)
     }
 }
 
-pub type ConfirmDlg<T> = DialogWithKind<ConfirmScrn<T>>;
+pub type ConfirmDlg<T> = DialogWithKind<ConfirmPage<T>>;

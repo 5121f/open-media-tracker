@@ -10,7 +10,7 @@ use cosmic::dialog::file_chooser;
 use derive_more::derive::From;
 use url::Url;
 
-use crate::gui::screen::{ConfirmScrnMsg, WarningMsg};
+use crate::gui::page::{ConfirmPageMsg, WarningPageMsg};
 use crate::model::{Episode, Result};
 
 #[derive(Debug, Clone, From)]
@@ -28,9 +28,9 @@ pub enum Msg {
     ChapterPathSelected(Url),
     OpenChapterDirectory,
     #[from]
-    ConfirmScreen(ConfirmScrnMsg),
+    ConfirmScreen(ConfirmPageMsg),
     #[from]
-    Warning(WarningMsg),
+    Warning(WarningPageMsg),
     OpenDialogCanceled,
     OpenDialogError(Arc<file_chooser::Error>),
     NextChapterPath(Result<PathBuf>),
