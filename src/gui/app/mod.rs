@@ -224,8 +224,8 @@ impl OpenMediaTracker {
                 Ok(task) => return MaybeError::success(task),
                 Err(err) => error = Some(err.into()),
             },
-            Msg::ErrorScreen(ErrorPageMsg::Ok { fatal: critical }) => {
-                if critical {
+            Msg::ErrorScreen(ErrorPageMsg::Ok { fatal }) => {
+                if fatal {
                     return MaybeError::success(close_app());
                 }
                 self.error.close();

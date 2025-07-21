@@ -23,19 +23,11 @@ pub struct Error {
 
 impl Error {
     pub const fn fatal(kind: ErrorKind) -> Self {
-        let critical = true;
-        Self {
-            kind,
-            fatal: critical,
-        }
+        Self { kind, fatal: true }
     }
 
     pub const fn common(kind: ErrorKind) -> Self {
-        let critical = false;
-        Self {
-            kind,
-            fatal: critical,
-        }
+        Self { kind, fatal: false }
     }
 }
 
