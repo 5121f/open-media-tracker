@@ -14,7 +14,7 @@ use crate::gui::dialog::{DialogWithKind, HaveKind};
 use crate::gui::{self, Page};
 
 #[derive(Debug, Clone)]
-pub enum Message {
+pub enum Msg {
     Close,
 }
 
@@ -29,9 +29,9 @@ impl<T> WarningPage<T> {
 }
 
 impl<T: Display> Page for WarningPage<T> {
-    type Message = Message;
+    type Message = Msg;
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<Msg> {
         let spacing = theme::spacing();
 
         container(
@@ -39,7 +39,7 @@ impl<T: Display> Page for WarningPage<T> {
                 row![
                     text::text("Warning").size(17).font(font::bold()),
                     horizontal_space(),
-                    button::icon(gui::icon::close()).on_press(Message::Close)
+                    button::icon(gui::icon::close()).on_press(Msg::Close)
                 ],
                 text(self.kind.to_string())
             ]

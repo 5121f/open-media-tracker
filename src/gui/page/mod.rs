@@ -16,7 +16,7 @@ pub use error::{ErrorPage, Msg as ErrorPageMsg};
 pub use loading::{LoadingPage, Msg as LoadingPageMsg};
 pub use main::{MainPage, Msg as MainPageMsg};
 pub use media_edit::{MediaEditPage, Msg as MediaEditPageMsg};
-pub use warning::{Message as WarningPageMsg, WarningDlg};
+pub use warning::{Msg as WarningPageMsg, WarningDlg};
 
 use cosmic::Element;
 
