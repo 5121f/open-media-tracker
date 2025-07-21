@@ -68,7 +68,7 @@ impl MediaEditScrn {
                     .on_press(Msg::Back)
             )
             .width(Length::Fill),
-            text(media.name()),
+            text::heading(media.name()),
             container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
                 .width(Length::Fill)
                 .align_x(Alignment::End),
