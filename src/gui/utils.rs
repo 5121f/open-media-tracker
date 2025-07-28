@@ -4,10 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::borrow::Cow;
+
 use cosmic::iced::Alignment;
 use cosmic::iced_widget::row;
 use cosmic::theme;
-use cosmic::widget::{Row, SpinButton, text, text_input};
+use cosmic::widget::{Row, SpinButton, TextInput, container, icon, text, text_input};
+
+use crate::gui;
 
 pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &'a str, on_input: F) -> Row<'a, M>
 where
@@ -24,4 +28,17 @@ pub fn spin_button<'a, M>(
     on_press: impl Fn(u8) -> M + 'static,
 ) -> SpinButton<'a, u8, M> {
     cosmic::widget::spin_button(value.to_string(), value, 1, 1, u8::MAX, on_press)
+}
+
+pub fn search_bar<'a, M>(value: impl Into<Cow<'a, str>>) -> TextInput<'a, M>
+where
+    M: Clone + 'static,
+{
+    text_input("Search", value)
+        .style(theme::TextInput::Search)
+        .leading_icon(
+            container(icon::icon(gui::icon::search()).size(16))
+                .padding([0, 0, 0, 3])
+                .into(),
+        )
 }

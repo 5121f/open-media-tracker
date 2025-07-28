@@ -6,13 +6,14 @@
 
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
-use cosmic::widget::{Space, button, container, icon, scrollable, segmented_button, text_input};
+use cosmic::widget::{Space, button, container, scrollable, segmented_button};
 use cosmic::{Element, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
 use crate::gui;
 use crate::gui::Page;
+use crate::gui::utils::search_bar;
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -137,14 +138,7 @@ impl Page for MainPage {
                 button::suggested("Add media").on_press(Msg::AddMedia),
                 row![
                     Space::new(Length::Fixed(40.0), Length::Shrink),
-                    text_input("Search", &self.search_bar)
-                        .style(theme::TextInput::Search)
-                        .leading_icon(
-                            container(icon::icon(gui::icon::search()).size(16))
-                                .padding([0, 0, 0, 3])
-                                .into(),
-                        )
-                        .on_input(Msg::SearchBarChanged),
+                    search_bar(&self.search_bar).on_input(Msg::SearchBarChanged),
                 ],
             ])
             .width(Length::Fill)
