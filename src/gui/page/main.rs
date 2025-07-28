@@ -32,9 +32,11 @@ struct Sorting {
     reverse: bool,
 }
 
+type SegButtonModel = segmented_button::Model<segmented_button::SingleSelect>;
+
 #[derive(Default)]
 pub struct MainPage {
-    media_list_seg_button: segmented_button::Model<segmented_button::SingleSelect>,
+    media_list_seg_button: SegButtonModel,
     sorting: Option<Sorting>,
     search_bar: String,
 }
@@ -88,7 +90,7 @@ impl MainPage {
                 search_result.sort_by(|a, b| a.1.cmp(&b.1));
                 search_result.reverse();
 
-                let mut builder = segmented_button::Model::builder();
+                let mut builder = SegButtonModel::builder();
                 for (media_name, _) in search_result {
                     builder = builder.insert(|b| b.text(media_name.clone()));
                 }
@@ -102,10 +104,8 @@ impl MainPage {
         self.media_list_seg_button.text(entity)
     }
 
-    fn build(
-        media_list: &[MediaHandler],
-    ) -> segmented_button::Model<segmented_button::SingleSelect> {
-        let mut builder = segmented_button::Model::builder();
+    fn build(media_list: &[MediaHandler]) -> SegButtonModel {
+        let mut builder = SegButtonModel::builder();
         for media in media_list {
             builder = builder.insert(|b| b.text(media.name().to_owned()));
         }
