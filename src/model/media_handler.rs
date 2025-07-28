@@ -49,7 +49,6 @@ impl MediaHandler {
     }
 
     pub async fn read(path: impl AsRef<Path>, config: Arc<Config>) -> Result<Self> {
-        let path = path.as_ref();
         let media = Self {
             media: Media::read(path).await?,
             config,
