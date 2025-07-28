@@ -13,7 +13,7 @@ pub enum ConfirmKind {
     #[display("Proposed path to next chapter: {path:?}")]
     SwitchToNextChapter { path: PathBuf },
     #[display(
-        "Seems like {episodes_on_disk} episode is a last of it chapter \
+        "Seems like {episodes_on_disk} episode is a last of it chapter. \
         Switch to the next chapter?"
     )]
     EpisodesOverflow { episodes_on_disk: usize },
