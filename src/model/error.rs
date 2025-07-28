@@ -94,6 +94,14 @@ impl ErrorKind {
         let source = source.into();
         Self::OpenDialog { source }
     }
+
+    pub fn find_next_chapter(path: impl Into<PathBuf>) -> Self {
+        Self::FindNextChapterPath { path: path.into() }
+    }
+
+    pub fn find_parent(path: impl Into<PathBuf>) -> Self {
+        Self::FindParent { path: path.into() }
+    }
 }
 
 impl From<io::Error> for ErrorKind {

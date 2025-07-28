@@ -12,7 +12,7 @@ use fs_err as fs;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{ErrorKind, Result};
-use crate::utils::{self, NextDirError};
+use crate::utils;
 
 use super::episode::read_episodes;
 use super::{Episode, UserPath};
@@ -62,21 +62,11 @@ impl Media {
 
     pub fn next_chapter_path<'a>(&self) -> impl Future<Output = Result<PathBuf>> + 'a {
         let path = self.chapter_path.to_path_buf();
-        async { utils::next_dir(path).await.map_err(Into::into) }
+        async { utils::next_dir(path).await }
     }
 
     pub fn episode_list<'a>(&self) -> impl Future<Output = Result<Vec<Episode>>> + 'a {
         let path = self.chapter_path.to_path_buf();
         read_episodes(path)
-    }
-}
-
-impl From<NextDirError> for ErrorKind {
-    fn from(value: NextDirError) -> Self {
-        match value {
-            NextDirError::Io(error) => Self::Io(error.into()),
-            NextDirError::FindNextDir { path } => Self::FindNextChapterPath { path },
-            NextDirError::FindParent { path } => Self::FindParent { path },
-        }
     }
 }
