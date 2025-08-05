@@ -4,8 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod confirm_kind;
-mod loading_kind;
+mod kinds;
 mod message;
 mod screens;
 
@@ -22,8 +21,7 @@ use crate::gui::page::{
 use crate::gui::{Dialog, LoadingDialog, Page};
 use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
 use crate::utils;
-use confirm_kind::ConfirmKind;
-use loading_kind::LoadingKind;
+use kinds::{ConfirmKind, LoadingKind};
 pub use message::Msg;
 use screens::Screens;
 
