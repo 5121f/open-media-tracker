@@ -6,8 +6,74 @@
 
 mod dialog_with_kind;
 mod have_kind;
-mod traits;
 
 pub use dialog_with_kind::DialogWithKind;
 pub use have_kind::HaveKind;
-pub use traits::Dialog;
+
+use std::ops::{Deref, DerefMut};
+
+use cosmic::Element;
+
+use crate::gui::Page;
+
+pub struct Dialog<T>(Option<T>);
+
+impl<T> Dialog<T> {
+    pub const fn new(dialog: T) -> Self {
+        Self(Some(dialog))
+    }
+
+    pub const fn closed() -> Self {
+        Self(None)
+    }
+
+    pub fn close(&mut self) {
+        self.0 = None;
+    }
+}
+
+impl<T: Page> Dialog<T> {
+    pub fn view(&self) -> Option<Element<T::Message>> {
+        self.0.as_ref().map(Page::view)
+    }
+
+    pub fn view_map<'a, B: 'a>(
+        &'a self,
+        f: impl Fn(T::Message) -> B + 'a,
+    ) -> Option<Element<'a, B>> {
+        self.view().map(|d| d.map(f))
+    }
+
+    pub fn view_into<'a, M>(&'a self) -> Option<Element<'a, M>>
+    where
+        M: From<T::Message> + 'a,
+    {
+        self.view_map(Into::into)
+    }
+}
+
+impl<T: HaveKind> Dialog<T> {
+    pub fn kind(&self) -> Option<&T::Kind> {
+        self.0.as_ref().map(T::kind)
+    }
+}
+
+impl<T> Deref for Dialog<T> {
+    type Target = Option<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> DerefMut for Dialog<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<T> Default for Dialog<T> {
+    fn default() -> Self {
+        Self::closed()
+    }
+}
