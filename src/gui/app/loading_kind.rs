@@ -8,5 +8,3 @@
 pub enum LoadingKind {
     ReadMedia,
 }
-
-impl crate::model::LoadingKind for LoadingKind {}

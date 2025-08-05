@@ -9,14 +9,14 @@ use std::hash::Hash;
 
 pub struct LoadingQueue<T>
 where
-    T: LoadingKind,
+    T: PartialEq + Eq + Hash,
 {
     kinds: HashSet<T>,
 }
 
 impl<T> LoadingQueue<T>
 where
-    T: LoadingKind,
+    T: PartialEq + Eq + Hash,
 {
     pub fn new() -> Self {
         let kinds = HashSet::new();
@@ -35,5 +35,3 @@ where
         self.kinds.is_empty()
     }
 }
-
-pub trait LoadingKind: PartialEq + Eq + Hash {}

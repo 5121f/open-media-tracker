@@ -4,17 +4,17 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::hash::Hash;
 use std::ops::Deref;
 
 use crate::gui::Dialog;
 use crate::gui::page::LoadingPage;
-use crate::model::LoadingKind;
 
-pub struct LoadingDialog<K: LoadingKind>(Dialog<LoadingPage<K>>);
+pub struct LoadingDialog<K: PartialEq + Eq + Hash>(Dialog<LoadingPage<K>>);
 
 impl<K> LoadingDialog<K>
 where
-    K: LoadingKind,
+    K: PartialEq + Eq + Hash,
 {
     pub const fn closed() -> Self {
         Self(Dialog::closed())
@@ -38,7 +38,7 @@ where
 
 impl<K> Deref for LoadingDialog<K>
 where
-    K: LoadingKind,
+    K: PartialEq + Eq + Hash,
 {
     type Target = Dialog<LoadingPage<K>>;
 
@@ -49,7 +49,7 @@ where
 
 impl<K> Default for LoadingDialog<K>
 where
-    K: LoadingKind,
+    K: PartialEq + Eq + Hash,
 {
     fn default() -> Self {
         Self(Dialog::default())
