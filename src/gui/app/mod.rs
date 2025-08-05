@@ -186,26 +186,13 @@ impl OpenMediaTracker {
                 let new_media_index = self.media_list.insert(media);
                 return Ok(self.change_media_screen(new_media_index));
             }
-            MainPageMsg::MenuButton(entity) => {
-                let Screens::Main(screen) = &self.screen else {
-                    return Ok(Task::none());
-                };
-                let Some(selected_media_name) = screen.selected(entity) else {
-                    return Ok(Task::none());
-                };
-                let selected_media_id = self
-                    .media_list
-                    .iter()
-                    .enumerate()
-                    .find(|(_id, media)| media.name() == selected_media_name)
-                    .map(|(id, _media)| id);
-                if let Some(id) = selected_media_id {
-                    return Ok(self.change_media_screen(id));
-                }
-            }
-            MainPageMsg::SortButton | MainPageMsg::SearchBarChanged(_) => {
+            MainPageMsg::SortButton
+            | MainPageMsg::SearchBarChanged(_)
+            | MainPageMsg::MenuButton(_) => {
                 if let Screens::Main(screen) = &mut self.screen {
-                    screen.update(message, &mut self.media_list);
+                    return Ok(screen
+                        .update(message, &mut self.media_list)
+                        .map(Action::App));
                 }
             }
         }
@@ -243,6 +230,17 @@ impl OpenMediaTracker {
                 }
             }
             Msg::Loading => {}
+            Msg::SelectMedia(media_name) => {
+                let selected_media_id = self
+                    .media_list
+                    .iter()
+                    .enumerate()
+                    .find(|(_id, media)| media.name() == media_name)
+                    .map(|(id, _media)| id);
+                if let Some(id) = selected_media_id {
+                    return MaybeError::success(self.change_media_screen(id));
+                }
+            }
         }
 
         MaybeError {

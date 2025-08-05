@@ -18,6 +18,7 @@ pub enum Msg {
     ConfirmScreen(ConfirmPageMsg),
     ErrorScreen(ErrorPageMsg),
     MediaLoaded(MaybeError<MediaList, ErrorKind>),
+    SelectMedia(String),
     Loading,
 }
 

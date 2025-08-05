@@ -7,13 +7,13 @@
 use cosmic::iced::{Alignment, Length};
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{Space, button, container, scrollable, segmented_button};
-use cosmic::{Element, theme};
+use cosmic::{Element, Task, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
-use crate::gui;
 use crate::gui::Page;
 use crate::gui::utils::search_bar;
+use crate::gui::{self, app};
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
@@ -55,7 +55,7 @@ impl MainPage {
         self.media_list_seg_button = Self::build(media_list);
     }
 
-    pub fn update(&mut self, message: Msg, media_list: &mut [MediaHandler]) {
+    pub fn update(&mut self, message: Msg, media_list: &mut [MediaHandler]) -> Task<app::Msg> {
         match message {
             Msg::SortButton => {
                 if let Some(sorting) = &mut self.sorting {
@@ -97,12 +97,15 @@ impl MainPage {
                 }
                 self.media_list_seg_button = builder.build();
             }
-            _ => {}
+            Msg::AddMedia => todo!(),
+            Msg::MenuButton(entity) => {
+                let Some(selected_media_name) = self.media_list_seg_button.text(entity) else {
+                    return Task::none();
+                };
+                return Task::done(app::Msg::SelectMedia(selected_media_name.to_owned()));
+            }
         }
-    }
-
-    pub fn selected(&self, entity: segmented_button::Entity) -> Option<&str> {
-        self.media_list_seg_button.text(entity)
+        Task::none()
     }
 
     fn build(media_list: &[MediaHandler]) -> SegButtonModel {
