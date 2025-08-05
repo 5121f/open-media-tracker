@@ -17,9 +17,3 @@ where
         }
     }
 }
-
-impl<T, E> MaybeError<T, E> {
-    pub const fn success(value: T) -> Self {
-        Self { value, error: None }
-    }
-}

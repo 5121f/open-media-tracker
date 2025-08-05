@@ -19,7 +19,7 @@ use crate::gui::page::{
     ConfirmDlg, ConfirmPageMsg, ErrorPage, ErrorPageMsg, MainPage, MainPageMsg, MediaEditPageMsg,
 };
 use crate::gui::{Dialog, LoadingDialog, Page};
-use crate::model::{Config, Error, ErrorKind, MaybeError, MediaHandler, MediaList, Placeholder};
+use crate::model::{Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder};
 use crate::utils;
 use kinds::{ConfirmKind, LoadingKind};
 pub use message::Msg;
@@ -98,11 +98,11 @@ impl Application for OpenMediaTracker {
     }
 
     fn update(&mut self, message: Self::Message) -> Task<Self::Message> {
-        let res = self.update2(message);
-        if let Some(error) = res.error {
-            self.error_dialog(error);
+        match self.update2(message) {
+            Ok(task) => return task,
+            Err(err) => self.error_dialog(err),
         }
-        res.value
+        Task::none()
     }
 }
 
@@ -197,31 +197,22 @@ impl OpenMediaTracker {
         Ok(Task::none())
     }
 
-    fn update2(&mut self, message: Msg) -> MaybeError<Task<Msg>, Error> {
-        let mut error = None;
-
+    fn update2(&mut self, message: Msg) -> Result<Task<Msg>, Error> {
         match message {
-            Msg::MainScreen(message) => match self.main_screen_update(message) {
-                Ok(task) => return MaybeError::success(task),
-                Err(err) => error = Some(err.into()),
-            },
-            Msg::MediaEditScreen(message) => match self.media_edit_screen_update(message) {
-                Ok(task) => return MaybeError::success(task),
-                Err(err) => error = Some(err.into()),
-            },
+            Msg::MainScreen(message) => return Ok(self.main_screen_update(message)?),
+            Msg::MediaEditScreen(message) => return Ok(self.media_edit_screen_update(message)?),
             Msg::ErrorScreen(ErrorPageMsg::Ok { fatal }) => {
                 if fatal {
-                    return MaybeError::success(close_app());
+                    return Ok(close_app());
                 }
                 self.error.close();
             }
-            Msg::ConfirmScreen(message) => match self.confirm_screen_update(&message) {
-                Ok(()) => {}
-                Err(err) => error = Some(err.into()),
-            },
+            Msg::ConfirmScreen(message) => self.confirm_screen_update(&message)?,
             Msg::MediaLoaded(res) => {
                 self.media_list = res.value;
-                error = res.error.map(Into::into);
+                if let Some(err) = res.error {
+                    self.error_dialog(err.into());
+                }
                 self.loading.complete(&LoadingKind::ReadMedia);
                 if let Screens::Main(screen) = &mut self.screen {
                     screen.update_media(&self.media_list);
@@ -236,15 +227,11 @@ impl OpenMediaTracker {
                     .find(|(_id, media)| media.name() == media_name)
                     .map(|(id, _media)| id);
                 if let Some(id) = selected_media_id {
-                    return MaybeError::success(self.change_media_screen(id));
+                    return Ok(self.change_media_screen(id));
                 }
             }
         }
-
-        MaybeError {
-            value: Task::none(),
-            error,
-        }
+        Ok(Task::none())
     }
 }
 
