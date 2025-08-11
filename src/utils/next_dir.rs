@@ -30,6 +30,6 @@ pub async fn next_dir(path: impl AsRef<Path>) -> Result<PathBuf> {
     if next_chapter_index >= paths.len() {
         return Err(ErrorKind::find_next_chapter(path));
     }
-    let next_dir = paths.into_iter().take(next_chapter_index + 1).collect();
+    let next_dir = paths[next_chapter_index + 1].clone();
     Ok(next_dir)
 }
