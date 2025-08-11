@@ -5,11 +5,13 @@
  */
 
 use std::hash::Hash;
-use std::ops::Deref;
+
+use derive_more::Deref;
 
 use crate::gui::Dialog;
 use crate::gui::page::LoadingPage;
 
+#[derive(Deref, Default)]
 pub struct LoadingDialog<K: PartialEq + Eq + Hash>(Dialog<LoadingPage<K>>);
 
 impl<K> LoadingDialog<K>
@@ -33,25 +35,5 @@ where
         if queue.completed() {
             self.0.close();
         }
-    }
-}
-
-impl<K> Deref for LoadingDialog<K>
-where
-    K: PartialEq + Eq + Hash,
-{
-    type Target = Dialog<LoadingPage<K>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<K> Default for LoadingDialog<K>
-where
-    K: PartialEq + Eq + Hash,
-{
-    fn default() -> Self {
-        Self(Dialog::default())
     }
 }

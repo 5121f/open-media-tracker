@@ -4,11 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::ops::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut};
 
 use crate::gui::dialog::HaveKind;
 use crate::gui::{Dialog, Page};
 
+#[derive(Deref, DerefMut)]
 pub struct DialogWithKind<S>(Dialog<S>)
 where
     S: Page + HaveKind;
@@ -66,25 +67,5 @@ where
     fn from(value: S) -> Self {
         let dialog: Dialog<_> = value.into();
         dialog.into()
-    }
-}
-
-impl<S> Deref for DialogWithKind<S>
-where
-    S: Page + HaveKind,
-{
-    type Target = Dialog<S>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<S> DerefMut for DialogWithKind<S>
-where
-    S: Page + HaveKind,
-{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
     }
 }

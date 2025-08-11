@@ -7,15 +7,15 @@
 mod dialog_with_kind;
 mod have_kind;
 
+use derive_more::{Deref, DerefMut};
 pub use dialog_with_kind::DialogWithKind;
 pub use have_kind::HaveKind;
-
-use std::ops::{Deref, DerefMut};
 
 use cosmic::Element;
 
 use crate::gui::Page;
 
+#[derive(Deref, DerefMut)]
 pub struct Dialog<T>(Option<T>);
 
 impl<T> Dialog<T> {
@@ -55,20 +55,6 @@ impl<T: Page> Dialog<T> {
 impl<T: HaveKind> Dialog<T> {
     pub fn kind(&self) -> Option<&T::Kind> {
         self.0.as_ref().map(T::kind)
-    }
-}
-
-impl<T> Deref for Dialog<T> {
-    type Target = Option<T>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<T> DerefMut for Dialog<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
     }
 }
 
