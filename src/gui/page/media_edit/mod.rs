@@ -7,7 +7,7 @@
 mod kind;
 mod message;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use cosmic::dialog::file_chooser;
@@ -24,7 +24,7 @@ use derive_more::From;
 use crate::gui;
 use crate::gui::page::{ConfirmDlg, ConfirmPageMsg, WarningDlg, WarningPageMsg};
 use crate::gui::utils::signed_text_input;
-use crate::model::{Episode, ErrorKind, LoadedData, MediaHandler, MediaList, Result, UserPath};
+use crate::model::{Episode, ErrorKind, LoadedData, MediaHandler, MediaList, Result};
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
@@ -112,7 +112,7 @@ impl MediaEditPage {
         layout.into()
     }
 
-    fn edit_view<'a>(&'a self, chapter_path: &'a str) -> Element<'a, Msg> {
+    fn edit_view<'a>(&'a self, chapter_path: &'a Path) -> Element<'a, Msg> {
         let spacing = theme::spacing();
 
         container(
@@ -136,7 +136,11 @@ impl MediaEditPage {
                 .align_y(Alignment::Center),
                 divider::horizontal::default(),
                 row![
-                    signed_text_input("Chapter path", chapter_path, Msg::ChapterPathChanged),
+                    signed_text_input(
+                        "Chapter path",
+                        chapter_path.to_string_lossy(),
+                        Msg::ChapterPathChanged
+                    ),
                     tooltip(
                         button::standard("...")
                             .height(30)
@@ -151,7 +155,8 @@ impl MediaEditPage {
                         .height(30)
                         .tooltip("Open folder")
                         .on_press_maybe(
-                            (!chapter_path.is_empty()).then(|| Msg::OpenChapterDirectory)
+                            (!chapter_path.as_os_str().is_empty())
+                                .then(|| Msg::OpenChapterDirectory)
                         ),
                 ]
                 .align_y(Alignment::Center)
@@ -190,7 +195,7 @@ impl MediaEditPage {
                 return self.set_episode(media_list, value);
             }
             Msg::ChapterPathChanged(value) => {
-                return self.set_chapter_path(media_list, UserPath::from(value));
+                return self.set_chapter_path(media_list, value);
             }
             Msg::ConfirmScreen(message) => return self.confirm_screen_update(media_list, &message),
             Msg::ChapterPathSelect => {
@@ -214,7 +219,7 @@ impl MediaEditPage {
             }
             Msg::ChapterPathSelected(url) => {
                 if let Ok(path) = url.to_file_path() {
-                    return self.set_chapter_path(media_list, UserPath::userify(path));
+                    return self.set_chapter_path(media_list, path);
                 }
                 self.warning(WarningKind::WrongChapterPath);
             }
@@ -238,7 +243,12 @@ impl MediaEditPage {
     }
 
     fn watch_sign(&self, media_list: &[MediaHandler]) -> Option<String> {
-        if self.editable_media(media_list).chapter_path().is_empty() {
+        if self
+            .editable_media(media_list)
+            .chapter_path()
+            .as_os_str()
+            .is_empty()
+        {
             return None;
         }
         if matches!(self.episodes.0, LoadedData::Loading) {
@@ -278,7 +288,7 @@ impl MediaEditPage {
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => {
                 self.confirm.close();
-                self.set_chapter_path(media_lost, UserPath::userify(path))
+                self.set_chapter_path(media_lost, path)
             }
             ConfirmKind::EpisodesOverflow { .. } => {
                 self.confirm.close();
@@ -309,7 +319,7 @@ impl MediaEditPage {
     fn set_chapter_path(
         &mut self,
         media_list: &mut [MediaHandler],
-        chapter_path: UserPath,
+        chapter_path: impl Into<PathBuf>,
     ) -> Result<Task<Msg>> {
         let editable_media = self.editable_media_mut(media_list);
         editable_media.set_chapter_path(chapter_path)?;
@@ -364,7 +374,7 @@ impl MediaEditPage {
         let next_chapter = media.chapter().saturating_add(1);
         self.chapter = next_chapter;
         media.set_chapter(next_chapter)?;
-        if media.chapter_path().is_empty() {
+        if media.chapter_path().as_os_str().is_empty() {
             return Ok(cosmic::task::none());
         }
         let next_chapter_path = media.next_chapter_path();

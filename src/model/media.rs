@@ -14,15 +14,15 @@ use serde::{Deserialize, Serialize};
 use crate::model::{ErrorKind, Result};
 use crate::utils;
 
+use super::Episode;
 use super::episode::read_episodes;
-use super::{Episode, UserPath};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Media {
     pub name: String,
     pub chapter: u8,
     pub episode: u8,
-    pub chapter_path: UserPath,
+    pub chapter_path: PathBuf,
     pub adding_date: DateTime<chrono::Local>,
     pub changing_date: DateTime<chrono::Local>,
 }
@@ -33,7 +33,7 @@ impl Media {
             name: name.into(),
             chapter: 1,
             episode: 1,
-            chapter_path: UserPath::default(),
+            chapter_path: PathBuf::new(),
             adding_date: chrono::Local::now(),
             changing_date: chrono::Local::now(),
         }
@@ -61,12 +61,11 @@ impl Media {
     }
 
     pub fn next_chapter_path<'a>(&self) -> impl Future<Output = Result<PathBuf>> + 'a {
-        let path = self.chapter_path.to_path_buf();
+        let path = self.chapter_path.clone();
         async { utils::next_dir(path).await }
     }
 
     pub fn episode_list<'a>(&self) -> impl Future<Output = Result<Vec<Episode>>> + 'a {
-        let path = self.chapter_path.to_path_buf();
-        read_episodes(path)
+        read_episodes(self.chapter_path.clone())
     }
 }

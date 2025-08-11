@@ -6,11 +6,13 @@
 
 use std::path::{Path, PathBuf};
 
+use expand_tilde::ExpandTilde;
+
 use crate::model::{ErrorKind, Result};
 use crate::utils;
 
 pub async fn next_dir(path: impl Into<PathBuf>) -> Result<PathBuf> {
-    let path: PathBuf = path.into();
+    let path = path.into().expand_tilde_owned()?;
 
     let parent = path.parent().ok_or_else(|| ErrorKind::find_parent(&path))?;
     let mut paths = utils::read_dir_with_filter(parent, Path::is_dir).await?;

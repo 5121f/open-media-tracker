@@ -13,7 +13,11 @@ use cosmic::widget::{Row, SpinButton, TextInput, container, icon, text, text_inp
 
 use crate::gui;
 
-pub fn signed_text_input<'a, M, F>(sign: &'a str, value: &'a str, on_input: F) -> Row<'a, M>
+pub fn signed_text_input<'a, M, F>(
+    sign: &'a str,
+    value: impl Into<Cow<'a, str>>,
+    on_input: F,
+) -> Row<'a, M>
 where
     M: Clone + 'static,
     F: Fn(String) -> M + 'a,

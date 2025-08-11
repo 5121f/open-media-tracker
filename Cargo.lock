@@ -1534,6 +1534,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "expand-tilde"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af42bffb99c712d4a07c17215b28e22f448b02e9d1481a8a5e05ebd837737f0c"
+dependencies = [
+ "home",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "fast-srgb8"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3462,6 +3472,7 @@ dependencies = [
  "derive_more",
  "env_logger",
  "etcetera",
+ "expand-tilde",
  "fs-err",
  "fuzzy-matcher",
  "libcosmic",

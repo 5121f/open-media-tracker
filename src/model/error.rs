@@ -67,6 +67,8 @@ pub enum ErrorKind {
     OpenDialog { source: Arc<file_chooser::Error> },
     #[error("{path}: Falied to find parent directory")]
     FindParent { path: PathBuf },
+    #[error("Failed to expand tilde {0}")]
+    PathTildeExpand(Arc<expand_tilde::Error>),
 }
 
 impl ErrorKind {
@@ -107,6 +109,12 @@ impl ErrorKind {
 impl From<io::Error> for ErrorKind {
     fn from(value: io::Error) -> Self {
         Self::Io(Arc::new(value))
+    }
+}
+
+impl From<expand_tilde::Error> for ErrorKind {
+    fn from(value: expand_tilde::Error) -> Self {
+        Self::PathTildeExpand(value.into())
     }
 }
 
