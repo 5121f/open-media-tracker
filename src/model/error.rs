@@ -92,8 +92,7 @@ impl ErrorKind {
         Self::DataDir { path: path.into() }
     }
 
-    pub fn open_dialog(source: impl Into<Arc<file_chooser::Error>>) -> Self {
-        let source = source.into();
+    pub fn open_dialog(source: Arc<file_chooser::Error>) -> Self {
         Self::OpenDialog { source }
     }
 
