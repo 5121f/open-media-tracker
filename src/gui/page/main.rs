@@ -127,13 +127,9 @@ impl Page for MainPage {
             container(row![
                 container(
                     match &self.sorting {
-                        Some(sorting) =>
-                            if sorting.reverse {
-                                button::icon(gui::icon::sort_descending())
-                            } else {
-                                button::icon(gui::icon::sort_ascending())
-                            },
-                        None => button::icon(gui::icon::sort_ascending()),
+                        Some(sorting) if sorting.reverse =>
+                            button::icon(gui::icon::sort_descending()),
+                        Some(_) | None => button::icon(gui::icon::sort_ascending()),
                     }
                     .on_press(Msg::SortButton)
                 )
