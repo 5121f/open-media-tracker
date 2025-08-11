@@ -210,7 +210,7 @@ impl MediaEditPage {
             }
             Msg::Warning(WarningPageMsg::Close) => self.warning.close(),
             Msg::OpenChapterDirectory => {
-                let chapter_path = self.editable_media(media_list).chapter_path().to_path_buf();
+                let chapter_path = self.editable_media(media_list).chapter_path();
                 if !chapter_path.is_dir() {
                     self.warning(WarningKind::WrongChapterPath);
                     return Ok(Task::none());
