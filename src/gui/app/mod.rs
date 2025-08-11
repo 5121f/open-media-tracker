@@ -16,11 +16,10 @@ use cosmic::widget::Popover;
 use cosmic::{Action, Application, Core, Element};
 
 use crate::gui::page::{
-    ConfirmDlg, ConfirmPageMsg, ErrorPage, ErrorPageMsg, MainPage, MainPageMsg, MediaEditPageMsg,
+    ConfirmDlg, ConfirmPageMsg, ErrorPage, ErrorPageMsg, MainPage, MediaEditPageMsg,
 };
 use crate::gui::{Dialog, LoadingDialog, Page};
 use crate::model::{Config, Error, ErrorKind, MediaHandler, MediaList, Placeholder};
-use crate::utils;
 use kinds::{ConfirmKind, LoadingKind};
 pub use message::Msg;
 use screens::Screens;
@@ -165,7 +164,6 @@ impl OpenMediaTracker {
                 self.confirm_dialog(ConfirmKind::DeleteMedia { id, name });
             }
             MediaEditPageMsg::Back => self.main_screen(),
-            MediaEditPageMsg::Watch { path } => utils::open(path)?,
             _ => {
                 if let Screens::MediaChange(dialog) = &mut self.screen {
                     let task = dialog.update(&mut self.media_list, message)?;
@@ -176,30 +174,15 @@ impl OpenMediaTracker {
         Ok(Task::none())
     }
 
-    fn main_screen_update(&mut self, message: MainPageMsg) -> Result<Task<Msg>, ErrorKind> {
+    fn update2(&mut self, message: Msg) -> Result<Task<Msg>, Error> {
         match message {
-            MainPageMsg::AddMedia => {
-                let config = self.config.clone();
-                let media = MediaHandler::with_default_name(config)?;
-                let new_media_index = self.media_list.insert(media);
-                return Ok(self.change_media_screen(new_media_index));
-            }
-            MainPageMsg::SortButton
-            | MainPageMsg::SearchBarChanged(_)
-            | MainPageMsg::MenuButton(_) => {
+            Msg::MainScreen(message) => {
                 if let Screens::Main(screen) = &mut self.screen {
                     return Ok(screen
                         .update(message, &mut self.media_list)
                         .map(Action::App));
                 }
             }
-        }
-        Ok(Task::none())
-    }
-
-    fn update2(&mut self, message: Msg) -> Result<Task<Msg>, Error> {
-        match message {
-            Msg::MainScreen(message) => return Ok(self.main_screen_update(message)?),
             Msg::MediaEditScreen(message) => return Ok(self.media_edit_screen_update(message)?),
             Msg::ErrorScreen(ErrorPageMsg::Ok { fatal }) => {
                 if fatal {
@@ -229,6 +212,12 @@ impl OpenMediaTracker {
                 if let Some(id) = selected_media_id {
                     return Ok(self.change_media_screen(id));
                 }
+            }
+            Msg::CreateMedia => {
+                let config = self.config.clone();
+                let media = MediaHandler::with_default_name(config)?;
+                let new_media_index = self.media_list.insert(media);
+                return Ok(self.change_media_screen(new_media_index));
             }
         }
         Ok(Task::none())

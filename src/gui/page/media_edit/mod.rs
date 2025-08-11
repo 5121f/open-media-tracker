@@ -241,6 +241,7 @@ impl MediaEditPage {
                 };
                 self.confirm_episode_overflow(episodes_count);
             }
+            Msg::Watch { path } => utils::open(path)?,
             _ => {}
         }
         Ok(Task::none())

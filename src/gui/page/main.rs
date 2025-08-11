@@ -97,7 +97,7 @@ impl MainPage {
                 }
                 self.media_list_seg_button = builder.build();
             }
-            Msg::AddMedia => todo!(),
+            Msg::AddMedia => return Task::done(app::Msg::CreateMedia),
             Msg::MenuButton(entity) => {
                 let Some(selected_media_name) = self.media_list_seg_button.text(entity) else {
                     return Task::none();
