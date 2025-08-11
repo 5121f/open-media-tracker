@@ -151,7 +151,8 @@ impl Page for MainPage {
                     .on_activate(Msg::MenuButton)
                     .button_padding([spacing.space_s, 0, 0, spacing.space_s])
             )
-            .spacing(spacing.space_xxs),
+            .spacing(spacing.space_xxs)
+            .height(Length::Fill),
         ]
         .spacing(spacing.space_xs)
         .padding(spacing.space_xxxs)
