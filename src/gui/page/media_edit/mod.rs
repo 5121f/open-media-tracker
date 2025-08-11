@@ -20,6 +20,7 @@ use cosmic::widget::{
 };
 use cosmic::{Element, Task, font, style, theme};
 use derive_more::From;
+use expand_tilde::ExpandTilde;
 
 use crate::gui;
 use crate::gui::page::{ConfirmDlg, ConfirmPageMsg, WarningDlg, WarningPageMsg};
@@ -210,12 +211,15 @@ impl MediaEditPage {
             }
             Msg::Warning(WarningPageMsg::Close) => self.warning.close(),
             Msg::OpenChapterDirectory => {
-                let chapter_path = self.editable_media(media_list).chapter_path();
+                let chapter_path = self
+                    .editable_media(media_list)
+                    .chapter_path()
+                    .expand_tilde()?;
                 if !chapter_path.is_dir() {
                     self.warning(WarningKind::WrongChapterPath);
                     return Ok(Task::none());
                 }
-                utils::open(chapter_path)?;
+                utils::open(&*chapter_path)?;
             }
             Msg::ChapterPathSelected(url) => {
                 if let Ok(path) = url.to_file_path() {
