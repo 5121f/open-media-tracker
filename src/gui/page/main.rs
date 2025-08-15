@@ -11,9 +11,8 @@ use cosmic::{Element, Task, theme};
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 
-use crate::gui::Page;
 use crate::gui::utils::search_bar;
-use crate::gui::{self, app};
+use crate::gui::{self, Page, app};
 use crate::model::MediaHandler;
 
 #[derive(Debug, Clone)]
