@@ -69,7 +69,7 @@ impl MediaEditPage {
                     .on_press(Msg::Back)
             )
             .width(Length::Fill),
-            text::heading(media.name()),
+            text::title4(media.name()),
             container(button::destructive("Delete").on_press(Msg::Delete(self.editable_media_id)))
                 .width(Length::Fill)
                 .align_x(Alignment::End),
