@@ -79,12 +79,11 @@ impl MainPage {
                 self.search_bar = value;
 
                 let matcher = SkimMatcherV2::default();
-                let mut search_result: Vec<(String, i64)> = media_list
+                let mut search_result: Vec<(&str, i64)> = media_list
                     .iter()
                     .map(MediaHandler::name)
-                    .map(ToOwned::to_owned)
                     .filter_map(|name| {
-                        let scope = matcher.fuzzy_match(&name, &self.search_bar);
+                        let scope = matcher.fuzzy_match(name, &self.search_bar);
                         scope.map(|scope| (name, scope))
                     })
                     .collect();
@@ -94,7 +93,7 @@ impl MainPage {
 
                 let mut builder = SegButtonModel::builder();
                 for (media_name, _scope) in search_result {
-                    builder = builder.insert(|b| b.text(media_name.clone()));
+                    builder = builder.insert(move |b| b.text(media_name.to_owned()));
                 }
                 self.media_list_seg_button = builder.build();
             }
