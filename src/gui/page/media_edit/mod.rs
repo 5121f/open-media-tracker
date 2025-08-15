@@ -145,7 +145,7 @@ impl MediaEditPage {
                     tooltip(
                         button::standard("...")
                             .height(30)
-                            .font_size(20)
+                            .font_size(18)
                             .font_weight(Weight::Bold)
                             .on_press(Msg::ChapterPathSelect),
                         text("Select folder"),
