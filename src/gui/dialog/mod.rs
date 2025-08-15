@@ -33,7 +33,7 @@ impl<T> Dialog<T> {
 }
 
 impl<T: Page> Dialog<T> {
-    pub fn view(&self) -> Option<Element<T::Message>> {
+    pub fn view(&self) -> Option<Element<'_, T::Message>> {
         self.0.as_ref().map(Page::view)
     }
 

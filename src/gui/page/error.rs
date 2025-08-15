@@ -30,7 +30,7 @@ pub struct ErrorPage {
 impl Page for ErrorPage {
     type Message = Msg;
 
-    fn view(&self) -> Element<Msg> {
+    fn view(&self) -> Element<'_, Msg> {
         dialog()
             .title(if self.error.fatal {
                 "Fatal error"

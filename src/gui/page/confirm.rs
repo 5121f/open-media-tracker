@@ -31,7 +31,7 @@ impl<T> ConfirmPage<T> {
 impl<T: Display> Page for ConfirmPage<T> {
     type Message = Msg;
 
-    fn view(&self) -> Element<Msg> {
+    fn view(&self) -> Element<'_, Msg> {
         Dialog::new()
             .title("Delte media")
             .body(self.kind.to_string())

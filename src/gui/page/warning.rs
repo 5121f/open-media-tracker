@@ -31,7 +31,7 @@ impl<T> WarningPage<T> {
 impl<T: Display> Page for WarningPage<T> {
     type Message = Msg;
 
-    fn view(&self) -> Element<Msg> {
+    fn view(&self) -> Element<'_, Msg> {
         let spacing = theme::spacing();
 
         container(

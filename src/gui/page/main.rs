@@ -120,7 +120,7 @@ impl MainPage {
 impl Page for MainPage {
     type Message = Msg;
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let spacing = theme::spacing();
 
         column![

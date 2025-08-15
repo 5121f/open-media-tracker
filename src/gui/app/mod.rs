@@ -77,7 +77,7 @@ impl Application for OpenMediaTracker {
         (omt, task)
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         if let Some(loading_screen) = self.loading.as_ref() {
             return loading_screen.view_into();
         }

@@ -24,7 +24,7 @@ where
 {
     type Message = Msg;
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         center(text("Loading..."))
             .width(Length::Fill)
             .height(Length::Fill)

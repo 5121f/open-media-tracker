@@ -23,7 +23,7 @@ use cosmic::Element;
 pub trait Page {
     type Message;
 
-    fn view(&self) -> Element<Self::Message>;
+    fn view(&self) -> Element<'_, Self::Message>;
 
     fn view_map<'a, B: 'a, F>(&'a self, f: F) -> Element<'a, B>
     where
