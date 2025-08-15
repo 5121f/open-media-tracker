@@ -8,7 +8,7 @@ use std::fmt::Display;
 
 use cosmic::iced_widget::{column, row};
 use cosmic::widget::{button, container, horizontal_space, text};
-use cosmic::{Element, font, style, theme};
+use cosmic::{Element, style, theme};
 
 use crate::gui::dialog::{DialogWithKind, HaveKind};
 use crate::gui::{self, Page};
@@ -37,7 +37,7 @@ impl<T: Display> Page for WarningPage<T> {
         container(
             column![
                 row![
-                    text::text("Warning").size(17).font(font::bold()),
+                    text::title4("Warning"),
                     horizontal_space(),
                     button::icon(gui::icon::close()).on_press(Msg::Close)
                 ],
