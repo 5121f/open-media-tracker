@@ -83,16 +83,17 @@ impl MainPage {
                     .iter()
                     .map(MediaHandler::name)
                     .map(ToOwned::to_owned)
-                    .filter_map(|n| {
-                        let scope = matcher.fuzzy_match(&n, &self.search_bar);
-                        scope.map(|s| (n, s))
+                    .filter_map(|name| {
+                        let scope = matcher.fuzzy_match(&name, &self.search_bar);
+                        scope.map(|scope| (name, scope))
                     })
                     .collect();
-                search_result.sort_by(|a, b| a.1.cmp(&b.1));
+                search_result
+                    .sort_by(|(_name_a, scope_a), (_name_b, scope_b)| scope_a.cmp(scope_b));
                 search_result.reverse();
 
                 let mut builder = SegButtonModel::builder();
-                for (media_name, _) in search_result {
+                for (media_name, _scope) in search_result {
                     builder = builder.insert(|b| b.text(media_name.clone()));
                 }
                 self.media_list_seg_button = builder.build();
