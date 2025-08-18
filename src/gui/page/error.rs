@@ -5,7 +5,7 @@
  */
 
 use cosmic::Element;
-use cosmic::widget::{button, dialog};
+use cosmic::widget::{button, dialog, icon};
 use derive_more::From;
 
 use crate::gui::Page;
@@ -32,6 +32,7 @@ impl Page for ErrorPage {
 
     fn view(&self) -> Element<'_, Msg> {
         dialog()
+            .icon(icon(crate::gui::icon::error()).size(30))
             .title(if self.error.fatal {
                 "Fatal error"
             } else {

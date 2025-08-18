@@ -68,3 +68,7 @@ pub fn close() -> icon::Handle {
 pub fn warning() -> icon::Handle {
     cosmic_icon!("dialog-warning-symbolic")
 }
+
+pub fn error() -> icon::Handle {
+    cosmic_icon!("dialog-error-symbolic")
+}
