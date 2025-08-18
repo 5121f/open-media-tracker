@@ -40,7 +40,7 @@ impl<T: Display> Page for WarningPage<T> {
             button::icon(gui::icon::close()).on_press(Msg::Close)
         ];
         let body = column![header, text(self.kind.to_string())].spacing(spacing.space_s);
-        let icon = icon(crate::gui::icon::warning()).size(25);
+        let icon = icon(crate::gui::icon::warning()).size(30);
         let layout = row![icon, body].spacing(spacing.space_s);
 
         container(layout)
