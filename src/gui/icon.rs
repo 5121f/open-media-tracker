@@ -64,3 +64,7 @@ pub fn folder() -> icon::Handle {
 pub fn close() -> icon::Handle {
     cosmic_icon!("window-close-symbolic")
 }
+
+pub fn warning() -> icon::Handle {
+    cosmic_icon!("dialog-warning-symbolic")
+}
