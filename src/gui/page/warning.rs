@@ -34,24 +34,19 @@ impl<T: Display> Page for WarningPage<T> {
     fn view(&self) -> Element<'_, Msg> {
         let spacing = theme::spacing();
 
-        container(
-            row![
-                icon(crate::gui::icon::warning()).size(25),
-                column![
-                    row![
-                        text::title4("Warning"),
-                        horizontal_space(),
-                        button::icon(gui::icon::close()).on_press(Msg::Close)
-                    ],
-                    text(self.kind.to_string())
-                ]
-                .spacing(spacing.space_s),
-            ]
-            .spacing(spacing.space_s),
-        )
-        .class(style::Container::Dialog)
-        .padding(spacing.space_m)
-        .into()
+        let header = row![
+            text::title4("Warning"),
+            horizontal_space(),
+            button::icon(gui::icon::close()).on_press(Msg::Close)
+        ];
+        let body = column![header, text(self.kind.to_string())].spacing(spacing.space_s);
+        let icon = icon(crate::gui::icon::warning()).size(25);
+        let layout = row![icon, body].spacing(spacing.space_s);
+
+        container(layout)
+            .class(style::Container::Dialog)
+            .padding(spacing.space_m)
+            .into()
     }
 }
 
