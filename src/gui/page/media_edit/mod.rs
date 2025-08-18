@@ -25,7 +25,9 @@ use expand_tilde::ExpandTilde;
 use crate::gui;
 use crate::gui::page::{ConfirmDlg, ConfirmPageMsg, WarningDlg, WarningPageMsg};
 use crate::gui::utils::signed_text_input;
-use crate::model::{Episode, ErrorKind, LoadedData, MediaHandler, MediaList, Result};
+use crate::model::{
+    Episode, ErrorKind, LoadedData, MediaHandler, MediaList, MediaListRef, MediaListRefMut, Result,
+};
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
 pub use message::Msg;
@@ -41,7 +43,7 @@ pub struct MediaEditPage {
 }
 
 impl MediaEditPage {
-    pub fn new(media_list: &[MediaHandler], editable_media_id: usize) -> (Self, Task<Msg>) {
+    pub fn new(media_list: MediaListRef, editable_media_id: usize) -> (Self, Task<Msg>) {
         let editable_media = &media_list[editable_media_id];
         let task = load_episodes(editable_media);
         (
@@ -247,7 +249,7 @@ impl MediaEditPage {
         Ok(Task::none())
     }
 
-    fn watch_sign(&self, media_list: &[MediaHandler]) -> Option<String> {
+    fn watch_sign(&self, media_list: MediaListRef) -> Option<String> {
         if self
             .editable_media(media_list)
             .chapter_path()
@@ -271,7 +273,7 @@ impl MediaEditPage {
 
     fn confirm_screen_update(
         &mut self,
-        media_list: &mut [MediaHandler],
+        media_list: MediaListRefMut,
         message: &ConfirmPageMsg,
     ) -> Result<Task<Msg>> {
         match message {
@@ -287,7 +289,7 @@ impl MediaEditPage {
 
     fn confirm_kind_update(
         &mut self,
-        media_lost: &mut [MediaHandler],
+        media_lost: MediaListRefMut,
         kind: ConfirmKind,
     ) -> Result<Task<Msg>> {
         match kind {
@@ -312,18 +314,18 @@ impl MediaEditPage {
 
     fn episode(
         &self,
-        media_list: &[MediaHandler],
+        media_list: MediaListRef,
     ) -> Option<std::result::Result<&Episode, &ErrorKind>> {
         self.episodes.get(self.episode_id(media_list))
     }
 
-    const fn episode_id(&self, media_list: &[MediaHandler]) -> usize {
+    const fn episode_id(&self, media_list: MediaListRef) -> usize {
         (self.editable_media(media_list).episode() - 1) as usize
     }
 
     fn set_chapter_path(
         &mut self,
-        media_list: &mut [MediaHandler],
+        media_list: MediaListRefMut,
         chapter_path: impl Into<PathBuf>,
     ) -> Result<Task<Msg>> {
         let editable_media = self.editable_media_mut(media_list);
@@ -339,7 +341,7 @@ impl MediaEditPage {
         self.episodes.len().is_some_and(|ec| ec < value as usize)
     }
 
-    fn set_episode(&mut self, media_list: &mut [MediaHandler], value: u8) -> Result<Task<Msg>> {
+    fn set_episode(&mut self, media_list: MediaListRefMut, value: u8) -> Result<Task<Msg>> {
         let media = self.editable_media_mut(media_list);
 
         match self.episodes.len() {
@@ -361,13 +363,13 @@ impl MediaEditPage {
         Ok(Task::none())
     }
 
-    fn test_overflow(&self, media_list: &[MediaHandler]) -> Task<Msg> {
+    fn test_overflow(&self, media_list: MediaListRef) -> Task<Msg> {
         let media = self.editable_media(media_list);
         let future = media.episode_list();
         cosmic::task::future(async { Msg::CheckOverflow(future.await) })
     }
 
-    fn increase_chapter(&mut self, media_list: &mut [MediaHandler]) -> Result<Task<Msg>> {
+    fn increase_chapter(&mut self, media_list: MediaListRefMut) -> Result<Task<Msg>> {
         if self.chapter == 0 {
             self.chapter = 1;
             return Ok(cosmic::task::none());

@@ -10,7 +10,7 @@ use derive_more::derive::From;
 use crate::gui::Page;
 use crate::gui::app::Msg;
 use crate::gui::page::{ErrorPage, MainPage, MediaEditPage};
-use crate::model::{Error, MediaHandler, MediaList};
+use crate::model::{Error, MediaList, MediaListRef};
 
 #[derive(From)]
 pub enum Screens {
@@ -28,7 +28,7 @@ impl Screens {
         }
     }
 
-    pub fn change_media(media: &[MediaHandler], id: usize) -> (Self, Task<Msg>) {
+    pub fn change_media(media: MediaListRef, id: usize) -> (Self, Task<Msg>) {
         let (screen, task) = MediaEditPage::new(media, id);
         (Self::MediaChange(screen), task.map(Msg::MediaEditScreen))
     }

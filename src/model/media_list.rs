@@ -12,6 +12,9 @@ use crate::model::error::{ErrorKind, Result};
 use crate::model::{Config, MaybeError, MediaHandler};
 use crate::utils::read_dir;
 
+pub type MediaListRef<'a> = &'a [MediaHandler];
+pub type MediaListRefMut<'a> = &'a mut [MediaHandler];
+
 #[derive(Deref, DerefMut, Debug, Clone, From, Default)]
 pub struct MediaList(Vec<MediaHandler>);
 

@@ -13,7 +13,7 @@ use fuzzy_matcher::skim::SkimMatcherV2;
 
 use crate::gui::utils::search_bar;
 use crate::gui::{self, Page, app};
-use crate::model::MediaHandler;
+use crate::model::{MediaHandler, MediaListRef, MediaListRefMut};
 
 #[derive(Debug, Clone)]
 pub enum Msg {
@@ -42,7 +42,7 @@ pub struct MainPage {
 }
 
 impl MainPage {
-    pub fn new(media_list: &[MediaHandler]) -> Self {
+    pub fn new(media_list: MediaListRef) -> Self {
         Self {
             media_list_seg_button: Self::build(media_list),
             sorting: None,
@@ -50,11 +50,11 @@ impl MainPage {
         }
     }
 
-    pub fn update_media(&mut self, media_list: &[MediaHandler]) {
+    pub fn update_media(&mut self, media_list: MediaListRef) {
         self.media_list_seg_button = Self::build(media_list);
     }
 
-    pub fn update(&mut self, message: Msg, media_list: &mut [MediaHandler]) -> Task<app::Msg> {
+    pub fn update(&mut self, message: Msg, media_list: MediaListRefMut) -> Task<app::Msg> {
         match message {
             Msg::SortButton => {
                 if let Some(sorting) = &mut self.sorting {
@@ -107,7 +107,7 @@ impl MainPage {
         Task::none()
     }
 
-    fn build(media_list: &[MediaHandler]) -> SegButtonModel {
+    fn build(media_list: MediaListRef) -> SegButtonModel {
         let mut builder = SegButtonModel::builder();
         for media in media_list {
             builder = builder.insert(|b| b.text(media.name().to_owned()));

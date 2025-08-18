@@ -22,5 +22,5 @@ pub use loaded_data::LoadedData;
 pub use loading::LoadingQueue;
 pub use maybe_error::MaybeError;
 pub use media_handler::MediaHandler;
-pub use media_list::MediaList;
+pub use media_list::{MediaList, MediaListRef, MediaListRefMut};
 pub use placeholder::Placeholder;
