@@ -7,9 +7,9 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use cosmic::dialog::ashpd::url::Url;
 use cosmic::dialog::file_chooser;
 use derive_more::From;
+use url::Url;
 
 use crate::gui::page::{ConfirmPageMsg, WarningPageMsg};
 use crate::model::{Episode, Result};

@@ -21,6 +21,9 @@ log = "0.4.27"
 env_logger = "0.11.8"
 expand-tilde = "0.6.1"
 
+# this need for building on Windows
+url = "2.5.4"
+
 [dependencies.derive_more]
 version = "2.0.1"
 features = ["deref", "deref_mut", "display", "from"]
