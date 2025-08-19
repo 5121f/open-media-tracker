@@ -36,7 +36,10 @@ pub enum Msg {
     OpenDialogError(Arc<file_chooser::Error>),
     NextChapterPath(Result<PathBuf>),
     EpisodeListLoaded(Result<Vec<Episode>>),
-    CheckOverflow(Result<Vec<Episode>>),
+    CheckOverflow {
+        episode_list_read_res: Result<Vec<Episode>>,
+        if_not_then: Box<Msg>,
+    },
 }
 
 impl Msg {

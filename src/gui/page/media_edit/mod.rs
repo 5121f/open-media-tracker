@@ -230,11 +230,14 @@ impl MediaEditPage {
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
             Msg::EpisodeListLoaded(res) => self.episodes = Episodes(res.map(Arc::new).into()),
-            Msg::CheckOverflow(res) => {
-                let res = res.map(Arc::new);
+            Msg::CheckOverflow {
+                episode_list_read_res,
+                if_not_then,
+            } => {
+                let res = episode_list_read_res.map(Arc::new);
                 self.episodes = Episodes(res.into());
                 if !self.is_episode_overflow(self.episode) {
-                    return Ok(Task::none());
+                    return Ok(Task::done(*if_not_then));
                 }
                 let Some(episodes_count) = self.episodes.len() else {
                     return Ok(Task::none());
@@ -351,7 +354,7 @@ impl MediaEditPage {
             }
             Some(_) => {
                 if self.is_episode_overflow(value) {
-                    return Ok(self.test_overflow(media_list));
+                    return Ok(self.test_overflow(media_list, Msg::EpisodeChanged(value)));
                 }
             }
         }
@@ -359,10 +362,16 @@ impl MediaEditPage {
         Ok(Task::none())
     }
 
-    fn test_overflow(&self, media_list: MediaListRef) -> Task<Msg> {
+    fn test_overflow(&mut self, media_list: MediaListRef, if_not_then: Msg) -> Task<Msg> {
+        self.episodes = Episodes(LoadedData::Loading);
         let media = self.editable_media(media_list);
         let future = media.episode_list();
-        Task::future(async { Msg::CheckOverflow(future.await) })
+        Task::future(async {
+            Msg::CheckOverflow {
+                episode_list_read_res: future.await,
+                if_not_then: if_not_then.into(),
+            }
+        })
     }
 
     fn increase_chapter(&mut self, media_list: MediaListRefMut) -> Result<Task<Msg>> {
