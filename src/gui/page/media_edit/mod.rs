@@ -412,11 +412,7 @@ struct Episodes(LoadedData<Arc<Vec<Episode>>, ErrorKind>);
 
 impl Episodes {
     fn len(&self) -> Option<usize> {
-        if let LoadedData::Some(episodes) = &self.0 {
-            Some(episodes.len())
-        } else {
-            None
-        }
+        self.0.as_option().map(|episodes| episodes.len())
     }
 
     fn get(&self, id: usize) -> Option<std::result::Result<&Episode, &ErrorKind>> {

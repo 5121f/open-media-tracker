@@ -19,6 +19,13 @@ impl<T, E> LoadedData<T, E> {
             Self::Err(err) => Some(Err(err)),
         }
     }
+
+    pub fn as_option(&self) -> Option<&T> {
+        if let Self::Some(value) = self {
+            return Some(value);
+        }
+        None
+    }
 }
 
 impl<T, E> From<Result<T, E>> for LoadedData<T, E> {
