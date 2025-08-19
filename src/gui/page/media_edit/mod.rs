@@ -7,6 +7,7 @@
 mod kind;
 mod message;
 
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -246,7 +247,7 @@ impl MediaEditPage {
         Ok(Task::none())
     }
 
-    fn watch_sign(&self, media_list: MediaListRef) -> Option<String> {
+    fn watch_sign(&self, media_list: MediaListRef) -> Option<Cow<'_, str>> {
         if self
             .editable_media(media_list)
             .chapter_path()
@@ -256,14 +257,12 @@ impl MediaEditPage {
             return None;
         }
         if matches!(self.episodes.0, LoadedData::Loading) {
-            return Some(String::from("Loading..."));
+            return Some("Loading...".into());
         }
         let watch_sign = match self.episodes.get(self.episode_id(media_list))? {
             Ok(episode) => episode.name(),
-            Err(ErrorKind::Io(err)) => {
-                format!("Chapter path is incorrect: {err}")
-            }
-            Err(err) => format!("Chapter path is incorrect: {err}"),
+            Err(ErrorKind::Io(err)) => format!("Chapter path is incorrect: {err}").into(),
+            Err(err) => format!("Chapter path is incorrect: {err}").into(),
         };
         Some(watch_sign)
     }

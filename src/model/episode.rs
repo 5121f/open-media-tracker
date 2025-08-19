@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 
 use mime_guess::mime;
@@ -31,12 +32,8 @@ impl Episode {
         &self.path
     }
 
-    pub fn name(&self) -> String {
-        self.path
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string()
+    pub fn name(&self) -> Cow<'_, str> {
+        self.path.file_stem().unwrap_or_default().to_string_lossy()
     }
 }
 
