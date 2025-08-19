@@ -202,7 +202,7 @@ impl MediaEditPage {
             }
             Msg::ConfirmScreen(message) => return self.confirm_screen_update(media_list, &message),
             Msg::ChapterPathSelect => {
-                return Ok(cosmic::task::future(async {
+                return Ok(Task::future(async {
                     let dialog = file_chooser::open::Dialog::new().title("Select chapter path");
                     match dialog.open_folder().await {
                         Ok(responce) => Msg::ChapterPathSelected(responce.url().to_owned()),
@@ -366,13 +366,13 @@ impl MediaEditPage {
     fn test_overflow(&self, media_list: MediaListRef) -> Task<Msg> {
         let media = self.editable_media(media_list);
         let future = media.episode_list();
-        cosmic::task::future(async { Msg::CheckOverflow(future.await) })
+        Task::future(async { Msg::CheckOverflow(future.await) })
     }
 
     fn increase_chapter(&mut self, media_list: MediaListRefMut) -> Result<Task<Msg>> {
         if self.chapter == 0 {
             self.chapter = 1;
-            return Ok(cosmic::task::none());
+            return Ok(Task::none());
         }
 
         self.episode = 1;
@@ -382,10 +382,10 @@ impl MediaEditPage {
         self.chapter = next_chapter;
         media.set_chapter(next_chapter)?;
         if media.chapter_path().as_os_str().is_empty() {
-            return Ok(cosmic::task::none());
+            return Ok(Task::none());
         }
         let next_chapter_path = media.next_chapter_path();
-        Ok(cosmic::task::future(async {
+        Ok(Task::future(async {
             Msg::NextChapterPath(next_chapter_path.await)
         }))
     }
@@ -407,7 +407,7 @@ impl MediaEditPage {
 
 fn load_episodes(media: &MediaHandler) -> Task<Msg> {
     let future = media.episode_list();
-    cosmic::task::future(async { Msg::EpisodeListLoaded(future.await) })
+    Task::future(async { Msg::EpisodeListLoaded(future.await) })
 }
 
 #[derive(Debug, Clone, From)]
