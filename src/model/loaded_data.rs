@@ -12,7 +12,7 @@ pub enum LoadedData<T, E> {
 }
 
 impl<T, E> LoadedData<T, E> {
-    pub fn get(&self) -> Option<Result<&T, &E>> {
+    pub fn as_opt_res(&self) -> Option<Result<&T, &E>> {
         match self {
             Self::Loading => None,
             Self::Some(value) => Some(Ok(value)),

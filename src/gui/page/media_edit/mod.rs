@@ -416,8 +416,10 @@ impl Episodes {
     }
 
     fn get(&self, id: usize) -> Option<std::result::Result<&Episode, &ErrorKind>> {
-        self.0
-            .get()
-            .map(|res| res.and_then(|episodes| episodes.get(id).ok_or(&ErrorKind::EpisodeNotFound)))
+        let res = self
+            .0
+            .as_opt_res()?
+            .and_then(|episodes| episodes.get(id).ok_or(&ErrorKind::EpisodeNotFound));
+        Some(res)
     }
 }
