@@ -193,10 +193,7 @@ impl MediaEditPage {
                 self.chapter = value;
                 self.editable_media_mut(media_list).set_chapter(value)?;
             }
-            Msg::EpisodeChanged(value) => {
-                self.episode = value;
-                return self.set_episode(media_list, value);
-            }
+            Msg::EpisodeChanged(value) => return self.set_episode(media_list, value),
             Msg::ChapterPathChanged(value) => {
                 return self.set_chapter_path(media_list, value);
             }
