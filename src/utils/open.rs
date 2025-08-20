@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 pub fn open(path: impl AsRef<OsStr>) -> Result<(), OpenError> {
     let path = path.as_ref();
-    open::that(path).map_err(|source| OpenError::new(source, path))
+    open::that_detached(path).map_err(|source| OpenError::new(source, path))
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
