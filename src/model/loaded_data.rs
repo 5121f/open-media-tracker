@@ -26,6 +26,10 @@ impl<T, E> LoadedData<T, E> {
         }
         None
     }
+
+    pub fn is_loading(&self) -> bool {
+        matches!(self, LoadedData::Loading)
+    }
 }
 
 impl<T, E> From<Result<T, E>> for LoadedData<T, E> {

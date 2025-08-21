@@ -6,11 +6,11 @@
 
 use std::sync::Arc;
 
-use derive_more::From;
+use derive_more::{Deref, From};
 
 use crate::model::{Episode, ErrorKind, LoadedData};
 
-#[derive(Debug, Clone, From)]
+#[derive(Debug, Clone, From, Deref)]
 pub struct Episodes(pub LoadedData<Arc<Vec<Episode>>, ErrorKind>);
 
 impl Episodes {

@@ -259,7 +259,7 @@ impl MediaEditPage {
         {
             return None;
         }
-        if matches!(self.episodes.0, LoadedData::Loading) {
+        if self.episodes.is_loading() {
             return Some("Loading...".into());
         }
         let watch_sign = match self.episodes.get(self.episode_id(media_list))? {
