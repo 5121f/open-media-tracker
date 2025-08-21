@@ -20,14 +20,14 @@ use cosmic::widget::{
     Column, Space, button, container, divider, horizontal_space, popover, text, tooltip,
 };
 use cosmic::{Element, Task, font, style, theme};
-use derive_more::From;
 use expand_tilde::ExpandTilde;
 
 use crate::gui;
 use crate::gui::page::{ConfirmDlg, ConfirmPageMsg, WarningDlg, WarningPageMsg};
 use crate::gui::utils::signed_text_input;
 use crate::model::{
-    Episode, ErrorKind, LoadedData, MediaHandler, MediaList, MediaListRef, MediaListRefMut, Result,
+    Episode, Episodes, ErrorKind, LoadedData, MediaHandler, MediaList, MediaListRef,
+    MediaListRefMut, Result,
 };
 use crate::utils;
 use kind::{ConfirmKind, WarningKind};
@@ -413,21 +413,4 @@ impl MediaEditPage {
 fn load_episodes(media: &MediaHandler) -> Task<Msg> {
     let future = media.episode_list();
     Task::future(async { Msg::EpisodeListLoaded(future.await) })
-}
-
-#[derive(Debug, Clone, From)]
-struct Episodes(LoadedData<Arc<Vec<Episode>>, ErrorKind>);
-
-impl Episodes {
-    fn len(&self) -> Option<usize> {
-        self.0.as_option().map(|episodes| episodes.len())
-    }
-
-    fn get(&self, id: usize) -> Option<std::result::Result<&Episode, &ErrorKind>> {
-        let res = self
-            .0
-            .as_opt_res()?
-            .and_then(|episodes| episodes.get(id).ok_or(&ErrorKind::EpisodeNotFound));
-        Some(res)
-    }
 }

@@ -6,6 +6,7 @@
 
 mod config;
 mod episode;
+mod episodes;
 mod error;
 mod loaded_data;
 mod loading;
@@ -17,6 +18,7 @@ mod placeholder;
 
 pub use config::Config;
 pub use episode::Episode;
+pub use episodes::Episodes;
 pub use error::{Error, ErrorKind, Result};
 pub use loaded_data::LoadedData;
 pub use loading::LoadingQueue;
