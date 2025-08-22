@@ -275,30 +275,20 @@ impl MediaEditPage {
         message: &ConfirmPageMsg,
     ) -> Result<Task<Msg>> {
         match message {
-            ConfirmPageMsg::Confirm => {
-                if let Some(kind) = self.confirm.kind() {
-                    return self.confirm_kind_update(media_list, kind.clone());
-                }
-            }
+            ConfirmPageMsg::Confirm => return self.confirm_kind_update(media_list),
             ConfirmPageMsg::Cancel => self.confirm.close(),
         }
         Ok(Task::none())
     }
 
-    fn confirm_kind_update(
-        &mut self,
-        media_lost: MediaListRefMut,
-        kind: ConfirmKind,
-    ) -> Result<Task<Msg>> {
+    fn confirm_kind_update(&mut self, media_list: MediaListRefMut) -> Result<Task<Msg>> {
+        self.confirm.close();
+        let Some(kind) = self.confirm.kind().cloned() else {
+            return Ok(Task::none());
+        };
         match kind {
-            ConfirmKind::SwitchToNextChapter { path } => {
-                self.confirm.close();
-                self.set_chapter_path(media_lost, path)
-            }
-            ConfirmKind::EpisodesOverflow { .. } => {
-                self.confirm.close();
-                self.increase_chapter(media_lost)
-            }
+            ConfirmKind::SwitchToNextChapter { path } => self.set_chapter_path(media_list, path),
+            ConfirmKind::EpisodesOverflow { .. } => self.increase_chapter(media_list),
         }
     }
 
