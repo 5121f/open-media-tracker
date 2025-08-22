@@ -44,3 +44,6 @@ codegen-units = 1
 opt-level = "s"
 strip = "symbols"
 panic = "abort"
+
+[lints.clippy]
+pedantic = "warn"
