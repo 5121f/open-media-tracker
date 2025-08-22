@@ -132,17 +132,16 @@ impl OpenMediaTracker {
 
     fn confirm_screen_update(&mut self, message: &ConfirmPageMsg) -> Result<(), ErrorKind> {
         match message {
-            ConfirmPageMsg::Confirm => {
-                if let Some(kind) = self.confirm.kind() {
-                    self.confirm_kind_update(&kind.clone())?;
-                }
-            }
+            ConfirmPageMsg::Confirm => self.confirm_kind_update()?,
             ConfirmPageMsg::Cancel => self.confirm.close(),
         }
         Ok(())
     }
 
-    fn confirm_kind_update(&mut self, kind: &ConfirmKind) -> Result<(), ErrorKind> {
+    fn confirm_kind_update(&mut self) -> Result<(), ErrorKind> {
+        let Some(kind) = self.confirm.kind() else {
+            return Ok(());
+        };
         match kind {
             ConfirmKind::DeleteMedia { id, .. } => {
                 self.media_list.remove(*id)?;
