@@ -229,13 +229,12 @@ impl MediaEditPage {
             }
             Msg::OpenDialogError(err) => return Err(ErrorKind::open_dialog(err)),
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
-            Msg::EpisodeListLoaded(res) => self.episodes = Episodes(res.map(Arc::new).into()),
+            Msg::EpisodeListLoaded(res) => self.episodes = Episodes(res.into()),
             Msg::CheckOverflow {
                 episode_list_read_res,
                 if_not_then,
             } => {
-                let res = episode_list_read_res.map(Arc::new);
-                self.episodes = Episodes(res.into());
+                self.episodes = Episodes(episode_list_read_res.into());
                 if !self.is_episode_overflow(self.episode) {
                     return Ok(Task::done(*if_not_then));
                 }
@@ -368,7 +367,7 @@ impl MediaEditPage {
         let future = media.episode_list();
         Task::future(async {
             Msg::CheckOverflow {
-                episode_list_read_res: future.await,
+                episode_list_read_res: future.await.map(Arc::new),
                 if_not_then: if_not_then.into(),
             }
         })
@@ -412,5 +411,5 @@ impl MediaEditPage {
 
 fn load_episodes(media: &MediaHandler) -> Task<Msg> {
     let future = media.episode_list();
-    Task::future(async { Msg::EpisodeListLoaded(future.await) })
+    Task::future(async { Msg::EpisodeListLoaded(future.await.map(Arc::new)) })
 }

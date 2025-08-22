@@ -35,9 +35,9 @@ pub enum Msg {
     OpenDialogCanceled,
     OpenDialogError(Arc<file_chooser::Error>),
     NextChapterPath(Result<PathBuf>),
-    EpisodeListLoaded(Result<Vec<Episode>>),
+    EpisodeListLoaded(Result<Arc<Vec<Episode>>>),
     CheckOverflow {
-        episode_list_read_res: Result<Vec<Episode>>,
+        episode_list_read_res: Result<Arc<Vec<Episode>>>,
         if_not_then: Box<Msg>,
     },
 }
