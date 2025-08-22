@@ -12,7 +12,7 @@ pub enum LoadedData<T, E> {
 }
 
 impl<T, E> LoadedData<T, E> {
-    pub fn as_opt_res(&self) -> Option<Result<&T, &E>> {
+    pub const fn as_opt_res(&self) -> Option<Result<&T, &E>> {
         match self {
             Self::Loading => None,
             Self::Some(value) => Some(Ok(value)),
@@ -20,15 +20,15 @@ impl<T, E> LoadedData<T, E> {
         }
     }
 
-    pub fn as_option(&self) -> Option<&T> {
+    pub const fn as_option(&self) -> Option<&T> {
         if let Self::Some(value) = self {
             return Some(value);
         }
         None
     }
 
-    pub fn is_loading(&self) -> bool {
-        matches!(self, LoadedData::Loading)
+    pub const fn is_loading(&self) -> bool {
+        matches!(self, Self::Loading)
     }
 }
 

@@ -39,10 +39,10 @@ impl Media {
         }
     }
 
-    pub async fn read(path: impl AsRef<Path>) -> Result<Self> {
+    pub async fn read(path: &Path) -> Result<Self> {
         let file_content = fs_err::tokio::read_to_string(&path).await?;
         let media = serde_json::from_str(&file_content)
-            .map_err(|source| ErrorKind::deserialize(path.as_ref(), source))?;
+            .map_err(|source| ErrorKind::deserialize(path, source))?;
         Ok(media)
     }
 

@@ -313,7 +313,7 @@ impl MediaEditPage {
     }
 
     fn set_chapter_path(
-        &mut self,
+        &self,
         media_list: MediaListRefMut,
         chapter_path: impl Into<PathBuf>,
     ) -> Result<Task<Msg>> {

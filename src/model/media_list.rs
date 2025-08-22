@@ -38,7 +38,7 @@ impl MediaList {
         let mut error = None;
         let mut media_list = Vec::with_capacity(dir_content.len());
         for entry in dir_content {
-            match MediaHandler::read(entry, config.clone()).await {
+            match MediaHandler::read(&entry, config.clone()).await {
                 Ok(media) => media_list.push(media),
                 Err(err) => error = Some(err),
             }
