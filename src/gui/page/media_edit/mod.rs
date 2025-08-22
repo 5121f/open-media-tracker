@@ -231,11 +231,12 @@ impl MediaEditPage {
             Msg::NextChapterPath(path) => self.confirm_switch_to_next_chapter(path?),
             Msg::EpisodeListLoaded(res) => self.episodes = Episodes(res.into()),
             Msg::CheckOverflow {
+                new_value,
                 episode_list_read_res,
                 if_not_then,
             } => {
                 self.episodes = Episodes(episode_list_read_res.into());
-                if !self.is_episode_overflow(self.episode) {
+                if !self.is_episode_overflow(new_value) {
                     return Ok(Task::done(*if_not_then));
                 }
                 let Some(episodes_count) = self.episodes.len() else {
@@ -282,10 +283,10 @@ impl MediaEditPage {
     }
 
     fn confirm_kind_update(&mut self, media_list: MediaListRefMut) -> Result<Task<Msg>> {
-        self.confirm.close();
         let Some(kind) = self.confirm.kind().cloned() else {
             return Ok(Task::none());
         };
+        self.confirm.close();
         match kind {
             ConfirmKind::SwitchToNextChapter { path } => self.set_chapter_path(media_list, path),
             ConfirmKind::EpisodesOverflow { .. } => self.increase_chapter(media_list),
@@ -343,7 +344,7 @@ impl MediaEditPage {
             }
             Some(_) => {
                 if self.is_episode_overflow(value) {
-                    return Ok(self.test_overflow(media_list, Msg::EpisodeChanged(value)));
+                    return Ok(self.test_overflow(value, media_list, Msg::EpisodeChanged(value)));
                 }
             }
         }
@@ -351,12 +352,18 @@ impl MediaEditPage {
         Ok(Task::none())
     }
 
-    fn test_overflow(&mut self, media_list: MediaListRef, if_not_then: Msg) -> Task<Msg> {
+    fn test_overflow(
+        &mut self,
+        new_value: u8,
+        media_list: MediaListRef,
+        if_not_then: Msg,
+    ) -> Task<Msg> {
         self.episodes = Episodes(LoadedData::Loading);
         let media = self.editable_media(media_list);
         let future = media.episode_list();
-        Task::future(async {
+        Task::future(async move {
             Msg::CheckOverflow {
+                new_value,
                 episode_list_read_res: future.await.map(Arc::new),
                 if_not_then: if_not_then.into(),
             }

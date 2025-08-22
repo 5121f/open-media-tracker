@@ -37,6 +37,7 @@ pub enum Msg {
     NextChapterPath(Result<PathBuf>),
     EpisodeListLoaded(Result<Arc<Vec<Episode>>>),
     CheckOverflow {
+        new_value: u8,
         episode_list_read_res: Result<Arc<Vec<Episode>>>,
         if_not_then: Box<Msg>,
     },
